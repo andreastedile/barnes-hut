@@ -4,6 +4,7 @@
 #include <nlohmann/json.hpp>
 using json = nlohmann::json;
 #include <array>
+#include <memory>
 #include <ostream>
 #include <variant>
 
@@ -14,7 +15,7 @@ namespace bh {
 class Node;
 
 using Empty = std::monostate;
-using Subquadrants = std::array<Node *, 4>;
+using Subquadrants = std::array<std::unique_ptr<Node>, 4>;
 using Data = std::variant<Empty, Body, Subquadrants>;
 
 class Node {

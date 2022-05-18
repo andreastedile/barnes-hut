@@ -30,7 +30,7 @@ std::ostream &operator<<(std::ostream &os, const Body &body) {
 std::ostream &operator<<(std::ostream &os, const Subquadrants &subquadrants) {
   os << "Subquadrants[ ";
   for (const auto &subquadrant : subquadrants) {
-    os << subquadrant << " ";
+    os << subquadrant.get() << " ";
   }
   os << " ]";
   return os;
@@ -110,7 +110,9 @@ void Node::insert(const Body &new_body) {
           break;
       }
 
-      m_data = Subquadrants{nw, ne, se, sw};
+      m_data =
+          Subquadrants{std::unique_ptr<Node>(nw), std::unique_ptr<Node>(ne),
+                       std::unique_ptr<Node>(se), std::unique_ptr<Node>(sw)};
     }
 
     update_center_of_mass();
@@ -172,7 +174,7 @@ void Node::update_center_of_mass() {
     // new total mass of the quadrant
     float total_mass = 0;
     // weighted average over the sub-quadrants centers of total_mass
-    for (auto subquadrant : subquadrants) {
+    for (const auto &subquadrant : subquadrants) {
       center_of_mass +=
           subquadrant->m_center_of_mass * subquadrant->m_total_mass;
       total_mass += subquadrant->m_total_mass;
