@@ -1,0 +1,133 @@
+@import url('https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap');
+
+body {
+    background-color: #e8f1fa;
+    font-family: 'Lato', sans-serif;
+    margin: 0;
+}
+
+div#home_wrapper {
+    margin: 100px auto 0 auto;
+    width: 750px;
+}
+
+h1#main_title {
+    text-align: center;
+    font-size: 40px;
+}
+
+p#description {
+    text-align: justify;
+    font-size: 20px;
+    font-weight: 300;
+}
+
+p#instruction {
+    color: #3d3d3d;
+    font-weight: 300;
+    text-align: center;
+    font-size: 18px;
+    margin: 30px auto 15px auto;
+}
+
+button {
+    display: block;
+}
+
+hr {
+    width: 460px;
+    margin: 0 auto 20px auto;
+    color: grey;
+}
+
+a.homepage_link {
+    display: block;
+    width: 330px;
+    font-size: 25px;
+    margin: 15px auto;
+    padding: 20px 0;
+    text-align: center;
+    border-radius: 10px;
+    color: #f4f8fb;
+    background-color: #2a323a;
+    text-decoration: none;
+    transition: all 0.4s ease-in-out;
+}
+
+a.homepage_link:hover {
+    color: white;
+    background-color: black;
+}
+
+div#svg-wrapper {
+    margin: 15px auto;
+    width: 700px;
+}
+
+div#svg-wrapper svg {
+    border: solid 1px blue;
+}
+
+div#svg-wrapper div#controls {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    width: 100%;
+    margin-top: 1px;
+}
+
+div#svg-wrapper div#controls button {
+    border: none;
+    width: 40px;
+    height: 40px;
+    font-size: 20px;
+    font-weight: 700;
+    text-align: center;
+    border-radius: 5px;
+    color: #f4f8fb;
+    background-color: #2a323a;
+    transition: all 0.4s ease-in-out;
+    cursor: pointer;
+}
+
+div#svg-wrapper div#controls button:hover {
+    color: white;
+    background-color: black;
+}
+
+svg circle {
+    transform: translate3d(0, 0, 0);
+}
+
+div#welcome-wrapper {
+    margin: 100px auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 350px;
+}
+
+div#welcome-wrapper input#file-cover {
+    border: none;
+    width: 330px;
+    font-size: 25px;
+    margin: 15px auto;
+    padding: 20px 0;
+    text-align: center;
+    border-radius: 10px;
+    color: #f4f8fb;
+    background-color: #2a323a;
+    transition: all 0.4s ease-in-out;
+    cursor: pointer;
+}
+
+div#welcome-wrapper input#file-cover:hover {
+    color: white;
+    background-color: black;
+}
+
+div#welcome-wrapper img {
+    margin-top: 30px;
+    width: 100px;
+    opacity: 60%;
+}
