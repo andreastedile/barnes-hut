@@ -24,9 +24,6 @@ class Node {
   inline static unsigned n_nodes = 0;
   const unsigned m_id = n_nodes++;
 
-  const Eigen::Vector2f m_top_left;
-  const float m_length;
-
   Data m_data;
 
   Eigen::Vector2f m_center_of_mass = {0, 0};
@@ -37,6 +34,13 @@ class Node {
   friend void to_json(json &j, const Node &node);
 
  public:
+  const Eigen::Vector2f m_top_left;
+  const float m_length;
+
+  [[nodiscard]] const Eigen::Vector2f &center_of_mass() const;
+  [[nodiscard]] const float &total_mass() const;
+  [[nodiscard]] const Data &data() const;
+
   /**
    * Creates an empty subquadrant.
    * @param x coordinate of the top-left corner of the subquadrant

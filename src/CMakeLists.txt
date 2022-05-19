@@ -1,9 +1,12 @@
 add_library(barnes_hut_lib
+        ${PROJECT_SOURCE_DIR}/include/barnes_hut/templates.h
         ${PROJECT_SOURCE_DIR}/include/barnes_hut/node.h
         node.cpp
         node_json.cpp
         ${PROJECT_SOURCE_DIR}/include/barnes_hut/body.h
-        body.cpp)
+        body.cpp
+        ${PROJECT_SOURCE_DIR}/include/barnes_hut/force.h
+        force.cpp)
 
 target_compile_features(barnes_hut_lib PRIVATE cxx_std_17)
 

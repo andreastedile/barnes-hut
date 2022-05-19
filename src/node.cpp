@@ -1,18 +1,12 @@
 #include "barnes_hut/node.h"
 
+#include "barnes_hut/templates.h"
+
 #ifndef NDEBUG
 #include <iostream>
 #endif
 
 namespace bh {
-
-// https://en.cppreference.com/w/cpp/utility/variant/visit
-template <class... Ts>
-struct overloaded : Ts... {
-  using Ts::operator()...;
-};
-template <class... Ts>
-overloaded(Ts...) -> overloaded<Ts...>;
 
 Node::Node(const Eigen::Vector2f &top_left, float length)
     : m_top_left(top_left), m_length(length), m_data(Empty()) {}
@@ -191,5 +185,13 @@ void Node::update_center_of_mass() {
       },
       m_data);
 }
+
+const Eigen::Vector2f &Node::center_of_mass() const {
+  return m_center_of_mass;
+};
+
+const float &Node::total_mass() const { return m_total_mass; };
+
+const Data &Node::data() const { return m_data; };
 
 }  // namespace bh
