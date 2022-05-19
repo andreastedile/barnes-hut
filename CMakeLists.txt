@@ -9,5 +9,8 @@ find_package(Eigen3 3.3 REQUIRED NO_MODULE)
 # https://json.nlohmann.me/integration/cmake/
 find_package(nlohmann_json 3.10.5 REQUIRED)
 
+find_package(Catch2 REQUIRED)
+
 add_subdirectory(src)
+add_subdirectory(tests)
 add_subdirectory(apps)

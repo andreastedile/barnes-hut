@@ -18,9 +18,9 @@ using Empty = std::monostate;
 using Subquadrants = std::array<std::unique_ptr<Node>, 4>;
 using Data = std::variant<Empty, Body, Subquadrants>;
 
-class Node {
-  typedef enum { NW, NE, SE, SW } Subquadrant;
+typedef enum { NW, NE, SE, SW } Subquadrant;
 
+class Node {
   inline static unsigned n_nodes = 0;
   const unsigned m_id = n_nodes++;
 
@@ -51,11 +51,12 @@ class Node {
 
   void insert(const Body &new_body);
 
-  [[nodiscard]] Subquadrant get_subquadrant(
-      const Eigen::Vector2f &position) const;
-
   friend std::ostream &operator<<(std::ostream &os, const Node &node);
 };
+
+Subquadrant get_subquadrant(const Eigen::Vector2f &top_left,
+                            const float &length,
+                            const Eigen::Vector2f &position);
 
 // void to_json(json &j, const Node &node);
 }  // namespace bh

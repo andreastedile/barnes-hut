@@ -6,6 +6,8 @@
 #include <iostream>
 #endif
 
+#include <exception>
+
 namespace bh {
 
 Node::Node(const Eigen::Vector2f &top_left, float length)
@@ -41,10 +43,24 @@ std::ostream &operator<<(std::ostream &os, const Node &node) {
 }
 
 void Node::insert(const Body &new_body) {
-  assert(new_body.m_position.x() >= m_top_left.x());
-  assert(new_body.m_position.x() < m_top_left.x() + m_length);
-  assert(new_body.m_position.y() < m_top_left.y());
-  assert(new_body.m_position.y() >= m_top_left.y() - m_length);
+  // clang-format off
+  if (new_body.m_position.x() < m_top_left.x()) {
+    throw std::invalid_argument(
+        "Attempted to insert a body outside the subquadrant's boundaries (x is " + std::to_string(new_body.m_position.x()) + ", minimum is " + std::to_string(m_top_left.x()) + ")");
+  }
+  if (new_body.m_position.x() >= m_top_left.x() + m_length) {
+    throw std::invalid_argument(
+        "Attempted to insert a body outside the subquadrant's boundaries (x is " + std::to_string(new_body.m_position.x()) + ", maximum is " + std::to_string(m_top_left.x() + m_length) + ")");
+  }
+  if (new_body.m_position.y() >= m_top_left.y()) {
+    throw std::invalid_argument(
+        "Attempted to insert a body outside the subquadrant's boundaries (y is " + std::to_string(new_body.m_position.y()) + ", maximum is " + std::to_string(m_top_left.y()) + ")");
+  }
+  if (new_body.m_position.y() < m_top_left.y() - m_length) {
+    throw std::invalid_argument(
+        "Attempted to insert a body outside the subquadrant's boundaries (y is " + std::to_string(new_body.m_position.y()) + ", minimum is " + std::to_string(m_top_left.y() - m_length) + ")");
+  }
+  // clang-format on
 
   // https://en.cppreference.com/w/cpp/utility/variant/visit
 
@@ -74,7 +90,7 @@ void Node::insert(const Body &new_body) {
       // Don't assign m_data here!
       // m_data = Subquadrants{nw, ne, se, sw};
 
-      switch (get_subquadrant(existing_body.m_position)) {
+      switch (get_subquadrant(m_top_left, m_length, existing_body.m_position)) {
         case NW:
           nw->insert(existing_body);
           break;
@@ -89,7 +105,7 @@ void Node::insert(const Body &new_body) {
           break;
       }
 
-      switch (get_subquadrant(new_body.m_position)) {
+      switch (get_subquadrant(m_top_left, m_length, new_body.m_position)) {
         case NW:
           nw->insert(new_body);
           break;
@@ -112,19 +128,19 @@ void Node::insert(const Body &new_body) {
     update_center_of_mass();
   };
 
-  auto insert_in_region = [this, new_body](Subquadrants &subquadrants) {
-    switch (get_subquadrant(new_body.m_position)) {
+  auto insert_in_region = [&](Subquadrants &subquadrants) {
+    switch (get_subquadrant(m_top_left, m_length, new_body.m_position)) {
       case NW:
-        subquadrants[0]->insert(new_body);
+        subquadrants[NW]->insert(new_body);
         break;
       case NE:
-        subquadrants[1]->insert(new_body);
+        subquadrants[NE]->insert(new_body);
         break;
       case SE:
-        subquadrants[2]->insert(new_body);
+        subquadrants[SE]->insert(new_body);
         break;
       case SW:
-        subquadrants[3]->insert(new_body);
+        subquadrants[SW]->insert(new_body);
         break;
     }
 
@@ -140,10 +156,12 @@ void Node::insert(const Body &new_body) {
       m_data);
 }
 
-Node::Subquadrant Node::get_subquadrant(const Eigen::Vector2f &position) const {
-  bool north = position.y() >= (m_top_left.y() - m_length / 2.);
+Subquadrant get_subquadrant(const Eigen::Vector2f &top_left,
+                            const float &length,
+                            const Eigen::Vector2f &position) {
+  bool north = position.y() >= (top_left.y() - length / 2.);
   bool south = !north;
-  bool west = position.x() < (m_top_left.x() + m_length / 2.);
+  bool west = position.x() < (top_left.x() + length / 2.);
   bool east = !west;
 
   if (north && west)
