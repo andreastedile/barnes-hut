@@ -1,6 +1,7 @@
 add_executable(testlib
         testlib.cpp
-        test_quadtree.cpp)
+        test_quadtree.cpp
+        test_force.cpp)
 
 target_link_libraries(testlib PRIVATE barnes_hut_lib Catch2::Catch2)
 
