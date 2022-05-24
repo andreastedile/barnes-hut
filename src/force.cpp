@@ -40,7 +40,8 @@ Eigen::Vector2f compute_approximate_net_force_on_body(const Node& node,
   };
 
   const auto visit_region = [&](const Subquadrants& subquadrants) {
-    if (node.m_length / 2.f < OMEGA) {
+    float distance = (body.m_position - node.center_of_mass()).norm();
+    if (node.m_length / distance < OMEGA) {
       // Approximation
       return force::compute_gravitational_force(
           {node.center_of_mass(), node.total_mass()}, body);
@@ -49,7 +50,8 @@ Eigen::Vector2f compute_approximate_net_force_on_body(const Node& node,
           subquadrants.begin(), subquadrants.end(), Eigen::Vector2f(0, 0),
           [body](const Eigen::Vector2f& total,
                  const std::unique_ptr<Node>& curr) {
-            return compute_approximate_net_force_on_body(*curr, body);
+            return (total + compute_approximate_net_force_on_body(*curr, body))
+                .eval();
           });
     }
   };
@@ -71,7 +73,8 @@ Eigen::Vector2f compute_exact_net_force_on_body(const Node& node,
         subquadrants.begin(), subquadrants.end(), Eigen::Vector2f(0, 0),
         [body](const Eigen::Vector2f& total,
                const std::unique_ptr<Node>& curr) {
-          return total + compute_approximate_net_force_on_body(*curr, body);
+          return (total + compute_approximate_net_force_on_body(*curr, body))
+              .eval();
         });
   };
 
