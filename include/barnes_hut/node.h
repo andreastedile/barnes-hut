@@ -25,8 +25,6 @@ class Node {
   inline static unsigned n_nodes = 0;
   const unsigned m_id = n_nodes++;
 
-  const Eigen::AlignedBox2f m_box;
-
   Data m_data;
 
   Eigen::Vector2f m_center_of_mass = {0, 0};
@@ -37,6 +35,7 @@ class Node {
   friend void to_json(json &j, const Node &node);
 
  public:
+  const Eigen::AlignedBox2f m_box;
   [[nodiscard]] inline Eigen::Vector2f top_left() const;
   [[nodiscard]] inline Eigen::Vector2f top_right() const;
   [[nodiscard]] inline Eigen::Vector2f bottom_right() const;

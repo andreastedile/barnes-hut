@@ -4,7 +4,7 @@
 #include "barnes_hut/node.h"
 #include "barnes_hut/templates.h"
 
-namespace bh::force {
+namespace bh {
 
 #ifndef G
 // https://physics.nist.gov/cgi-bin/cuu/Value?bg
@@ -43,7 +43,7 @@ Eigen::Vector2f compute_approximate_net_force_on_body(const Node& node,
     float distance = (body.m_position - node.center_of_mass()).norm();
     if (node.length() / distance < OMEGA) {
       // Approximation
-      return force::compute_gravitational_force(
+      return bh::compute_gravitational_force(
           {node.center_of_mass(), node.total_mass()}, body);
     } else {
       return std::accumulate(

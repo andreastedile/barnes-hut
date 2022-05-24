@@ -4,7 +4,7 @@
 #include "body.h"
 #include "node.h"
 
-namespace bh::force {
+namespace bh {
 
 /**
  * @return Force that body b1 exerts on body b2
