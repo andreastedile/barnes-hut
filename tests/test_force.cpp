@@ -4,6 +4,7 @@
 #include "catch2/catch.hpp"
 
 using namespace bh::force;
+using bh::Node;
 using Eigen::Vector2f;
 
 TEST_CASE("compute gravitational force") {
@@ -34,6 +35,29 @@ TEST_CASE("compute gravitational force") {
     }
   }
 
+  SECTION("two bodies, 45°") {
+    Body b1({0.f, 0.f}, 1.f);
+    Body b2({10.f, 10.f}, 1.f);
+
+    SECTION("force that b1 exerts on b2") {
+      Vector2f f = compute_gravitational_force(b1, b2);
+      REQUIRE(f.x() == Approx(-0.00176776695297));  // using Desmos calculator
+      REQUIRE(f.y() == Approx(-0.00176776695297));
+    }
+  }
+
+  SECTION("three bodies") {
+    Body left({-10.f, 0.f}, 1.f);
+    Body center({0.f, 0.f}, 1.f);
+    Body right({10.f, 0.f}, 1.f);
+
+    Vector2f left_f = compute_gravitational_force(left, center);
+    Vector2f right_f = compute_gravitational_force(right, center);
+    Vector2f sum_f = left_f + right_f;
+    REQUIRE(sum_f.x() == 0.f);
+    // REQUIRE(sum_f.y() == 0.f); // -0.0f == 0.0f
+  }
+
   /*
   SECTION("earth and moon") {
     // https://nssdc.gsfc.nasa.gov/planetary/factsheet/earthfact.html
@@ -57,4 +81,34 @@ TEST_CASE("compute gravitational force") {
     }
   }
    */
+}
+
+TEST_CASE("compute exact net force on body") {
+  Node root({-10, 10}, 20);
+  Vector2f f;
+
+  // Quadtree is empty
+  f = compute_exact_net_force_on_body(root, {{0, 0}, 1});
+  REQUIRE(f == Vector2f(0, 0));
+
+  root.insert({{5, 0}, 1});
+  f = compute_exact_net_force_on_body(root, {{0, 0}, 1});
+  REQUIRE(f.x() == 0.02f);  // -0.00499999989 -> -0.005f
+  REQUIRE(f.y() == 0.f);    // -4.37113873E-10 -> -0.0f
+
+  root.insert({{-5, 0}, 2});
+  f = compute_exact_net_force_on_body(root, {{0, 0}, 1});
+  REQUIRE(f.x() == -0.02f);
+  // REQUIRE(f.y() == 0.f); // -0.0f == 0.0f
+}
+
+TEST_CASE("compute approximate net force on body") {
+  Node root({-10, 10}, 20);
+
+  root.insert({{7.5, -2.5}, 0.5});
+  root.insert({{2.5, -7.5}, 0.5});
+
+  Vector2f f = compute_approximate_net_force_on_body(root, {{-10, 10}, 1});
+  REQUIRE(f.x() == Approx(0.000785674201318));
+  REQUIRE(f.y() == Approx(-0.000785674201318));
 }
