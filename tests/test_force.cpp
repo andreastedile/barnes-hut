@@ -4,6 +4,7 @@
 #include "catch2/catch.hpp"
 
 using bh::Node;
+using bh::Body;
 using Eigen::Vector2f;
 
 TEST_CASE("compute gravitational force") {
