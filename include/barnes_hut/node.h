@@ -11,6 +11,9 @@ using json = nlohmann::json;
 
 #include "body.h"
 
+using Eigen::AlignedBox2f;
+using Eigen::Vector2f;
+
 namespace bh {
 
 class Node;
@@ -27,7 +30,7 @@ class Node {
 
   Data m_data;
 
-  Eigen::Vector2f m_center_of_mass = {0, 0};
+  Vector2f m_center_of_mass = {0, 0};
   float m_total_mass = 0;
 
   void update_center_of_mass();
@@ -36,13 +39,13 @@ class Node {
 
  public:
   const Eigen::AlignedBox2f m_box;
-  [[nodiscard]] inline Eigen::Vector2f top_left() const;
-  [[nodiscard]] inline Eigen::Vector2f top_right() const;
-  [[nodiscard]] inline Eigen::Vector2f bottom_right() const;
-  [[nodiscard]] inline Eigen::Vector2f bottom_left() const;
+  [[nodiscard]] inline Vector2f top_left() const;
+  [[nodiscard]] inline Vector2f top_right() const;
+  [[nodiscard]] inline Vector2f bottom_right() const;
+  [[nodiscard]] inline Vector2f bottom_left() const;
   [[nodiscard]] inline float length() const;
 
-  [[nodiscard]] const Eigen::Vector2f &center_of_mass() const;
+  [[nodiscard]] const Vector2f &center_of_mass() const;
   [[nodiscard]] const float &total_mass() const;
   [[nodiscard]] const Data &data() const;
 
@@ -51,18 +54,19 @@ class Node {
    * @param bottom_left coordinates of the bottom-left corner of the subquadrant
    * @param top_right coordinates of the top-right corner of the subquadrant
    */
-  Node(const Eigen::Vector2f &bottom_left, const Eigen::Vector2f &top_right);
+  Node(const Vector2f &bottom_left, const Vector2f &top_right);
 
   void insert(const Body &new_body);
 
-  Subquadrant get_subquadrant(const Eigen::Vector2f &point);
+  Subquadrant get_subquadrant(const Vector2f &point);
 
   friend std::ostream &operator<<(std::ostream &os, const Node &node);
 };
 
-Subquadrant get_subquadrant(const Eigen::Vector2f &top_left,
-                            const float &length,
-                            const Eigen::Vector2f &position);
+Subquadrant get_subquadrant(const Vector2f &top_left, const float &length,
+                            const Vector2f &position);
+
+AlignedBox2f compute_minimum_bounding_box(const std::vector<Body> &bodies);
 
 // void to_json(json &j, const Node &node);
 }  // namespace bh

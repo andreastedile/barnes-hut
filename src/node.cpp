@@ -6,7 +6,9 @@
 #include <iostream>
 #endif
 
+#include <algorithm>
 #include <exception>
+#include <limits>
 
 namespace bh {
 
@@ -225,5 +227,50 @@ const Eigen::Vector2f &Node::center_of_mass() const {
 const float &Node::total_mass() const { return m_total_mass; };
 
 const Data &Node::data() const { return m_data; };
+
+AlignedBox2f compute_minimum_bounding_box(const std::vector<Body> &bodies) {
+  if (bodies.size() < 2) {
+    throw std::invalid_argument(
+        "cannot compute the minimum bounding box for less than two bodies");
+  }
+
+  // Compute the rectangular bounding box containing all bodies
+  Vector2f bottom_left = std::accumulate(
+      bodies.begin(), bodies.end(),
+      // Vector2f(Eigen::Infinity, Eigen::Infinity), // does not work
+      Vector2f(std::numeric_limits<float>::max(),
+               std::numeric_limits<float>::max()),
+      [](const Vector2f &bottom_left, const Body &body) {
+        return Vector2f(std::min(bottom_left.x(), body.m_position.x()),
+                        std::min(bottom_left.y(), body.m_position.y()));
+      });
+  Vector2f top_right = std::accumulate(
+      bodies.begin(), bodies.end(),
+      // // Vector2f(Eigen::Infinity, Eigen::Infinity), // does not work
+      Vector2f(std::numeric_limits<float>::min(),
+               std::numeric_limits<float>::min()),
+      [](const Vector2f &top_right, const Body &body) {
+        return Vector2f(std::max(top_right.x(), body.m_position.x()),
+                        std::max(top_right.y(), body.m_position.y()));
+      });
+
+  // We want a square bounding box
+  Eigen::Vector2f top_left(bottom_left.x(), top_right.y());
+  Eigen::Vector2f bottom_right(top_right.x(), bottom_left.y());
+
+  float width = (top_right - top_left).norm();
+  float height = (top_left - bottom_left).norm();
+  if (width > height) {
+    float diff = width - height;
+    bottom_left = {bottom_left.x(), bottom_left.y() - diff / 2};
+    top_right = {top_right.x(), top_right.y() + diff / 2};
+  } else if (height > width) {
+    float diff = height - width;
+    bottom_left = {bottom_left.x() - diff / 2, bottom_left.y()};
+    top_right = {top_right.x() + diff / 2, top_right.y()};
+  }
+
+  return {bottom_left, top_right};
+}
 
 }  // namespace bh
