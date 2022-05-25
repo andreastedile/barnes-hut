@@ -41,7 +41,7 @@ Eigen::Vector2f compute_approximate_net_force_on_body(const Node& node,
 
   const auto visit_region = [&](const Subquadrants& subquadrants) {
     float distance = (body.m_position - node.center_of_mass()).norm();
-    if (node.m_length / distance < OMEGA) {
+    if (node.length() / distance < OMEGA) {
       // Approximation
       return force::compute_gravitational_force(
           {node.center_of_mass(), node.total_mass()}, body);

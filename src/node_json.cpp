@@ -30,8 +30,8 @@ void to_json(json &j, const Data &data) {
 void to_json(json &j, const Node &node) {
   json data = node.m_data;
   j = {{"id", node.m_id},
-       {"top_left", {node.m_top_left.x(), node.m_top_left.y()}},
-       {"length", node.m_length},
+       {"top_left", {node.top_left().x(), node.top_left().y()}},
+       {"length", node.length()},
        {"center_of_mass",
         {node.m_center_of_mass.x(), node.m_center_of_mass.y()}},
        {"total_mass", node.m_total_mass},

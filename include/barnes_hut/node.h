@@ -4,6 +4,7 @@
 #include <nlohmann/json.hpp>
 using json = nlohmann::json;
 #include <array>
+#include <eigen3/Eigen/Geometry>
 #include <memory>
 #include <ostream>
 #include <variant>
@@ -24,6 +25,8 @@ class Node {
   inline static unsigned n_nodes = 0;
   const unsigned m_id = n_nodes++;
 
+  const Eigen::AlignedBox2f m_box;
+
   Data m_data;
 
   Eigen::Vector2f m_center_of_mass = {0, 0};
@@ -34,8 +37,11 @@ class Node {
   friend void to_json(json &j, const Node &node);
 
  public:
-  const Eigen::Vector2f m_top_left;
-  const float m_length;
+  [[nodiscard]] inline Eigen::Vector2f top_left() const;
+  [[nodiscard]] inline Eigen::Vector2f top_right() const;
+  [[nodiscard]] inline Eigen::Vector2f bottom_right() const;
+  [[nodiscard]] inline Eigen::Vector2f bottom_left() const;
+  [[nodiscard]] inline float length() const;
 
   [[nodiscard]] const Eigen::Vector2f &center_of_mass() const;
   [[nodiscard]] const float &total_mass() const;
@@ -43,13 +49,14 @@ class Node {
 
   /**
    * Creates an empty subquadrant.
-   * @param x coordinate of the top-left corner of the subquadrant
-   * @param y coordinate of the top-left corner of the subquadrant
-   * @param length of the side of the subquadrant
+   * @param bottom_left coordinates of the bottom-left corner of the subquadrant
+   * @param top_right coordinates of the top-right corner of the subquadrant
    */
-  Node(const Eigen::Vector2f &top_left, float length);
+  Node(const Eigen::Vector2f &bottom_left, const Eigen::Vector2f &top_right);
 
   void insert(const Body &new_body);
+
+  Subquadrant get_subquadrant(const Eigen::Vector2f &point);
 
   friend std::ostream &operator<<(std::ostream &os, const Node &node);
 };

@@ -84,7 +84,7 @@ TEST_CASE("compute gravitational force") {
 }
 
 TEST_CASE("compute exact net force on body") {
-  Node root({-10, 10}, 20);
+  Node root(Vector2f(-10, -10), Vector2f(10, 10));
   Vector2f f;
 
   // Quadtree is empty
@@ -103,7 +103,7 @@ TEST_CASE("compute exact net force on body") {
 }
 
 TEST_CASE("compute approximate net force on body") {
-  Node root({-10, 10}, 20);
+  Node root(Vector2f(-10, -10), Vector2f(10, 10));
 
   root.insert({{7.5, -2.5}, 0.5});
   root.insert({{2.5, -7.5}, 0.5});
