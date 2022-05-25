@@ -12,8 +12,14 @@
 
 namespace bh {
 
-Node::Node(const Eigen::Vector2f &bottom_left, const Eigen::Vector2f &top_right)
-    : m_data(Empty()), m_box(bottom_left, top_right) {}
+Node::Node(const Vector2f &bottom_left, const Vector2f &top_right)
+    : m_data(Empty()), m_box(bottom_left, top_right) {
+  Vector2f top_left(bottom_left.x(), top_right.y());
+  Vector2f bottom_right(top_right.x(), bottom_left.y());
+  if ((top_left - bottom_left).norm() != (bottom_right - bottom_left).norm()) {
+    throw std::invalid_argument("Cannot create a non-square subquadrant");
+  }
+}
 
 std::ostream &operator<<(std::ostream &os, const Empty &empty) {
   return os << "Empty quadrant";
