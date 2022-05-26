@@ -66,8 +66,6 @@ class Node {
 Subquadrant get_subquadrant(const Vector2f &top_left, const float &length,
                             const Vector2f &position);
 
-AlignedBox2f compute_minimum_bounding_box(const std::vector<Body> &bodies);
-
 // void to_json(json &j, const Node &node);
 }  // namespace bh
 

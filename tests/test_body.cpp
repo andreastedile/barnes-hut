@@ -1,6 +1,6 @@
 #include <vector>
 
-#include "barnes_hut/node.h"
+#include "barnes_hut/body.h"
 #include "catch2/catch.hpp"
 
 TEST_CASE("compute minimum bounding box") {
