@@ -3,6 +3,7 @@
 
 #include <eigen3/Eigen/Eigen>
 #include <eigen3/Eigen/Geometry>
+#include <iostream>
 #include <numeric>
 #include <type_traits>
 
@@ -21,6 +22,10 @@ struct Body {
 // https://stackoverflow.com/questions/10632251/undefined-reference-to-template-function
 template <typename T, typename = typename std::enable_if<
                           std::is_base_of<Body, T>::value, T>::type>
+/**
+ * Computes the minimum bounding box (usually, a rectangle) containing the
+ * bodies.
+ */
 AlignedBox2f compute_minimum_bounding_box(const std::vector<T> &bodies) {
   if (bodies.size() < 2) {
     throw std::invalid_argument(
@@ -47,20 +52,54 @@ AlignedBox2f compute_minimum_bounding_box(const std::vector<T> &bodies) {
                         std::max(top_right.y(), body.m_position.y()));
       });
 
-  // We want a square bounding box
-  Eigen::Vector2f top_left(bottom_left.x(), top_right.y());
-  Eigen::Vector2f bottom_right(top_right.x(), bottom_left.y());
+  return {bottom_left, top_right};
+}
 
+template <typename T, typename = typename std::enable_if<
+                          std::is_base_of<Body, T>::value, T>::type>
+AlignedBox2f compute_square_bounding_box(const std::vector<T> &bodies) {
+  AlignedBox2f min_bbox = compute_minimum_bounding_box(bodies);
+  Vector2f bottom_left = min_bbox.min();
+  Vector2f top_right = min_bbox.max();
+  Vector2f top_left(bottom_left.x(), top_right.y());
+  Vector2f bottom_right(top_right.x(), bottom_left.y());
+
+  // Usually, the minimum bounding box is a rectangle. In this case, we have to
+  // convert it into a square.
   float width = (top_right - top_left).norm();
   float height = (top_left - bottom_left).norm();
   if (width > height) {
     float diff = width - height;
-    bottom_left = {bottom_left.x(), bottom_left.y() - diff / 2};
-    top_right = {top_right.x(), top_right.y() + diff / 2};
+    bottom_left -= Vector2f(0, diff / 2);
+    bottom_right -= Vector2f(0, diff / 2);
+    top_right += Vector2f(0, diff / 2);
+    top_left += Vector2f(0, diff / 2);
   } else if (height > width) {
     float diff = height - width;
-    bottom_left = {bottom_left.x() - diff / 2, bottom_left.y()};
-    top_right = {top_right.x() + diff / 2, top_right.y()};
+    bottom_left -= Vector2f(diff / 2, 0);
+    top_left -= Vector2f(diff / 2, 0);
+    bottom_right += Vector2f(diff / 2, 0);
+    top_right += Vector2f(diff / 2, 0);
+  }
+
+  // We now snap the square's corners to the grid, but this may produce a
+  // rectangle.
+  bottom_left = {std::floor(bottom_left.x()), std::floor(bottom_left.y())};
+  top_right = {std::ceil(top_right.x()), std::ceil(top_right.y())};
+  top_left = {std::floor(top_left.x()), std::ceil(top_left.y())};
+  bottom_right = {std::ceil(bottom_right.x()), std::floor(bottom_right.y())};
+
+  // We now extend the rectangle into a square.
+  width = (top_right - top_left).norm();
+  height = (top_left - bottom_left).norm();
+  if (width > height) {
+    float diff = width - height;
+    top_right += Vector2f(0, diff);
+    top_left += Vector2f(0, diff);
+  } else if (height > width) {
+    float diff = height - width;
+    top_right += Vector2f(diff, 0);
+    bottom_right += Vector2f(diff, 0);
   }
 
   return {bottom_left, top_right};

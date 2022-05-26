@@ -9,16 +9,19 @@
 namespace bh {
 
 void SimpleSimulator::step() {
+#ifndef NDEBUG
+  std::cout << "Step " << m_curr_step << "\n";
+#endif
+
   const SimulationStep& last_step = m_data.back();
   SimulationStep current_step;
 
-  auto box = compute_minimum_bounding_box(last_step);
+  auto box = compute_square_bounding_box(last_step);
   Node quadtree(box.min(), box.max());
 
 #ifndef NDEBUG
-  std::cout << "Step " << m_curr_step
-            << ". computed bounding box: bottom left (" << box.min().x() << " "
-            << box.min().y() << "), top right: (" << box.min().x() << " "
+  std::cout << "Computed bounding box: bottom left (" << box.min().x() << " "
+            << box.min().y() << "), top right: (" << box.max().x() << " "
             << box.max().y() << ")\n";
 #endif
 
