@@ -8,7 +8,9 @@ add_library(barnes_hut_lib
         ${PROJECT_SOURCE_DIR}/include/barnes_hut/force.h
         force.cpp
         ${PROJECT_SOURCE_DIR}/include/barnes_hut/simulation.h
-        simulation.cpp)
+        simulation.cpp
+        simulation_json.cpp
+        simple_simulator.cpp)
 
 target_compile_features(barnes_hut_lib PRIVATE cxx_std_17)
 
