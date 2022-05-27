@@ -4,8 +4,8 @@ using json = nlohmann::json;
 #include <fstream>
 #include <iostream>
 
-#include "barnes_hut/node.h"
-#include "barnes_hut/simulation.h"
+#include "node.h"
+#include "simulation.h"
 
 int main() {
   bh::Node node(Eigen::Vector2f(0, 0), Eigen::Vector2f(10, 10));

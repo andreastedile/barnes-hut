@@ -1,4 +1,4 @@
-#include "barnes_hut/body.h"
+#include "body.h"
 
 #include <utility>
 

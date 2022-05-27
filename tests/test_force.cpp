@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include "barnes_hut/force.h"
+#include "force.h"
 #include "catch2/catch.hpp"
 
 using bh::Node;

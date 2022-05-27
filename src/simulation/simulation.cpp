@@ -1,4 +1,4 @@
-#include "barnes_hut/simulation.h"
+#include "simulation.h"
 
 #include <nlohmann/json.hpp>
 using json = nlohmann::json;
@@ -7,8 +7,8 @@ using json = nlohmann::json;
 #include <fstream>
 #include <iostream>
 
-#include "barnes_hut/force.h"
-#include "barnes_hut/node.h"
+#include "force.h"
+#include "node.h"
 
 namespace bh {
 

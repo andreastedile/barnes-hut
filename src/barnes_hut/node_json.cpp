@@ -1,4 +1,4 @@
-#include "barnes_hut/node.h"
+#include "node.h"
 
 namespace bh {
 

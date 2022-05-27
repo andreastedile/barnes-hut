@@ -2,7 +2,7 @@
 #include <eigen3/Eigen/Geometry>
 #include <iostream>
 
-#include "barnes_hut/node.h"
+#include "node.h"
 
 using namespace bh;
 using Eigen::Vector2f;

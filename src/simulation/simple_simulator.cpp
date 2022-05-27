@@ -3,8 +3,8 @@
 #include <iostream>
 #endif
 
-#include "barnes_hut/node.h"
-#include "barnes_hut/simulation.h"
+#include "node.h"
+#include "simulation.h"
 
 namespace bh {
 

@@ -1,4 +1,4 @@
-#include "barnes_hut/simulation.h"
+#include "simulation.h"
 
 namespace bh {
 

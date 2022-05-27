@@ -1,3 +1,3 @@
 add_executable(app app.cpp)
 
-target_link_libraries(app PRIVATE barnes_hut_lib)
+target_link_libraries(app PRIVATE barnes_hut_lib simulation_lib)

@@ -4,7 +4,7 @@ add_executable(testlib
         test_force.cpp
         test_body.cpp)
 
-target_link_libraries(testlib PRIVATE barnes_hut_lib Catch2::Catch2)
+target_link_libraries(testlib PRIVATE barnes_hut_lib simulation_lib Catch2::Catch2)
 
 # https://github.com/catchorg/Catch2/blob/devel/docs/cmake-integration.md
 include(CTest)

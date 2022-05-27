@@ -1,6 +1,6 @@
-#include "barnes_hut/node.h"
+#include "node.h"
 
-#include "barnes_hut/templates.h"
+#include "templates.h"
 
 #ifndef NDEBUG
 #include <iostream>

@@ -1,8 +1,8 @@
 #include <iostream>
 #include <variant>
 
-#include "barnes_hut/node.h"
-#include "barnes_hut/templates.h"
+#include "node.h"
+#include "templates.h"
 
 namespace bh {
 
