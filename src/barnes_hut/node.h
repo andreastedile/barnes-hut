@@ -22,7 +22,7 @@ using Empty = std::monostate;
 using Subquadrants = std::array<std::unique_ptr<Node>, 4>;
 using Data = std::variant<Empty, Body, Subquadrants>;
 
-typedef enum { NW, NE, SE, SW } Subquadrant;
+enum Subquadrant { NW, NE, SE, SW };
 
 class Node {
   inline static unsigned n_nodes = 0;
@@ -30,11 +30,12 @@ class Node {
 
   Data m_data;
 
-  Vector2f m_center_of_mass = {0, 0};
+  Vector2f m_center_of_mass{0, 0};
   float m_total_mass = 0;
 
   void update_center_of_mass();
 
+  // See "Arbitrary types conversions" in https://github.com/nlohmann/json
   friend void to_json(json &j, const Node &node);
 
  public:
@@ -71,7 +72,7 @@ class Node {
   };
 
   [[nodiscard]] const Vector2f &center_of_mass() const;
-  [[nodiscard]] const float &total_mass() const;
+  [[nodiscard]] float total_mass() const;
   [[nodiscard]] const Data &data() const;
 
   /**

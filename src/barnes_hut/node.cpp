@@ -202,7 +202,7 @@ const Eigen::Vector2f &Node::center_of_mass() const {
   return m_center_of_mass;
 };
 
-const float &Node::total_mass() const { return m_total_mass; };
+float Node::total_mass() const { return m_total_mass; };
 
 const Data &Node::data() const { return m_data; };
 
