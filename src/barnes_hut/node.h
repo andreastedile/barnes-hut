@@ -83,13 +83,14 @@ class Node {
 
   void insert(const Body &new_body);
 
+  /**
+   * @param point Coordinates of the point inside the region.
+   * @return Subquadrant in which the point is located.
+   */
   Subquadrant get_subquadrant(const Vector2f &point);
 
   friend std::ostream &operator<<(std::ostream &os, const Node &node);
 };
-
-Subquadrant get_subquadrant(const Vector2f &top_left, const float &length,
-                            const Vector2f &position);
 
 // void to_json(json &j, const Node &node);
 }  // namespace bh

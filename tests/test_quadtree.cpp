@@ -118,18 +118,3 @@ TEST_CASE("adding coinciding bodies") {
   REQUIRE(body.m_position == Vector2f{2, 2});
   REQUIRE(body.m_mass == 2);
 }
-
-TEST_CASE("bodies on subquadrant boundaries") {
-  const Vector2f top_left{0, 10};
-  const float length = 10;
-
-  Vector2f p1{2.5f, 5};
-  Vector2f p2{7.5f, 5};
-  Vector2f p3{5, 7.5f};
-  Vector2f p4{5, 2.5f};
-
-  REQUIRE(get_subquadrant(top_left, length, p1) == NW);
-  REQUIRE(get_subquadrant(top_left, length, p2) == NE);
-  REQUIRE(get_subquadrant(top_left, length, p3) == NE);
-  REQUIRE(get_subquadrant(top_left, length, p4) == SE);
-}

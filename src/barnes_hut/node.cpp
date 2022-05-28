@@ -150,26 +150,6 @@ void Node::insert(const Body &new_body) {
       m_data);
 }
 
-Subquadrant get_subquadrant(const Eigen::Vector2f &top_left,
-                            const float &length,
-                            const Eigen::Vector2f &position) {
-  bool north = position.y() >= (top_left.y() - length / 2.);
-  bool south = !north;
-  bool west = position.x() < (top_left.x() + length / 2.);
-  bool east = !west;
-
-  if (north && west)
-    return NW;
-  else if (north && east)
-    return NE;
-  else if (south && east)
-    return SE;
-  else if (south && west)
-    return SW;
-  throw std::invalid_argument(
-      "Cannot get the subquadrant of a point outside of the bounding box");
-}
-
 Subquadrant Node::get_subquadrant(const Eigen::Vector2f &point) {
   bool north = point.y() >= m_box.center().y();
   bool south = !north;
