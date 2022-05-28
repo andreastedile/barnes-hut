@@ -164,8 +164,10 @@ Subquadrant get_subquadrant(const Eigen::Vector2f &top_left,
     return NE;
   else if (south && east)
     return SE;
-  else  // south && west
+  else if (south && west)
     return SW;
+  throw std::invalid_argument(
+      "Cannot get the subquadrant of a point outside of the bounding box");
 }
 
 Subquadrant Node::get_subquadrant(const Eigen::Vector2f &point) {
@@ -180,8 +182,10 @@ Subquadrant Node::get_subquadrant(const Eigen::Vector2f &point) {
     return NE;
   else if (south && east)
     return SE;
-  else  // south && west
+  else if (south && west)
     return SW;
+  throw std::invalid_argument(
+      "Cannot get the subquadrant of a point outside of the bounding box");
 }
 
 void Node::update_center_of_mass() {
