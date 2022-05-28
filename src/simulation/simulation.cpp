@@ -6,11 +6,16 @@ using json = nlohmann::json;
 #include <Eigen/Geometry>
 #include <fstream>
 #include <iostream>
+#include <utility>  // move
 
 #include "force.h"
 #include "node.h"
 
 namespace bh {
+
+SimulatedBody::SimulatedBody(const Vector2f& position, float mass,
+                             Vector2f velocity)
+    : Body(position, mass), m_velocity(std::move(velocity)) {}
 
 ISimulation::ISimulation(const std::string& filename, float dt,
                          SimulationType type = APPROXIMATED)

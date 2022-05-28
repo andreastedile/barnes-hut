@@ -2,7 +2,6 @@
 #define BARNES_HUT_SIMULATION_H
 
 #include <functional>
-#include <utility>
 
 #include "body.h"
 #include "node.h"
@@ -13,8 +12,7 @@ namespace bh {
 
 struct SimulatedBody : Body {
   const Vector2f m_velocity;
-  SimulatedBody(const Vector2f& position, float mass, Vector2f velocity)
-      : Body(position, mass), m_velocity(std::move(velocity)) {}
+  SimulatedBody(const Vector2f& position, float mass, Vector2f velocity);
   [[nodiscard]] SimulatedBody updated(
       const bh::Node& quadtree, float dt,
       const std::function<Vector2f(const Node&, const Body&)>&
