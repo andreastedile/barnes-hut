@@ -13,9 +13,12 @@ using json = nlohmann::json;
 
 namespace bh {
 
-SimulatedBody::SimulatedBody(const Vector2f& position, float mass,
-                             Vector2f velocity)
-    : Body(position, mass), m_velocity(std::move(velocity)) {}
+SimulatedBody::SimulatedBody(Vector2f position, float mass, Vector2f velocity)
+    : Body(std::move(position), mass), m_velocity(std::move(velocity)) {}
+
+SimulationStep::SimulationStep(std::vector<SimulatedBody> bodies,
+                               std::shared_ptr<const Node> quadtree)
+    : m_bodies(std::move(bodies)), m_quadtree(std::move(quadtree)) {}
 
 ISimulation::ISimulation(const std::string& filename, float dt,
                          SimulationType type = APPROXIMATED)
@@ -33,7 +36,7 @@ ISimulation::ISimulation(const std::string& filename, float dt,
   unsigned n_bodies;
   file >> n_bodies;
 
-  SimulationStep step0;
+  std::vector<SimulatedBody> bodies;
   for (unsigned i = 0; i < n_bodies; i++) {
     float position_x, position_y;
     float mass;
@@ -43,23 +46,28 @@ ISimulation::ISimulation(const std::string& filename, float dt,
     file >> velocity_x >> velocity_y;
     SimulatedBody body({position_x, position_y}, mass,
                        {velocity_x, velocity_y});
-    step0.push_back(body);
+    bodies.push_back(std::move(body));
   }
-  m_data.push_back(step0);
+  AlignedBox2f bbox = compute_square_bounding_box(bodies);
+  auto quadtree = std::make_shared<Node>(bbox.min(), bbox.max());
+  SimulationStep step0(bodies, quadtree);
+  m_data.push_back(std::move(step0));
 
   file.close();
 
   std::cout << "Read" << n_bodies << " bodies. Simulation is ready\n";
 }
 
-ISimulation::ISimulation(const std::vector<SimulatedBody>& bodies, float dt,
+ISimulation::ISimulation(std::vector<SimulatedBody>&& bodies, float dt,
                          SimulationType type = APPROXIMATED)
     : m_dt(dt),
       m_force_algorithm_fn(type == APPROXIMATED
                                ? &compute_approximate_net_force_on_body
                                : &compute_exact_net_force_on_body) {
-  m_data.push_back(bodies);
-  std::cout << "Loaded " << bodies.size() << " bodies. Simulation is ready\n";
+  AlignedBox2f bbox = compute_square_bounding_box(bodies);
+  auto quadtree = std::make_shared<Node>(bbox.min(), bbox.max());
+  SimulationStep step0(bodies, quadtree);
+  m_data.push_back(std::move(step0));
 }
 
 void ISimulation::run_continuously(unsigned n_steps) {

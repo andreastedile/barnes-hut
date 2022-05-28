@@ -13,31 +13,32 @@ void SimpleSimulator::step() {
   std::cout << "Step " << m_curr_step << "\n";
 #endif
 
-  const SimulationStep& last_step = m_data.back();
-  SimulationStep current_step;
+  const std::vector<SimulatedBody>& bodies = m_data.back().m_bodies;
 
-  auto box = compute_square_bounding_box(last_step);
-  Node quadtree(box.min(), box.max());
+  AlignedBox2f bbox = compute_square_bounding_box(bodies);
+  auto quadtree = std::make_shared<Node>(bbox.min(), bbox.max());
 
 #ifndef NDEBUG
-  std::cout << "Computed bounding box: bottom left (" << box.min().x() << " "
-            << box.min().y() << "), top right: (" << box.max().x() << " "
-            << box.max().y() << ")\n";
+  std::cout << "Computed bounding box: bottom left (" << bbox.min().x() << " "
+            << bbox.min().y() << "), top right: (" << bbox.max().x() << " "
+            << bbox.max().y() << ")\n";
 #endif
 
-  std::for_each(last_step.begin(), last_step.end(),
+  std::for_each(bodies.begin(), bodies.end(),
                 [&](const SimulatedBody& simulated) {
                   Body body(simulated.m_position, simulated.m_mass);
-                  quadtree.insert(body);
+                  quadtree->insert(body);
                 });
 
-  std::transform(last_step.begin(), last_step.end(),
-                 std::back_inserter(current_step),
+  std::vector<SimulatedBody> updated_bodies;
+  std::transform(bodies.begin(), bodies.end(),
+                 std::back_inserter(updated_bodies),
                  [&](const SimulatedBody& body) {
-                   return body.updated(quadtree, m_dt, m_force_algorithm_fn);
+                   return body.updated(*quadtree, m_dt, m_force_algorithm_fn);
                  });
 
-  m_data.push_back(current_step);
+  SimulationStep step(bodies, quadtree);
+  m_data.push_back(std::move(step));
 }
 
 }  // namespace bh

@@ -10,12 +10,16 @@ void to_json(json &j, const SimulatedBody &body) {
 
 void to_json(json &j, const SimulationStep &step) {
   j = {};
-  std::transform(step.begin(), step.end(), std::back_inserter(j),
+  json bodies;
+  std::transform(step.m_bodies.begin(), step.m_bodies.end(),
+                 std::back_inserter(bodies),
                  [](const SimulatedBody &body) { return body; });
+  j = {{"bodies", bodies}, {"quadtree", *step.m_quadtree}};
 }
 
-void to_json(json &j, const SimulationData &data) {
-  std::transform(data.begin(), data.end(), std::back_inserter(j),
+void to_json(json &j, const std::vector<SimulationStep> &simulation_steps) {
+  std::transform(simulation_steps.begin(), simulation_steps.end(),
+                 std::back_inserter(j),
                  [](const SimulationStep &step) { return step; });
 }
 

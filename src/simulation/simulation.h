@@ -2,6 +2,8 @@
 #define BARNES_HUT_SIMULATION_H
 
 #include <functional>
+#include <memory>
+#include <vector>
 
 #include "body.h"
 #include "node.h"
@@ -12,7 +14,7 @@ namespace bh {
 
 struct SimulatedBody : Body {
   const Vector2f m_velocity;
-  SimulatedBody(const Vector2f& position, float mass, Vector2f velocity);
+  SimulatedBody(Vector2f position, float mass, Vector2f velocity);
   [[nodiscard]] SimulatedBody updated(
       const bh::Node& quadtree, float dt,
       const std::function<Vector2f(const Node&, const Body&)>&
@@ -34,10 +36,12 @@ enum SimulationType {
   APPROXIMATED
 };
 
-// Bodies' data produced in a single simulation timestep.
-using SimulationStep = std::vector<SimulatedBody>;
-// Bodies' data produced throughout the simulation.
-using SimulationData = std::vector<SimulationStep>;
+struct SimulationStep {
+  const std::vector<SimulatedBody> m_bodies;
+  const std::shared_ptr<const Node> m_quadtree;
+  SimulationStep(std::vector<SimulatedBody> bodies,
+                 std::shared_ptr<const Node> quadtree);
+};
 
 class ISimulation {
  public:
@@ -55,7 +59,7 @@ class ISimulation {
    * @param dt simulation timestep; defines the accuracy of the simulation
    * @param type of simulation
    */
-  ISimulation(const std::vector<SimulatedBody>& bodies, float dt,
+  ISimulation(std::vector<SimulatedBody>&& bodies, float dt,
               SimulationType type);
   virtual ~ISimulation() = default;
   /**
@@ -73,7 +77,7 @@ class ISimulation {
 
  protected:
   const std::function<Vector2f(const Node&, const Body&)> m_force_algorithm_fn;
-  SimulationData m_data;
+  std::vector<SimulationStep> m_data;
   unsigned int m_curr_step = 0;
 
  private:
