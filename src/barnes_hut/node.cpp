@@ -50,18 +50,6 @@ std::ostream &operator<<(std::ostream &os, const Node &node) {
             << ", length: " << node.length() << ", data: " << node.m_data;
 }
 
-Eigen::Vector2f Node::top_left() const { return m_box.corner(m_box.TopLeft); };
-Eigen::Vector2f Node::top_right() const {
-  return m_box.corner(m_box.TopRight);
-};
-Eigen::Vector2f Node::bottom_right() const {
-  return m_box.corner(m_box.BottomRight);
-};
-Eigen::Vector2f Node::bottom_left() const {
-  return m_box.corner(m_box.BottomLeft);
-};
-float Node::length() const { return (top_right() - top_left()).norm(); };
-
 void Node::insert(const Body &new_body) {
   if (!m_box.contains(new_body.m_position)) {
     throw std::invalid_argument(

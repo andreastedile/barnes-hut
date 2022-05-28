@@ -39,11 +39,36 @@ class Node {
 
  public:
   const Eigen::AlignedBox2f m_box;
-  [[nodiscard]] inline Vector2f top_left() const;
-  [[nodiscard]] inline Vector2f top_right() const;
-  [[nodiscard]] inline Vector2f bottom_right() const;
-  [[nodiscard]] inline Vector2f bottom_left() const;
-  [[nodiscard]] inline float length() const;
+  /**
+   * @return The top left corner of the region.
+   */
+  [[nodiscard]] inline Vector2f top_left() const {
+    return m_box.corner(m_box.TopLeft);
+  };
+  /**
+   * @return The top right corner of the region.
+   */
+  [[nodiscard]] inline Vector2f top_right() const {
+    return m_box.corner(m_box.TopRight);
+  };
+  /**
+   * @return The bottom right corner of the region.
+   */
+  [[nodiscard]] inline Vector2f bottom_right() const {
+    return m_box.corner(m_box.BottomRight);
+  };
+  /**
+   * @return The bottom left corner of the region.
+   */
+  [[nodiscard]] inline Vector2f bottom_left() const {
+    return m_box.corner(m_box.BottomLeft);
+  };
+  /**
+   * @return The length of the sides of the region.
+   */
+  [[nodiscard]] inline float length() const {
+    return (top_right() - top_left()).norm();
+  };
 
   [[nodiscard]] const Vector2f &center_of_mass() const;
   [[nodiscard]] const float &total_mass() const;
