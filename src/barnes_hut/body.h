@@ -13,8 +13,8 @@ using Eigen::Vector2f;
 namespace bh {
 
 struct Body {
-  Vector2f m_position;
-  float m_mass;
+  const Vector2f m_position;
+  const float m_mass;
   Body(Vector2f position, float mass);
 };
 

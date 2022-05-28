@@ -59,17 +59,18 @@ void Node::insert(const Body &new_body) {
   // https://en.cppreference.com/w/cpp/utility/variant/visit
 
   auto insert_in_empty_node = [&](const Empty &) {
-    m_data = Body(new_body);
+    m_data.emplace<Body>(new_body);
     update_center_of_mass();
   };
 
-  auto insert_in_body = [&](Body &existing_body) {
+  auto insert_in_body = [&](const Body &existing_body) {
     // If the two bodies coincide, sum their masses.
     if (new_body.m_position == existing_body.m_position) {
 #ifndef NDEBUG
       std::cout << "bodies coincide\n";
 #endif
-      existing_body.m_mass += new_body.m_mass;
+      m_data.emplace<Body>(existing_body.m_position,
+                           existing_body.m_mass + new_body.m_mass);
     }
     // Otherwise, create four empty subquadrants, relocate the existing body and
     // the new body in the corresponding subquadrants, and apply recurison.
