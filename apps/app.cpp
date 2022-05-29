@@ -25,7 +25,7 @@ int main() {
   bodies.push_back({{6.875, 8.125}, 0.25, {0, 0}});
   bodies.push_back({{8.125, 6.875}, 0.25, {0, 0}});
   bodies.push_back({{9.375, 5.625}, 0.25, {0, 0}});
-  bh::SimpleSimulator simulator(bodies, 0.01, bh::APPROXIMATED);
+  bh::SimpleSimulator simulator(std::move(bodies), 0.01, bh::APPROXIMATED);
   simulator.run_continuously(500);
   simulator.save();
   return 0;
