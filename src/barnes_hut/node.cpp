@@ -6,9 +6,7 @@
 #include <iostream>
 #endif
 
-#include <algorithm>
 #include <exception>
-#include <limits>
 
 namespace bh {
 
@@ -151,7 +149,7 @@ void Node::insert(const Body &new_body) {
       m_data);
 }
 
-Subquadrant Node::get_subquadrant(const Eigen::Vector2f &point) {
+Subquadrant Node::get_subquadrant(const Vector2f &point) {
   bool north = point.y() >= m_box.center().y();
   bool south = !north;
   bool west = point.x() < m_box.center().x();
@@ -177,7 +175,7 @@ void Node::update_center_of_mass() {
   };
   auto update_region = [&](Subquadrants &subquadrants) {
     // new coordinates of the quadrant's center of mass
-    Eigen::Vector2f center_of_mass = {0, 0};
+    Vector2f center_of_mass{0, 0};
     // new total mass of the quadrant
     float total_mass = 0;
     // weighted average over the sub-quadrants centers of total_mass
@@ -199,9 +197,7 @@ void Node::update_center_of_mass() {
       m_data);
 }
 
-const Eigen::Vector2f &Node::center_of_mass() const {
-  return m_center_of_mass;
-};
+const Vector2f &Node::center_of_mass() const { return m_center_of_mass; };
 
 float Node::total_mass() const { return m_total_mass; };
 

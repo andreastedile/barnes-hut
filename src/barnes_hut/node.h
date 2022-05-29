@@ -1,18 +1,18 @@
 #ifndef BARNES_HUT_NODE_H
 #define BARNES_HUT_NODE_H
 
-#include <nlohmann/json.hpp>
-using json = nlohmann::json;
-#include <array>
+#include <array>  // Subquadrants
 #include <eigen3/Eigen/Geometry>
-#include <memory>
-#include <ostream>
-#include <variant>
+#include <memory>  // unique_ptr
+#include <nlohmann/json.hpp>
+#include <ostream>  // overload operator <<
+#include <variant>  // Data
 
 #include "body.h"
 
 using Eigen::AlignedBox2f;
 using Eigen::Vector2f;
+using json = nlohmann::json;
 
 namespace bh {
 
@@ -39,7 +39,7 @@ class Node {
   friend void to_json(json &j, const Node &node);
 
  public:
-  const Eigen::AlignedBox2f m_box;
+  const AlignedBox2f m_box;
   /**
    * @return The top left corner of the region.
    */
