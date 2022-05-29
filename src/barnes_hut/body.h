@@ -3,7 +3,8 @@
 
 #include <eigen3/Eigen/Eigen>
 #include <eigen3/Eigen/Geometry>
-#include <numeric>      // accumulate
+#include <execution>
+#include <numeric>      // reduce
 #include <type_traits>  // enable_if, is_base_of
 
 using Eigen::AlignedBox2f;
@@ -32,24 +33,26 @@ AlignedBox2f compute_minimum_bounding_box(const std::vector<T> &bodies) {
   }
 
   // Compute the rectangular bounding box containing all bodies
-  Vector2f bottom_left = std::accumulate(
-      bodies.begin(), bodies.end(),
+  Vector2f bottom_left = std::transform_reduce(
+      std::execution::par, bodies.begin(), bodies.end(),
       // Vector2f(Eigen::Infinity, Eigen::Infinity), // does not work
       Vector2f(std::numeric_limits<float>::max(),
                std::numeric_limits<float>::max()),
-      [](const Vector2f &bottom_left, const T &body) {
-        return Vector2f(std::min(bottom_left.x(), body.m_position.x()),
-                        std::min(bottom_left.y(), body.m_position.y()));
-      });
-  Vector2f top_right = std::accumulate(
-      bodies.begin(), bodies.end(),
+      [](const Vector2f &bottom_left, const Vector2f &body) {
+        return Vector2f(std::min(bottom_left.x(), body.x()),
+                        std::min(bottom_left.y(), body.y()));
+      },
+      [](const T &body) { return body.m_position; });
+  Vector2f top_right = std::transform_reduce(
+      std::execution::par, bodies.begin(), bodies.end(),
       // // Vector2f(Eigen::Infinity, Eigen::Infinity), // does not work
       Vector2f(std::numeric_limits<float>::min(),
                std::numeric_limits<float>::min()),
-      [](const Vector2f &top_right, const T &body) {
-        return Vector2f(std::max(top_right.x(), body.m_position.x()),
-                        std::max(top_right.y(), body.m_position.y()));
-      });
+      [](const Vector2f &top_right, const Vector2f &body) {
+        return Vector2f(std::max(top_right.x(), body.x()),
+                        std::max(top_right.y(), body.y()));
+      },
+      [](const T &body) { return body.m_position; });
 
   return {bottom_left, top_right};
 }
