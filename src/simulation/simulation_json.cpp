@@ -1,4 +1,9 @@
+#include <fstream>  // ofstream
+#include <nlohmann/json.hpp>
+
 #include "simulation.h"
+
+using json = nlohmann::json;
 
 namespace bh {
 
@@ -27,6 +32,12 @@ void to_json(json &j, const ISimulation &simulation) {
   j = {{"dt", simulation.m_dt},
        {"n_steps", simulation.m_curr_step + 1},  // m_curr_step starts from 0
        {"data", simulation.m_data}};
+}
+
+void ISimulation::save() {
+  json j = *this;
+  std::ofstream o("simulation.json");
+  o << j.dump(2) << std::endl;
 }
 
 }  // namespace bh

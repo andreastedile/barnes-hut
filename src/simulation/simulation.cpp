@@ -1,15 +1,14 @@
 #include "simulation.h"
 
-#include <nlohmann/json.hpp>
-using json = nlohmann::json;
-
-#include <Eigen/Geometry>
-#include <fstream>
+#include <Eigen/Geometry>  // AlignedBox2f
+#include <fstream>         // ifstream
 #include <iostream>
 #include <utility>  // move
 
 #include "force.h"
 #include "node.h"
+
+using Eigen::AlignedBox2f;
 
 namespace bh {
 
@@ -75,13 +74,6 @@ void ISimulation::run_continuously(unsigned n_steps) {
     m_curr_step++;
     step();
   }
-}
-
-void ISimulation::save() {
-  json j = *this;
-  std::cout << j.dump(2) << std::endl;
-  std::ofstream o("simulation.json");
-  o << j.dump(2) << std::endl;
 }
 
 SimulatedBody SimulatedBody::updated(

@@ -2,7 +2,8 @@
 #define BARNES_HUT_SIMULATION_H
 
 #include <functional>
-#include <memory>
+#include <memory>  // shared_ptr
+#include <string>
 #include <vector>
 
 #include "body.h"
