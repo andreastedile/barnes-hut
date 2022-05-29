@@ -1,4 +1,4 @@
-#include <iostream>
+#include <numeric>  // accumulate
 #include <variant>
 
 #include "node.h"
@@ -17,8 +17,8 @@ namespace bh {
 #define OMEGA 0.5f
 #endif
 
-Eigen::Vector2f compute_gravitational_force(const Body& b1, const Body& b2) {
-  Eigen::Vector2f direction_v = b1.m_position - b2.m_position;
+Vector2f compute_gravitational_force(const Body& b1, const Body& b2) {
+  Vector2f direction_v = b1.m_position - b2.m_position;
   float distance = direction_v.norm();
   if (distance == 0) {
     return {0, 0};
@@ -27,19 +27,18 @@ Eigen::Vector2f compute_gravitational_force(const Body& b1, const Body& b2) {
   float angle = std::atan2(direction_v.y(), direction_v.x());
   float fx = std::cos(angle) * magnitude;
   float fy = std::sin(angle) * magnitude;
-  Eigen::Vector2f force_v(fx, fy);
-  return force_v;
+  return {fx, fy};
 }
 
-Eigen::Vector2f compute_approximate_net_force_on_body(const Node& node,
-                                                      const Body& body) {
-  const auto visit_empty = [](const Empty&) { return Eigen::Vector2f(0, 0); };
+Vector2f compute_approximate_net_force_on_body(const Node& node,
+                                               const Body& body) {
+  const auto visit_empty = [](const Empty&) -> Vector2f { return {0, 0}; };
 
-  const auto visit_body = [body](const Body& visited) {
+  const auto visit_body = [body](const Body& visited) -> Vector2f {
     return compute_gravitational_force(visited, body);
   };
 
-  const auto visit_region = [&](const Subquadrants& subquadrants) {
+  const auto visit_region = [&](const Subquadrants& subquadrants) -> Vector2f {
     float distance = (body.m_position - node.center_of_mass()).norm();
     if (node.length() / distance < OMEGA) {
       // Approximation
@@ -47,9 +46,8 @@ Eigen::Vector2f compute_approximate_net_force_on_body(const Node& node,
           {node.center_of_mass(), node.total_mass()}, body);
     } else {
       return std::accumulate(
-          subquadrants.begin(), subquadrants.end(), Eigen::Vector2f(0, 0),
-          [body](const Eigen::Vector2f& total,
-                 const std::unique_ptr<Node>& curr) {
+          subquadrants.begin(), subquadrants.end(), Vector2f{0, 0},
+          [body](const Vector2f& total, const std::unique_ptr<Node>& curr) {
             return (total + compute_approximate_net_force_on_body(*curr, body))
                 .eval();
           });
@@ -60,19 +58,17 @@ Eigen::Vector2f compute_approximate_net_force_on_body(const Node& node,
                     node.data());
 }
 
-Eigen::Vector2f compute_exact_net_force_on_body(const Node& node,
-                                                const Body& body) {
-  const auto visit_empty = [](const Empty&) { return Eigen::Vector2f(0, 0); };
+Vector2f compute_exact_net_force_on_body(const Node& node, const Body& body) {
+  const auto visit_empty = [](const Empty&) -> Vector2f { return {0, 0}; };
 
-  const auto visit_body = [body](const Body& visited) {
+  const auto visit_body = [body](const Body& visited) -> Vector2f {
     return compute_gravitational_force(visited, body);
   };
 
-  const auto visit_region = [&](const Subquadrants& subquadrants) {
+  const auto visit_region = [&](const Subquadrants& subquadrants) -> Vector2f {
     return std::accumulate(
-        subquadrants.begin(), subquadrants.end(), Eigen::Vector2f(0, 0),
-        [body](const Eigen::Vector2f& total,
-               const std::unique_ptr<Node>& curr) {
+        subquadrants.begin(), subquadrants.end(), Vector2f{0, 0},
+        [body](const Vector2f& total, const std::unique_ptr<Node>& curr) {
           return (total + compute_approximate_net_force_on_body(*curr, body))
               .eval();
         });
@@ -82,4 +78,4 @@ Eigen::Vector2f compute_exact_net_force_on_body(const Node& node,
                     node.data());
 }
 
-}  // namespace bh::force
+}  // namespace bh
