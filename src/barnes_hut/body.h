@@ -3,9 +3,8 @@
 
 #include <eigen3/Eigen/Eigen>
 #include <eigen3/Eigen/Geometry>
-#include <iostream>
-#include <numeric>
-#include <type_traits>
+#include <numeric>      // accumulate
+#include <type_traits>  // enable_if, is_base_of
 
 using Eigen::AlignedBox2f;
 using Eigen::Vector2f;
