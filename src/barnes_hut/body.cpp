@@ -4,7 +4,7 @@
 
 namespace bh {
 
-Body::Body(Vector2f position, float mass)
+Body::Body(Vector2d position, double mass)
     : m_position(std::move(position)), m_mass(mass) {}
 
 }  // namespace bh

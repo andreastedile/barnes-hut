@@ -7,15 +7,15 @@
 #include <numeric>      // reduce
 #include <type_traits>  // enable_if, is_base_of
 
-using Eigen::AlignedBox2f;
-using Eigen::Vector2f;
+using Eigen::AlignedBox2d;
+using Eigen::Vector2d;
 
 namespace bh {
 
 struct Body {
-  const Vector2f m_position;
-  const float m_mass;
-  Body(Vector2f position, float mass);
+  const Vector2d m_position;
+  const double m_mass;
+  Body(Vector2d position, double mass);
 };
 
 // We implement the function in the header itself.
@@ -26,30 +26,30 @@ template <typename T, typename = typename std::enable_if<
  * Computes the minimum bounding box (usually, a rectangle) containing the
  * bodies.
  */
-AlignedBox2f compute_minimum_bounding_box(const std::vector<T> &bodies) {
+AlignedBox2d compute_minimum_bounding_box(const std::vector<T> &bodies) {
   if (bodies.size() < 2) {
     throw std::invalid_argument(
         "cannot compute the minimum bounding box for less than two bodies");
   }
 
   // Compute the rectangular bounding box containing all bodies
-  Vector2f bottom_left = std::transform_reduce(
+  Vector2d bottom_left = std::transform_reduce(
       std::execution::par, bodies.begin(), bodies.end(),
-      // Vector2f(Eigen::Infinity, Eigen::Infinity), // does not work
-      Vector2f(std::numeric_limits<float>::max(),
-               std::numeric_limits<float>::max()),
-      [](const Vector2f &bottom_left, const Vector2f &body) {
-        return Vector2f(std::min(bottom_left.x(), body.x()),
+      // Vector2d(Eigen::Infinity, Eigen::Infinity), // does not work
+      Vector2d(std::numeric_limits<double>::max(),
+               std::numeric_limits<double>::max()),
+      [](const Vector2d &bottom_left, const Vector2d &body) {
+        return Vector2d(std::min(bottom_left.x(), body.x()),
                         std::min(bottom_left.y(), body.y()));
       },
       [](const T &body) { return body.m_position; });
-  Vector2f top_right = std::transform_reduce(
+  Vector2d top_right = std::transform_reduce(
       std::execution::par, bodies.begin(), bodies.end(),
-      // // Vector2f(Eigen::Infinity, Eigen::Infinity), // does not work
-      Vector2f(std::numeric_limits<float>::min(),
-               std::numeric_limits<float>::min()),
-      [](const Vector2f &top_right, const Vector2f &body) {
-        return Vector2f(std::max(top_right.x(), body.x()),
+      // // Vector2d(Eigen::Infinity, Eigen::Infinity), // does not work
+      Vector2d(std::numeric_limits<double>::min(),
+               std::numeric_limits<double>::min()),
+      [](const Vector2d &top_right, const Vector2d &body) {
+        return Vector2d(std::max(top_right.x(), body.x()),
                         std::max(top_right.y(), body.y()));
       },
       [](const T &body) { return body.m_position; });
@@ -59,29 +59,29 @@ AlignedBox2f compute_minimum_bounding_box(const std::vector<T> &bodies) {
 
 template <typename T, typename = typename std::enable_if<
                           std::is_base_of<Body, T>::value, T>::type>
-AlignedBox2f compute_square_bounding_box(const std::vector<T> &bodies) {
-  AlignedBox2f min_bbox = compute_minimum_bounding_box(bodies);
-  Vector2f bottom_left = min_bbox.min();
-  Vector2f top_right = min_bbox.max();
-  Vector2f top_left(bottom_left.x(), top_right.y());
-  Vector2f bottom_right(top_right.x(), bottom_left.y());
+AlignedBox2d compute_square_bounding_box(const std::vector<T> &bodies) {
+  AlignedBox2d min_bbox = compute_minimum_bounding_box(bodies);
+  Vector2d bottom_left = min_bbox.min();
+  Vector2d top_right = min_bbox.max();
+  Vector2d top_left(bottom_left.x(), top_right.y());
+  Vector2d bottom_right(top_right.x(), bottom_left.y());
 
   // Usually, the minimum bounding box is a rectangle. In this case, we have to
   // convert it into a square.
-  float width = (top_right - top_left).norm();
-  float height = (top_left - bottom_left).norm();
+  double width = (top_right - top_left).norm();
+  double height = (top_left - bottom_left).norm();
   if (width > height) {
-    float diff = width - height;
-    bottom_left -= Vector2f(0, diff / 2);
-    bottom_right -= Vector2f(0, diff / 2);
-    top_right += Vector2f(0, diff / 2);
-    top_left += Vector2f(0, diff / 2);
+    double diff = width - height;
+    bottom_left -= Vector2d(0, diff / 2);
+    bottom_right -= Vector2d(0, diff / 2);
+    top_right += Vector2d(0, diff / 2);
+    top_left += Vector2d(0, diff / 2);
   } else if (height > width) {
-    float diff = height - width;
-    bottom_left -= Vector2f(diff / 2, 0);
-    top_left -= Vector2f(diff / 2, 0);
-    bottom_right += Vector2f(diff / 2, 0);
-    top_right += Vector2f(diff / 2, 0);
+    double diff = height - width;
+    bottom_left -= Vector2d(diff / 2, 0);
+    top_left -= Vector2d(diff / 2, 0);
+    bottom_right += Vector2d(diff / 2, 0);
+    top_right += Vector2d(diff / 2, 0);
   }
 
   // We now snap the square's corners to the grid, but this may produce a
@@ -95,13 +95,13 @@ AlignedBox2f compute_square_bounding_box(const std::vector<T> &bodies) {
   width = (top_right - top_left).norm();
   height = (top_left - bottom_left).norm();
   if (width > height) {
-    float diff = width - height;
-    top_right += Vector2f(0, diff);
-    top_left += Vector2f(0, diff);
+    double diff = width - height;
+    top_right += Vector2d(0, diff);
+    top_left += Vector2d(0, diff);
   } else if (height > width) {
-    float diff = height - width;
-    top_right += Vector2f(diff, 0);
-    bottom_right += Vector2f(diff, 0);
+    double diff = height - width;
+    top_right += Vector2d(diff, 0);
+    bottom_right += Vector2d(diff, 0);
   }
 
   return {bottom_left, top_right};

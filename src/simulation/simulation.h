@@ -9,16 +9,16 @@
 #include "body.h"
 #include "node.h"
 
-using Eigen::Vector2f;
+using Eigen::Vector2d;
 
 namespace bh {
 
 struct SimulatedBody : Body {
-  const Vector2f m_velocity;
-  SimulatedBody(Vector2f position, float mass, Vector2f velocity);
+  const Vector2d m_velocity;
+  SimulatedBody(Vector2d position, double mass, Vector2d velocity);
   [[nodiscard]] SimulatedBody updated(
-      const bh::Node& quadtree, float dt,
-      const std::function<Vector2f(const Node&, const Body&)>&
+      const bh::Node& quadtree, double dt,
+      const std::function<Vector2d(const Node&, const Body&)>&
           m_force_algorithm_fn) const;
 };
 
@@ -46,21 +46,21 @@ struct SimulationStep {
 
 class ISimulation {
  public:
-  const float m_dt;
+  const double m_dt;
   /**
    * Creates a simulation with the bodies provided by a file.
    * @param filename file providing the bodies to add in the simulation
    * @param dt simulation timestep; defines the accuracy of the simulation
    * @param type of simulation
    */
-  ISimulation(const std::string& filename, float dt, SimulationType type);
+  ISimulation(const std::string& filename, double dt, SimulationType type);
   /**
    * Creates a simulation with the provided bodies.
    * @param bodies to add in the simulation
    * @param dt simulation timestep; defines the accuracy of the simulation
    * @param type of simulation
    */
-  ISimulation(std::vector<SimulatedBody>&& bodies, float dt,
+  ISimulation(std::vector<SimulatedBody>&& bodies, double dt,
               SimulationType type);
   virtual ~ISimulation() = default;
   /**
@@ -77,7 +77,7 @@ class ISimulation {
   virtual void step() = 0;
 
  protected:
-  const std::function<Vector2f(const Node&, const Body&)> m_force_algorithm_fn;
+  const std::function<Vector2d(const Node&, const Body&)> m_force_algorithm_fn;
   std::vector<SimulationStep> m_data;
   unsigned int m_curr_step = 0;
 

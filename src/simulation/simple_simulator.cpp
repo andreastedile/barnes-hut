@@ -15,7 +15,7 @@ void SimpleSimulator::step() {
 
   const std::vector<SimulatedBody>& bodies = m_data.back().m_bodies;
 
-  AlignedBox2f bbox = compute_square_bounding_box(bodies);
+  AlignedBox2d bbox = compute_square_bounding_box(bodies);
   auto quadtree = std::make_shared<Node>(bbox.min(), bbox.max());
 
 #ifndef NDEBUG

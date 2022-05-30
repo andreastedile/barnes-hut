@@ -6,19 +6,19 @@
 #include "body.h"
 #include "node.h"
 
-using Eigen::Vector2f;
+using Eigen::Vector2d;
 
 namespace bh {
 
 /**
  * @return Force that body b1 exerts on body b2
  */
-Vector2f compute_gravitational_force(const Body& b1, const Body& b2);
+Vector2d compute_gravitational_force(const Body& b1, const Body& b2);
 
-Vector2f compute_approximate_net_force_on_body(const Node& node,
+Vector2d compute_approximate_net_force_on_body(const Node& node,
                                                const Body& body);
 
-Vector2f compute_exact_net_force_on_body(const Node& node, const Body& body);
+Vector2d compute_exact_net_force_on_body(const Node& node, const Body& body);
 
 }  // namespace bh
 

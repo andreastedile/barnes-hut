@@ -10,10 +10,10 @@
 
 namespace bh {
 
-Node::Node(const Vector2f &bottom_left, const Vector2f &top_right)
+Node::Node(const Vector2d &bottom_left, const Vector2d &top_right)
     : m_data(Empty()), m_box(bottom_left, top_right) {
-  Vector2f top_left(bottom_left.x(), top_right.y());
-  Vector2f bottom_right(top_right.x(), bottom_left.y());
+  Vector2d top_left(bottom_left.x(), top_right.y());
+  Vector2d bottom_right(top_right.x(), bottom_left.y());
   if ((top_left - bottom_left).norm() != (bottom_right - bottom_left).norm()) {
     throw std::invalid_argument("Cannot create a non-square subquadrant");
   }
@@ -149,7 +149,7 @@ void Node::insert(const Body &new_body) {
       m_data);
 }
 
-Subquadrant Node::get_subquadrant(const Vector2f &point) {
+Subquadrant Node::get_subquadrant(const Vector2d &point) {
   bool north = point.y() >= m_box.center().y();
   bool south = !north;
   bool west = point.x() < m_box.center().x();
@@ -175,9 +175,9 @@ void Node::update_center_of_mass() {
   };
   auto update_region = [&](Subquadrants &subquadrants) {
     // new coordinates of the quadrant's center of mass
-    Vector2f center_of_mass{0, 0};
+    Vector2d center_of_mass{0, 0};
     // new total mass of the quadrant
-    float total_mass = 0;
+    double total_mass = 0;
     // weighted average over the sub-quadrants centers of total_mass
     for (const auto &subquadrant : subquadrants) {
       center_of_mass +=
@@ -197,9 +197,9 @@ void Node::update_center_of_mass() {
       m_data);
 }
 
-const Vector2f &Node::center_of_mass() const { return m_center_of_mass; };
+const Vector2d &Node::center_of_mass() const { return m_center_of_mass; };
 
-float Node::total_mass() const { return m_total_mass; };
+double Node::total_mass() const { return m_total_mass; };
 
 const Data &Node::data() const { return m_data; };
 
