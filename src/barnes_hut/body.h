@@ -35,7 +35,7 @@ AlignedBox2d compute_minimum_bounding_box(const std::vector<T> &bodies) {
 
   // Compute the rectangular bounding box containing all bodies
   Vector2d bottom_left = std::transform_reduce(
-      std::execution::par, bodies.begin(), bodies.end(),
+      std::execution::par_unseq, bodies.begin(), bodies.end(),
       // Vector2d(Eigen::Infinity, Eigen::Infinity), // does not work
       Vector2d(std::numeric_limits<double>::max(),
                std::numeric_limits<double>::max()),
@@ -45,7 +45,7 @@ AlignedBox2d compute_minimum_bounding_box(const std::vector<T> &bodies) {
       },
       [](const T &body) { return body.m_position; });
   Vector2d top_right = std::transform_reduce(
-      std::execution::par, bodies.begin(), bodies.end(),
+      std::execution::par_unseq, bodies.begin(), bodies.end(),
       // // Vector2d(Eigen::Infinity, Eigen::Infinity), // does not work
       Vector2d(std::numeric_limits<double>::min(),
                std::numeric_limits<double>::min()),

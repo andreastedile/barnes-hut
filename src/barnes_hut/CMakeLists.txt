@@ -12,3 +12,4 @@ target_include_directories(barnes_hut_lib INTERFACE $<BUILD_INTERFACE:${CMAKE_CU
 
 target_link_libraries(barnes_hut_lib PRIVATE Eigen3::Eigen)
 target_link_libraries(barnes_hut_lib PRIVATE nlohmann_json::nlohmann_json)
+target_link_libraries(barnes_hut_lib PRIVATE TBB::tbb)
