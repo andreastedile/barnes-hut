@@ -13,9 +13,10 @@ using Eigen::Vector2d;
 namespace bh {
 
 struct Body {
-  const Vector2d m_position;
-  const double m_mass;
+  Vector2d m_position;
+  double m_mass;
   Body(Vector2d position, double mass);
+  Body();
 };
 
 // We implement the function in the header itself.

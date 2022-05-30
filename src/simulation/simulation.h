@@ -14,12 +14,13 @@ using Eigen::Vector2d;
 namespace bh {
 
 struct SimulatedBody : Body {
-  const Vector2d m_velocity;
+  Vector2d m_velocity;
   SimulatedBody(Vector2d position, double mass, Vector2d velocity);
   [[nodiscard]] SimulatedBody updated(
       const bh::Node& quadtree, double dt,
       const std::function<Vector2d(const Node&, const Body&)>&
           m_force_algorithm_fn) const;
+  SimulatedBody();
 };
 
 /**

@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <execution>
 #ifndef NDEBUG
 #include <iostream>
 #endif
@@ -30,10 +31,9 @@ void SimpleSimulator::step() {
                   quadtree->insert(body);
                 });
 
-  std::vector<SimulatedBody> updated_bodies;
-  std::transform(bodies.begin(), bodies.end(),
-                 std::back_inserter(updated_bodies),
-                 [&](const SimulatedBody& body) {
+  std::vector<SimulatedBody> updated_bodies(bodies.size());
+  std::transform(std::execution::par_unseq, bodies.begin(), bodies.end(),
+                 updated_bodies.begin(), [&](const SimulatedBody& body) {
                    return body.updated(*quadtree, m_dt, m_force_algorithm_fn);
                  });
 

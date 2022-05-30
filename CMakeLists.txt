@@ -13,6 +13,9 @@ find_package(nlohmann_json 3.10.5 REQUIRED)
 
 find_package(Catch2 REQUIRED)
 
+# https://github.com/oneapi-src/oneTBB/blob/master/cmake/README.md#tbbconfig---integration-of-binary-packages
+find_package(TBB REQUIRED)
+
 # https://github.com/include-what-you-use/include-what-you-use
 find_program(iwyu_path NAMES include-what-you-use iwyu)
 if (iwyu_path)

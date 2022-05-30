@@ -15,6 +15,8 @@ namespace bh {
 SimulatedBody::SimulatedBody(Vector2d position, double mass, Vector2d velocity)
     : Body(std::move(position), mass), m_velocity(std::move(velocity)) {}
 
+SimulatedBody::SimulatedBody() : Body(), m_velocity(0, 0) {}
+
 SimulationStep::SimulationStep(std::vector<SimulatedBody> bodies,
                                std::shared_ptr<const Node> quadtree)
     : m_bodies(std::move(bodies)), m_quadtree(std::move(quadtree)) {}

@@ -9,3 +9,4 @@ target_include_directories(simulation_lib INTERFACE $<BUILD_INTERFACE:${CMAKE_CU
 target_link_libraries(simulation_lib PRIVATE barnes_hut_lib)
 target_link_libraries(simulation_lib PRIVATE Eigen3::Eigen)
 target_link_libraries(simulation_lib PRIVATE nlohmann_json::nlohmann_json)
+target_link_libraries(simulation_lib PRIVATE TBB::tbb)
