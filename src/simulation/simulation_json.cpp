@@ -37,7 +37,11 @@ void to_json(json &j, const ISimulation &simulation) {
 void ISimulation::save() {
   json j = *this;
   std::ofstream o("simulation.json");
+#ifndef NDEBUG
   o << j.dump(2) << std::endl;
+#else
+  o << j << std::endl;
+#endif
 }
 
 }  // namespace bh
