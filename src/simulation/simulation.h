@@ -20,7 +20,6 @@ struct SimulatedBody : Body {
       const bh::Node& quadtree, double dt,
       const std::function<Vector2d(const Node&, const Body&)>&
           m_force_algorithm_fn) const;
-  SimulatedBody();
 };
 
 /**

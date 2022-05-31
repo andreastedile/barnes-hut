@@ -16,7 +16,6 @@ struct Body {
   Vector2d m_position;
   double m_mass;
   Body(Vector2d position, double mass);
-  Body();
 };
 
 // We implement the function in the header itself.
