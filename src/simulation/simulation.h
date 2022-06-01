@@ -20,6 +20,15 @@ struct SimulatedBody : Body {
       const bh::Node& quadtree, double dt,
       const std::function<Vector2d(const Node&, const Body&)>&
           m_force_algorithm_fn) const;
+
+  // Copy constructor
+  SimulatedBody(const SimulatedBody &other);
+  // Move constructor
+  SimulatedBody(SimulatedBody &&other) noexcept;
+  // Copy assignment operator
+  SimulatedBody &operator=(const SimulatedBody &other);
+  // Move assignment operator
+  SimulatedBody &operator=(SimulatedBody &&other) noexcept;
 };
 
 /**
@@ -38,10 +47,18 @@ enum SimulationType {
 };
 
 struct SimulationStep {
-  const std::vector<SimulatedBody> m_bodies;
-  const std::shared_ptr<const Node> m_quadtree;
+  std::vector<SimulatedBody> m_bodies;
+  std::shared_ptr<const Node> m_quadtree;
   SimulationStep(std::vector<SimulatedBody> bodies,
                  std::shared_ptr<const Node> quadtree);
+  // Copy constructor
+  SimulationStep(const SimulationStep &other);
+  // Move constructor
+  SimulationStep(SimulationStep &&other) noexcept;
+  // Copy assignment operator
+  SimulationStep &operator=(const SimulationStep &other);
+  // Move assignment operator
+  SimulationStep &operator=(SimulationStep &&other) noexcept;
 };
 
 class ISimulation {

@@ -16,6 +16,14 @@ struct Body {
   Vector2d m_position;
   double m_mass;
   Body(Vector2d position, double mass);
+  // Copy constructor
+  Body(const Body &other);
+  // Move constructor
+  Body(Body &&other) noexcept;
+  // Copy assignment operator
+  Body &operator=(const Body &other);
+  // Move assignment operator
+  Body &operator=(Body &&other) noexcept;
 };
 
 // We implement the function in the header itself.

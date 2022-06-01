@@ -34,7 +34,7 @@ Vector2d compute_approximate_net_force_on_body(const Node& node,
                                                const Body& body) {
   const auto visit_empty = [](const Empty&) -> Vector2d { return {0, 0}; };
 
-  const auto visit_body = [body](const Body& visited) -> Vector2d {
+  const auto visit_body = [&body](const Body& visited) -> Vector2d {
     return compute_gravitational_force(visited, body);
   };
 
@@ -47,7 +47,7 @@ Vector2d compute_approximate_net_force_on_body(const Node& node,
     } else {
       return std::accumulate(
           subquadrants.begin(), subquadrants.end(), Vector2d{0, 0},
-          [body](const Vector2d& total, const std::unique_ptr<Node>& curr) {
+          [&body](const Vector2d& total, const std::unique_ptr<Node>& curr) {
             return (total + compute_approximate_net_force_on_body(*curr, body))
                 .eval();
           });
@@ -61,14 +61,14 @@ Vector2d compute_approximate_net_force_on_body(const Node& node,
 Vector2d compute_exact_net_force_on_body(const Node& node, const Body& body) {
   const auto visit_empty = [](const Empty&) -> Vector2d { return {0, 0}; };
 
-  const auto visit_body = [body](const Body& visited) -> Vector2d {
+  const auto visit_body = [&body](const Body& visited) -> Vector2d {
     return compute_gravitational_force(visited, body);
   };
 
   const auto visit_region = [&](const Subquadrants& subquadrants) -> Vector2d {
     return std::accumulate(
         subquadrants.begin(), subquadrants.end(), Vector2d{0, 0},
-        [body](const Vector2d& total, const std::unique_ptr<Node>& curr) {
+        [&body](const Vector2d& total, const std::unique_ptr<Node>& curr) {
           return (total + compute_approximate_net_force_on_body(*curr, body))
               .eval();
         });

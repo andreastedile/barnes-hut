@@ -15,11 +15,103 @@ namespace bh {
 SimulatedBody::SimulatedBody(Vector2d position, double mass, Vector2d velocity)
     : Body(std::move(position), mass), m_velocity(std::move(velocity)) {}
 
+// Copy constructor
+#ifdef DEBUG_COPY_CONSTRUCTOR
+SimulatedBody::SimulatedBody(const SimulatedBody &other)
+    : Body(other), m_velocity(other.m_velocity) {
+  std::cout << "SimulatedBody copy constructor\n";
+}
+#else
+SimulatedBody::SimulatedBody(const SimulatedBody &other) = default;
+#endif
+
+// Move constructor
+#ifdef DEBUG_MOVE_CONSTRUCTOR
+SimulatedBody::SimulatedBody(SimulatedBody &&other) noexcept
+    : Body(std::move(other)), m_velocity(std::move(other.m_velocity)) {
+  std::cout << "SimulatedBody move constructor\n";
+}
+#else
+SimulatedBody::SimulatedBody(SimulatedBody &&other) noexcept = default;
+#endif
+
+// Copy assignment operator
+#ifdef DEBUG_COPY_ASSIGNMENT_OPERATOR
+SimulatedBody &SimulatedBody::operator=(const SimulatedBody &other) {
+  Body::operator=(other);
+  std::cout << "SimulatedBody copy assignment operator\n";
+  m_velocity = other.m_velocity;
+  return *this;
+}
+#else
+SimulatedBody &SimulatedBody::operator=(const SimulatedBody &other) = default;
+#endif
+
+// Move assignment operator
+#ifdef DEBUG_MOVE_ASSIGNMENT_OPERATOR
+SimulatedBody &SimulatedBody::operator=(SimulatedBody &&other) noexcept {
+  Body::operator=(std::move(other));
+  std::cout << "SimulatedBody move assignment operator\n";
+  m_velocity = std::move(other.m_velocity);
+  return *this;
+}
+#else
+SimulatedBody &SimulatedBody::operator=(SimulatedBody &&other) noexcept =
+    default;
+#endif
+
 SimulationStep::SimulationStep(std::vector<SimulatedBody> bodies,
                                std::shared_ptr<const Node> quadtree)
     : m_bodies(std::move(bodies)), m_quadtree(std::move(quadtree)) {}
 
-ISimulation::ISimulation(const std::string& filename, double dt,
+// Copy constructor
+#ifdef DEBUG_COPY_CONSTRUCTOR
+SimulationStep::SimulationStep(const SimulationStep &other)
+    : m_bodies(other.m_bodies), m_quadtree(other.m_quadtree) {
+  std::cout << "SimulationStep copy constructor\n";
+}
+#else
+SimulationStep::SimulationStep(const SimulationStep &other) = default;
+#endif
+
+// Move constructor
+#ifdef DEBUG_MOVE_CONSTRUCTOR
+SimulationStep::SimulationStep(SimulationStep &&other) noexcept
+    : m_bodies(std::move(other.m_bodies)),
+      m_quadtree(std::move(other.m_quadtree)) {
+  std::cout << "SimulationStep move constructor\n";
+}
+#else
+SimulationStep::SimulationStep(SimulationStep &&other) noexcept = default;
+#endif
+
+// Copy assignment operator
+#ifdef DEBUG_COPY_ASSIGNMENT_OPERATOR
+SimulationStep &SimulationStep::operator=(const SimulationStep &other) {
+  std::cout << "SimulationStep copy assignment operator\n";
+  m_bodies = other.m_bodies;
+  m_quadtree = other.m_quadtree;
+  return *this;
+}
+#else
+SimulationStep &SimulationStep::operator=(const SimulationStep &other) =
+    default;
+#endif
+
+// Move assignment operator
+#ifdef DEBUG_MOVE_ASSIGNMENT_OPERATOR
+SimulationStep &SimulationStep::operator=(SimulationStep &&other) noexcept {
+  std::cout << "SimulationStep move assignment operator\n";
+  m_bodies = std::move(other.m_bodies);
+  m_quadtree = std::move(other.m_quadtree);
+  return *this;
+}
+#else
+SimulationStep &SimulationStep::operator=(SimulationStep &&other) noexcept =
+    default;
+#endif
+
+ISimulation::ISimulation(const std::string &filename, double dt,
                          SimulationType type = APPROXIMATED)
     : m_dt(dt),
       m_force_algorithm_fn(type == APPROXIMATED
@@ -36,6 +128,7 @@ ISimulation::ISimulation(const std::string& filename, double dt,
   file >> n_bodies;
 
   std::vector<SimulatedBody> bodies;
+  bodies.reserve(n_bodies);
   for (unsigned i = 0; i < n_bodies; i++) {
     double position_x, position_y;
     double mass;
@@ -47,9 +140,10 @@ ISimulation::ISimulation(const std::string& filename, double dt,
                        {velocity_x, velocity_y});
     bodies.push_back(std::move(body));
   }
-  AlignedBox2d bbox = compute_square_bounding_box(bodies);
-  auto quadtree = std::make_shared<Node>(bbox.min(), bbox.max());
-  SimulationStep step0(bodies, quadtree);
+
+  SimulationStep step0(std::move(bodies), nullptr);
+
+  m_data.reserve(1);
   m_data.push_back(std::move(step0));
 
   file.close();
@@ -70,6 +164,8 @@ ISimulation::ISimulation(std::vector<SimulatedBody>&& bodies, double dt,
 }
 
 void ISimulation::run_continuously(unsigned n_steps) {
+  m_data.reserve(n_steps);
+
   for (unsigned i = 0; i < n_steps; i++) {
     m_curr_step++;
     step();
