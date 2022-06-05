@@ -32,13 +32,14 @@ Vector2d compute_gravitational_force(const Body& b1, const Body& b2) {
 
 Vector2d compute_approximate_net_force_on_body(const Node& node,
                                                const Body& body) {
-  const auto visit_empty = [](const Empty&) -> Vector2d { return {0, 0}; };
-
-  const auto visit_body = [&body](const Body& visited) -> Vector2d {
-    return compute_gravitational_force(visited, body);
+  const auto visit_leaf = [&](const Node::Leaf& leaf) -> Vector2d {
+    if (leaf.m_body.has_value()) {
+      return compute_gravitational_force(*leaf.m_body, body);
+    }
+    return {0, 0};
   };
 
-  const auto visit_region = [&](const Subquadrants& subquadrants) -> Vector2d {
+  const auto visit_fork = [&](const Node::Fork& fork) -> Vector2d {
     double distance = (body.m_position - node.center_of_mass()).norm();
     if (node.length() / distance < OMEGA) {
       // Approximation
@@ -46,7 +47,7 @@ Vector2d compute_approximate_net_force_on_body(const Node& node,
           {node.center_of_mass(), node.total_mass()}, body);
     } else {
       return std::accumulate(
-          subquadrants.begin(), subquadrants.end(), Vector2d{0, 0},
+          fork.m_children.begin(), fork.m_children.end(), Vector2d{0, 0},
           [&body](const Vector2d& total, const std::unique_ptr<Node>& curr) {
             return (total + compute_approximate_net_force_on_body(*curr, body))
                 .eval();
@@ -54,28 +55,27 @@ Vector2d compute_approximate_net_force_on_body(const Node& node,
     }
   };
 
-  return std::visit(overloaded{visit_empty, visit_body, visit_region},
-                    node.data());
+  return std::visit(overloaded{visit_fork, visit_leaf}, node.data());
 }
 
 Vector2d compute_exact_net_force_on_body(const Node& node, const Body& body) {
-  const auto visit_empty = [](const Empty&) -> Vector2d { return {0, 0}; };
-
-  const auto visit_body = [&body](const Body& visited) -> Vector2d {
-    return compute_gravitational_force(visited, body);
+  const auto visit_leaf = [&](const Node::Leaf& leaf) -> Vector2d {
+    if (leaf.m_body.has_value()) {
+      return compute_gravitational_force(*leaf.m_body, body);
+    }
+    return {0, 0};
   };
 
-  const auto visit_region = [&](const Subquadrants& subquadrants) -> Vector2d {
+  const auto visit_fork = [&](const Node::Fork& fork) -> Vector2d {
     return std::accumulate(
-        subquadrants.begin(), subquadrants.end(), Vector2d{0, 0},
+        fork.m_children.begin(), fork.m_children.end(), Vector2d{0, 0},
         [&body](const Vector2d& total, const std::unique_ptr<Node>& curr) {
           return (total + compute_approximate_net_force_on_body(*curr, body))
               .eval();
         });
   };
 
-  return std::visit(overloaded{visit_empty, visit_body, visit_region},
-                    node.data());
+  return std::visit(overloaded{visit_fork, visit_leaf}, node.data());
 }
 
 }  // namespace bh

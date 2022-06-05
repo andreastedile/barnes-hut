@@ -10,42 +10,37 @@
 
 namespace bh {
 
+Node::Fork::AggregateBody compute_aggregate_body(
+    const std::array<std::unique_ptr<Node>, 4> &subquadrants) {
+  Vector2d center_of_mass =
+      subquadrants[NW]->center_of_mass() * subquadrants[NW]->total_mass() +
+      subquadrants[NE]->center_of_mass() * subquadrants[NE]->total_mass() +
+      subquadrants[SE]->center_of_mass() * subquadrants[SE]->total_mass() +
+      subquadrants[SW]->center_of_mass() * subquadrants[SW]->total_mass();
+  double total_mass =
+      subquadrants[NW]->total_mass() + subquadrants[NE]->total_mass() +
+      subquadrants[SE]->total_mass() + subquadrants[SW]->total_mass();
+
+  return {center_of_mass / total_mass, total_mass};
+}
+
+Node::Leaf::Leaf(const Body &body) : m_body(body) {}
+
+Node::Fork::Fork(std::array<std::unique_ptr<Node>, 4> children)
+    : m_children(std::move(children)),
+      m_aggregate_body(compute_aggregate_body(m_children)) {}
+
+void Node::Fork::update_aggregate_body() {
+  m_aggregate_body = compute_aggregate_body(m_children);
+}
+
 Node::Node(const Vector2d &bottom_left, const Vector2d &top_right)
-    : m_data(Empty()), m_box(bottom_left, top_right) {
+    : m_n_nodes(1), m_data(Leaf()), m_box(bottom_left, top_right) {
   Vector2d top_left(bottom_left.x(), top_right.y());
   Vector2d bottom_right(top_right.x(), bottom_left.y());
   if ((top_left - bottom_left).norm() != (bottom_right - bottom_left).norm()) {
     throw std::invalid_argument("Cannot create a non-square subquadrant");
   }
-}
-
-std::ostream &operator<<(std::ostream &os, const Empty &empty) {
-  return os << "Empty quadrant";
-}
-
-std::ostream &operator<<(std::ostream &os, const Body &body) {
-  return os << "Body[ x: " << body.m_position.x()
-            << ", y: " << body.m_position.y() << ", mass: " << body.m_mass
-            << " ]";
-}
-
-std::ostream &operator<<(std::ostream &os, const Subquadrants &subquadrants) {
-  os << "Subquadrants[ ";
-  for (const auto &subquadrant : subquadrants) {
-    os << subquadrant.get() << " ";
-  }
-  os << " ]";
-  return os;
-}
-
-std::ostream &operator<<(std::ostream &os, const Data &data) {
-  std::visit([&](const auto &val) { os << val; }, data);
-  return os;
-}
-
-std::ostream &operator<<(std::ostream &os, const Node &node) {
-  return os << "id: " << node.m_id << ", top left: " << node.length()
-            << ", length: " << node.length() << ", data: " << node.m_data;
 }
 
 void Node::insert(const Body &new_body) {
@@ -54,99 +49,122 @@ void Node::insert(const Body &new_body) {
         "Attempted to insert a body outside the subquadrant's boundaries");
   }
 
-  // https://en.cppreference.com/w/cpp/utility/variant/visit
+  auto visit_leaf = [&](Node::Leaf &leaf) {
+    if (leaf.m_body.has_value()) {
+      Body &existing_body = *leaf.m_body;
 
-  auto insert_in_empty_node = [&](const Empty &) {
-    m_data.emplace<Body>(new_body);
-    update_center_of_mass();
-  };
-
-  auto insert_in_body = [&](const Body &existing_body) {
-    // If the two bodies coincide, sum their masses.
-    if (new_body.m_position == existing_body.m_position) {
+      // If the two bodies coincide, sum their masses.
+      if (new_body.m_position == existing_body.m_position) {
 #ifndef NDEBUG
-      std::cout << "bodies coincide\n";
+        std::cout << "bodies coincide\n";
 #endif
-      m_data.emplace<Body>(existing_body.m_position,
-                           existing_body.m_mass + new_body.m_mass);
-    }
-    // Otherwise, create four empty subquadrants, relocate the existing body and
-    // the new body in the corresponding subquadrants, and apply recurison.
-    else {
-      // clang-format off
-      auto nw = new Node((top_left() + bottom_left()) / 2, (top_right() + top_left()) / 2);
-      auto ne = new Node(m_box.center(), top_right());
-      auto se = new Node((bottom_right() + bottom_left()) / 2, (top_right() + bottom_right()) / 2);
-      auto sw = new Node(bottom_left(), m_box.center());
-      // clang-format on
-
-      // Don't assign m_data here!
-      // m_data = Subquadrants{nw, ne, se, sw};
-
-      switch (get_subquadrant(existing_body.m_position)) {
-        case NW:
-          nw->insert(existing_body);
-          break;
-        case NE:
-          ne->insert(existing_body);
-          break;
-        case SE:
-          se->insert(existing_body);
-          break;
-        case SW:
-          sw->insert(existing_body);
-          break;
+        existing_body.m_mass += new_body.m_mass;
       }
+      // Otherwise, create four empty subquadrants, relocate the existing body
+      // and the new body in the corresponding subquadrants, and apply
+      // recurison.
+      else {
+        // clang-format off
+        auto nw = std::make_unique<Node>((top_left() + bottom_left()) / 2, (top_right() + top_left()) / 2);
+        auto ne = std::make_unique<Node>(m_box.center(), top_right());
+        auto se = std::make_unique<Node>((bottom_right() + bottom_left()) / 2, (top_right() + bottom_right()) / 2);
+        auto sw = std::make_unique<Node>(bottom_left(), m_box.center());
+        // clang-format on
 
-      switch (get_subquadrant(new_body.m_position)) {
-        case NW:
-          nw->insert(new_body);
-          break;
-        case NE:
-          ne->insert(new_body);
-          break;
-        case SE:
-          se->insert(new_body);
-          break;
-        case SW:
-          sw->insert(new_body);
-          break;
+        switch (get_subquadrant(existing_body.m_position)) {
+          case NW:
+            nw->insert(existing_body);
+            ++m_n_nodes;
+            break;
+          case NE:
+            ne->insert(existing_body);
+            ++m_n_nodes;
+            break;
+          case SE:
+            se->insert(existing_body);
+            ++m_n_nodes;
+            break;
+          case SW:
+            sw->insert(existing_body);
+            ++m_n_nodes;
+            break;
+        }
+
+        switch (get_subquadrant(new_body.m_position)) {
+          case NW: {
+            unsigned n_nw_nodes = nw->n_nodes();
+            nw->insert(new_body);
+            unsigned n_new_nw_nodes = nw->n_nodes() - n_nw_nodes;
+            m_n_nodes += n_new_nw_nodes;
+            break;
+          }
+          case NE: {
+            unsigned n_ne_nodes = ne->n_nodes();
+            ne->insert(new_body);
+            unsigned n_new_ne_nodes = ne->n_nodes() - n_ne_nodes;
+            m_n_nodes += n_new_ne_nodes;
+            break;
+          }
+          case SE: {
+            unsigned n_se_nodes = se->n_nodes();
+            se->insert(new_body);
+            unsigned n_se_new_nodes = se->n_nodes() - n_se_nodes;
+            m_n_nodes += n_se_new_nodes;
+            break;
+          }
+          case SW: {
+            unsigned n_sw_nodes = sw->n_nodes();
+            sw->insert(new_body);
+            unsigned n_sw_new_nodes = sw->n_nodes() - n_sw_nodes;
+            m_n_nodes += n_sw_new_nodes;
+            break;
+          }
+        }
+
+        m_data =
+            Fork({std::move(nw), std::move(ne), std::move(se), std::move(sw)});
       }
-
-      m_data =
-          Subquadrants{std::unique_ptr<Node>(nw), std::unique_ptr<Node>(ne),
-                       std::unique_ptr<Node>(se), std::unique_ptr<Node>(sw)};
+    } else {
+      leaf.m_body = new_body;
     }
-
-    update_center_of_mass();
   };
 
-  auto insert_in_region = [&](Subquadrants &subquadrants) {
+  auto visit_fork = [&](Fork &fork) {
     switch (get_subquadrant(new_body.m_position)) {
-      case NW:
-        subquadrants[NW]->insert(new_body);
+      case NW: {
+        unsigned n_nw_nodes = fork.m_children[NW]->n_nodes();
+        Vector2d nw_center_of_mass = fork.m_children[NW]->center_of_mass();
+        fork.m_children[NW]->insert(new_body);
+        unsigned n_new_nw_nodes = fork.m_children[NW]->n_nodes() - n_nw_nodes;
+        m_n_nodes += n_new_nw_nodes;
         break;
-      case NE:
-        subquadrants[NE]->insert(new_body);
+      }
+      case NE: {
+        unsigned n_ne_nodes = fork.m_children[NE]->n_nodes();
+        fork.m_children[NE]->insert(new_body);
+        unsigned n_new_ne_nodes = fork.m_children[NE]->n_nodes() - n_ne_nodes;
+        m_n_nodes += n_new_ne_nodes;
         break;
-      case SE:
-        subquadrants[SE]->insert(new_body);
+      }
+      case SE: {
+        unsigned n_se_nodes = fork.m_children[SE]->n_nodes();
+        fork.m_children[SE]->insert(new_body);
+        unsigned n_new_se_nodes = fork.m_children[SE]->n_nodes() - n_se_nodes;
+        m_n_nodes += n_new_se_nodes;
         break;
-      case SW:
-        subquadrants[SW]->insert(new_body);
+      }
+      case SW: {
+        unsigned n_sw_nodes = fork.m_children[SW]->n_nodes();
+        fork.m_children[SW]->insert(new_body);
+        unsigned n_new_sw_nodes = fork.m_children[SW]->n_nodes() - n_sw_nodes;
+        m_n_nodes += n_new_sw_nodes;
         break;
+      }
     }
-
-    update_center_of_mass();
+    fork.update_aggregate_body();
   };
 
-  std::visit(
-      overloaded{
-          insert_in_empty_node,
-          insert_in_body,
-          insert_in_region,
-      },
-      m_data);
+  std::visit(overloaded{visit_fork, visit_leaf}, m_data);
 }
 
 Subquadrant Node::get_subquadrant(const Vector2d &point) {
@@ -167,40 +185,40 @@ Subquadrant Node::get_subquadrant(const Vector2d &point) {
       "Cannot get the subquadrant of a point outside of the bounding box");
 }
 
-void Node::update_center_of_mass() {
-  auto update_empty = [](Empty &) {};
-  auto update_body = [&](Body &body) {
-    m_center_of_mass = body.m_position;
-    m_total_mass = body.m_mass;
-  };
-  auto update_region = [&](Subquadrants &subquadrants) {
-    // new coordinates of the quadrant's center of mass
-    Vector2d center_of_mass{0, 0};
-    // new total mass of the quadrant
-    double total_mass = 0;
-    // weighted average over the sub-quadrants centers of total_mass
-    for (const auto &subquadrant : subquadrants) {
-      center_of_mass +=
-          subquadrant->m_center_of_mass * subquadrant->m_total_mass;
-      total_mass += subquadrant->m_total_mass;
+Vector2d Node::center_of_mass() const {
+  auto visit_leaf = [&](const Node::Leaf &leaf) -> Vector2d {
+    if (leaf.m_body.has_value()) {
+      return leaf.m_body->m_position;
     }
-    m_center_of_mass = center_of_mass / total_mass;
-    m_total_mass = total_mass;
+    return {0, 0};
   };
 
-  std::visit(
-      overloaded{
-          update_empty,
-          update_body,
-          update_region,
-      },
-      m_data);
+  auto visit_fork = [&](const Node::Fork &fork) -> Vector2d {
+    return fork.m_aggregate_body.m_position;
+  };
+
+  return std::visit(overloaded{visit_fork, visit_leaf}, m_data);
 }
 
-const Vector2d &Node::center_of_mass() const { return m_center_of_mass; };
+double Node::total_mass() const {
+  auto visit_leaf = [&](const Node::Leaf &leaf) -> double {
+    if (leaf.m_body.has_value()) {
+      return leaf.m_body->m_mass;
+    }
+    return 0;
+  };
 
-double Node::total_mass() const { return m_total_mass; };
+  auto visit_fork = [&](const Node::Fork &fork) -> double {
+    return fork.m_aggregate_body.m_mass;
+  };
 
-const Data &Node::data() const { return m_data; };
+  return std::visit(overloaded{visit_fork, visit_leaf}, m_data);
+}
+
+unsigned Node::n_nodes() const { return m_n_nodes; }
+
+const std::variant<Node::Fork, Node::Leaf> &Node::data() const {
+  return m_data;
+}
 
 }  // namespace bh

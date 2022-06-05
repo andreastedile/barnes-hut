@@ -24,7 +24,8 @@ TEST_CASE("empty tree creation") {
 
   REQUIRE(root.top_left() == Vector2d{0, 10});
   REQUIRE(root.length() == 10);
-  REQUIRE_NOTHROW(std::get<Empty>(root.data()));
+  REQUIRE_NOTHROW(std::get<Node::Leaf>(root.data()));
+  REQUIRE_FALSE(std::get<Node::Leaf>(root.data()).m_body.has_value());
   REQUIRE(root.center_of_mass() == Vector2d{0, 0});
   REQUIRE(root.total_mass() == 0);
 }
@@ -39,8 +40,8 @@ TEST_CASE("body insertion") {
 
   // body n. 1
   root.insert({{2, 8}, 1});
-  REQUIRE_NOTHROW(std::get<Body>(root.data()));
-  const auto& body = std::get<Body>(root.data());
+  REQUIRE_NOTHROW(std::get<Node::Leaf>(root.data()));
+  const auto& body = *std::get<Node::Leaf>(root.data()).m_body;
   REQUIRE(body.m_position == Vector2d{2, 8});
   REQUIRE(body.m_mass == 1);
   REQUIRE(root.center_of_mass() == Vector2d{2, 8});
@@ -48,7 +49,7 @@ TEST_CASE("body insertion") {
 
   // body n. 2
   root.insert({{3, 8}, 1});
-  REQUIRE_NOTHROW(std::get<Subquadrants>(root.data()));
+  REQUIRE_NOTHROW(std::get<Node::Fork>(root.data()));
   REQUIRE(root.center_of_mass() == Vector2d{2.5, 8});
   REQUIRE(root.total_mass() == 2);
 
@@ -57,56 +58,56 @@ TEST_CASE("body insertion") {
   REQUIRE(root.total_mass() == 2);
 
   // depth 1, nowrth-west subquadrant
-  const auto& nw1 = std::get<Subquadrants>(root.data())[NW];
-  REQUIRE(nw1->top_left() == Vector2d{0, 10});
-  REQUIRE(nw1->length() == 5);
-  REQUIRE(nw1->center_of_mass() == Vector2d{2.5, 8});
+  const auto& nw1 = *std::get<Node::Fork>(root.data()).m_children[NW];
+  REQUIRE(nw1.top_left() == Vector2d{0, 10});
+  REQUIRE(nw1.length() == 5);
+  REQUIRE(nw1.center_of_mass() == Vector2d{2.5, 8});
   // depth 1, north-east subquadrant
-  const auto& ne1 = std::get<Subquadrants>(root.data())[NE];
-  REQUIRE(ne1->top_left() == Vector2d{5, 10});
-  REQUIRE(ne1->length() == 5);
-  REQUIRE(ne1->center_of_mass() == Vector2d{0, 0});
+  const auto& ne1 = *std::get<Node::Fork>(root.data()).m_children[NE];
+  REQUIRE(ne1.top_left() == Vector2d{5, 10});
+  REQUIRE(ne1.length() == 5);
+  REQUIRE(ne1.center_of_mass() == Vector2d{0, 0});
   // depth 1, south-east subquadrant
-  const auto& se1 = std::get<Subquadrants>(root.data())[SE];
-  REQUIRE(se1->top_left() == Vector2d{5, 5});
-  REQUIRE(se1->length() == 5);
-  REQUIRE(se1->center_of_mass() == Vector2d{0, 0});
+  const auto& se1 = *std::get<Node::Fork>(root.data()).m_children[SE];
+  REQUIRE(se1.top_left() == Vector2d{5, 5});
+  REQUIRE(se1.length() == 5);
+  REQUIRE(se1.center_of_mass() == Vector2d{0, 0});
   // depth 1, south-weast subquadrant
-  const auto& sw1 = std::get<Subquadrants>(root.data())[SW];
-  REQUIRE(sw1->top_left() == Vector2d{0, 5});
-  REQUIRE(sw1->length() == 5);
-  REQUIRE(sw1->center_of_mass() == Vector2d{0, 0});
+  const auto& sw1 = *std::get<Node::Fork>(root.data()).m_children[SW];
+  REQUIRE(sw1.top_left() == Vector2d{0, 5});
+  REQUIRE(sw1.length() == 5);
+  REQUIRE(sw1.center_of_mass() == Vector2d{0, 0});
 
   // depth 2, nowrth-west subquadrant
-  const auto& nw2 = std::get<Subquadrants>(nw1->data())[NW];
-  REQUIRE(nw2->top_left() == Vector2d{0, 10});
-  REQUIRE(nw2->length() == 2.5);
-  REQUIRE(nw2->center_of_mass() == Vector2d{2, 8});
-  REQUIRE(nw2->total_mass() == 1);
-  const auto& nw2body = std::get<Body>(nw2->data());
+  const auto& nw2 = *std::get<Node::Fork>(nw1.data()).m_children[NW];
+  REQUIRE(nw2.top_left() == Vector2d{0, 10});
+  REQUIRE(nw2.length() == 2.5);
+  REQUIRE(nw2.center_of_mass() == Vector2d{2, 8});
+  REQUIRE(nw2.total_mass() == 1);
+  const auto& nw2body = *std::get<Node::Leaf>(nw2.data()).m_body;
   REQUIRE(nw2body.m_position == Vector2d{2, 8});
   REQUIRE(nw2body.m_mass == 1);
   // depth 2, north-east subquadrant
-  const auto& ne2 = std::get<Subquadrants>(nw1->data())[NE];
-  REQUIRE(ne2->top_left() == Vector2d{2.5, 10});
-  REQUIRE(ne2->length() == 2.5);
-  REQUIRE(ne2->center_of_mass() == Vector2d{3, 8});
-  REQUIRE(ne2->total_mass() == 1);
-  const auto& ne2body = std::get<Body>(ne2->data());
+  const auto& ne2 = *std::get<Node::Fork>(nw1.data()).m_children[NE];
+  REQUIRE(ne2.top_left() == Vector2d{2.5, 10});
+  REQUIRE(ne2.length() == 2.5);
+  REQUIRE(ne2.center_of_mass() == Vector2d{3, 8});
+  REQUIRE(ne2.total_mass() == 1);
+  const auto& ne2body = *std::get<Node::Leaf>(ne2.data()).m_body;
   REQUIRE(ne2body.m_position == Vector2d{3, 8});
   REQUIRE(ne2body.m_mass == 1);
   // depth 2, south-east subquadrant
-  const auto& se2 = std::get<Subquadrants>(nw1->data())[SE];
-  REQUIRE(se2->top_left() == Vector2d{2.5, 7.5});
-  REQUIRE(se2->length() == 2.5);
-  REQUIRE(se2->center_of_mass() == Vector2d{0, 0});
-  REQUIRE_NOTHROW(std::get<Empty>(se2->data()));
+  const auto& se2 = *std::get<Node::Fork>(nw1.data()).m_children[SE];
+  REQUIRE(se2.top_left() == Vector2d{2.5, 7.5});
+  REQUIRE(se2.length() == 2.5);
+  REQUIRE(se2.center_of_mass() == Vector2d{0, 0});
+  REQUIRE_NOTHROW(std::get<Node::Leaf>(se2.data()));
   // depth 2, south-weast subquadrant
-  const auto& sw2 = std::get<Subquadrants>(nw1->data())[SW];
-  REQUIRE(sw2->top_left() == Vector2d{0, 7.5});
-  REQUIRE(sw2->length() == 2.5);
-  REQUIRE(sw2->center_of_mass() == Vector2d{0, 0});
-  REQUIRE_NOTHROW(std::get<Empty>(sw2->data()));
+  const auto& sw2 = *std::get<Node::Fork>(nw1.data()).m_children[SW];
+  REQUIRE(sw2.top_left() == Vector2d{0, 7.5});
+  REQUIRE(sw2.length() == 2.5);
+  REQUIRE(sw2.center_of_mass() == Vector2d{0, 0});
+  REQUIRE_NOTHROW(std::get<Node::Leaf>(sw2.data()));
 }
 
 TEST_CASE("adding coinciding bodies") {
@@ -114,7 +115,7 @@ TEST_CASE("adding coinciding bodies") {
   root.insert({{2, 2}, 1});
   root.insert({{2, 2}, 1});  // prints "bodies coincide"
 
-  const auto& body = std::get<Body>(root.data());
+  const auto& body = *std::get<Node::Leaf>(root.data()).m_body;
   REQUIRE(body.m_position == Vector2d{2, 2});
   REQUIRE(body.m_mass == 2);
 }

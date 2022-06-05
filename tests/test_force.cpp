@@ -14,30 +14,30 @@ TEST_CASE("compute gravitational force") {
   }
 
   SECTION("two bodies on the x axis") {
-    Body b1({0.f, 0.f}, 1.f);
-    Body b2({10.f, 0.f}, 1.f);
+    Body b1({0, 0}, 1);
+    Body b2({10, 0}, 1);
 
     SECTION("force that b1 exerts on b2") {
       Vector2d f = bh::compute_gravitational_force(b1, b2);
-      REQUIRE(f.x() == -0.005f);  // -0.00499999989 -> -0.005f
-      // REQUIRE(f.y() == 0.f); // -4.37113873E-10 -> -0.0f
+      REQUIRE(f.x() == -0.005);  // -0.00499999989 -> -0.005f
+      // REQUIRE(f.y() == 0); // -4.37113873E-10 -> -0.0f
     }
   }
 
   SECTION("two bodies on the y axis") {
-    Body b1({0.f, 0.f}, 1.f);
-    Body b2({0.f, 10.f}, 1.f);
+    Body b1({0, 0}, 1);
+    Body b2({0, 10}, 1);
 
     SECTION("force that b1 exerts on b2") {
       Vector2d f = bh::compute_gravitational_force(b1, b2);
-      // REQUIRE(f.x() == 0.f);      // -2.18556936E-10 -> -0.0f
-      REQUIRE(f.y() == -0.005f);  // -0.00499999989 -> -0.005f
+      // REQUIRE(f.x() == 0);      // -2.18556936E-10 -> -0.0f
+      REQUIRE(f.y() == -0.005);  // -0.00499999989 -> -0.005f
     }
   }
 
   SECTION("two bodies, 45°") {
-    Body b1({0.f, 0.f}, 1.f);
-    Body b2({10.f, 10.f}, 1.f);
+    Body b1({0, 0}, 1);
+    Body b2({10, 10}, 1);
 
     SECTION("force that b1 exerts on b2") {
       Vector2d f = bh::compute_gravitational_force(b1, b2);
@@ -47,15 +47,15 @@ TEST_CASE("compute gravitational force") {
   }
 
   SECTION("three bodies") {
-    Body left({-10.f, 0.f}, 1.f);
-    Body center({0.f, 0.f}, 1.f);
-    Body right({10.f, 0.f}, 1.f);
+    Body left({-10, 0}, 1);
+    Body center({0, 0}, 1);
+    Body right({10, 0}, 1);
 
     Vector2d left_f = bh::compute_gravitational_force(left, center);
     Vector2d right_f = bh::compute_gravitational_force(right, center);
     Vector2d sum_f = left_f + right_f;
-    REQUIRE(sum_f.x() == 0.f);
-    // REQUIRE(sum_f.y() == 0.f); // -0.0f == 0.0f
+    REQUIRE(sum_f.x() == 0);
+    // REQUIRE(sum_f.y() == 0); // -0.0f == 0.0f
   }
 
   /*
@@ -93,13 +93,13 @@ TEST_CASE("compute exact net force on body") {
 
   root.insert({{5, 0}, 1});
   f = compute_exact_net_force_on_body(root, {{0, 0}, 1});
-  REQUIRE(f.x() == 0.02f);  // -0.00499999989 -> -0.005f
-  REQUIRE(f.y() == 0.f);    // -4.37113873E-10 -> -0.0f
+  REQUIRE(f.x() == 0.02);  // -0.00499999989 -> -0.005f
+  REQUIRE(f.y() == 0);    // -4.37113873E-10 -> -0.0f
 
   root.insert({{-5, 0}, 2});
   f = compute_exact_net_force_on_body(root, {{0, 0}, 1});
-  REQUIRE(f.x() == -0.02f);
-  // REQUIRE(f.y() == 0.f); // -0.0f == 0.0f
+  REQUIRE(f.x() == -0.02);
+  // REQUIRE(f.y() == 0); // -0.0f == 0.0f
 }
 
 TEST_CASE("compute approximate net force on body") {

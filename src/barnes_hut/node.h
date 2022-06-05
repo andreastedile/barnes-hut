@@ -5,8 +5,9 @@
 #include <eigen3/Eigen/Geometry>
 #include <memory>  // unique_ptr
 #include <nlohmann/json.hpp>
-#include <ostream>  // overload operator <<
-#include <variant>  // Data
+#include <optional>  // Leaf's body
+#include <variant>   // Node's m_data
+#include <vector>
 
 #include "body.h"
 
@@ -18,27 +19,37 @@ namespace bh {
 
 class Node;
 
-using Empty = std::monostate;
-using Subquadrants = std::array<std::unique_ptr<Node>, 4>;
-using Data = std::variant<Empty, Body, Subquadrants>;
-
 enum Subquadrant { NW, NE, SE, SW };
 
 class Node {
-  inline static unsigned n_nodes = 0;
-  const unsigned m_id = n_nodes++;
-
-  Data m_data;
-
-  Vector2d m_center_of_mass{0, 0};
-  double m_total_mass = 0;
-
-  void update_center_of_mass();
-
-  // See "Arbitrary types conversions" in https://github.com/nlohmann/json
-  friend void to_json(json &j, const Node &node);
-
  public:
+  /**
+   * A fork in the quadtree is a node with four children.
+   */
+  struct Fork {
+    using AggregateBody = Body;
+    std::array<std::unique_ptr<Node>, 4> m_children;
+    AggregateBody m_aggregate_body;
+    explicit Fork(std::array<std::unique_ptr<Node>, 4> children);
+    void update_aggregate_body();
+  };
+
+  /**
+   * A leaf in the tree is an empty node or a node containing exactly one body.
+   */
+  struct Leaf {
+    std::optional<Body> m_body;
+    /**
+     * Constructs an empty subquadrant.
+     */
+    Leaf() = default;
+    /**
+     * Constructs a subquadrant containing a single body.
+     * @param body
+     */
+    explicit Leaf(const Body &body);
+  };
+
   const AlignedBox2d m_box;
   /**
    * @return The top left corner of the region.
@@ -71,12 +82,31 @@ class Node {
     return (top_right() - top_left()).norm();
   };
 
-  [[nodiscard]] const Vector2d &center_of_mass() const;
-  [[nodiscard]] double total_mass() const;
-  [[nodiscard]] const Data &data() const;
+  /**
+   * @return If the node is a fork in the tree, returns the center of mass of
+   *the bodies contained in the subquadrant. If is a non-empty leaf, returns the
+   *position of the single body it contains; otherwise, returns {0, 0}.
+   **/
+  [[nodiscard]] Vector2d center_of_mass() const;
 
   /**
-   * Creates an empty subquadrant.
+   * @return If the node is a fork in the tree, returns the aggregate mass of
+   * the bodies contained in the subquadrant, If it is a non-empty leaf, returns
+   * the mass of the single body it contains; otherwise, returns 0.
+   */
+  [[nodiscard]] double total_mass() const;
+
+  /**
+   * @return If the node is a fork in the tree, returns the aggregate number of
+   * nodes contained in the subquadrant, which is 4 or greater. If it is a leaf,
+   * returns 1.
+   */
+  [[nodiscard]] unsigned n_nodes() const;
+
+  [[nodiscard]] const std::variant<Fork, Leaf> &data() const;
+
+  /**
+   * Creates a node representing an empty subquadrant.
    * @param bottom_left coordinates of the bottom-left corner of the subquadrant
    * @param top_right coordinates of the top-right corner of the subquadrant
    */
@@ -90,10 +120,15 @@ class Node {
    */
   Subquadrant get_subquadrant(const Vector2d &point);
 
-  friend std::ostream &operator<<(std::ostream &os, const Node &node);
+ private:
+  unsigned m_n_nodes;
+
+  std::variant<Node::Fork, Node::Leaf> m_data;
+
+  // See "Arbitrary types conversions" in https://github.com/nlohmann/json
+  friend void to_json(json &j, const Node &node);
 };
 
-// void to_json(json &j, const Node &node);
 }  // namespace bh
 
 #endif  // BARNES_HUT_NODE_H
