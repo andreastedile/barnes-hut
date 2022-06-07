@@ -1,7 +1,7 @@
 #include <fstream>  // ofstream
 #include <nlohmann/json.hpp>
 
-#include "simulation.h"
+#include "simple_exact_simulator.h"
 
 using json = nlohmann::json;
 
@@ -20,9 +20,6 @@ void to_json(json &j, const SimulationStep &step) {
                  std::back_inserter(bodies),
                  [](const SimulatedBody &body) { return body; });
   j["bodies"] = bodies;
-  if (step.m_quadtree) {
-    j["quadtree"] = *step.m_quadtree;
-  }
 }
 
 void to_json(json &j, const std::vector<SimulationStep> &simulation_steps) {
@@ -31,13 +28,13 @@ void to_json(json &j, const std::vector<SimulationStep> &simulation_steps) {
                  [](const SimulationStep &step) { return step; });
 }
 
-void to_json(json &j, const ISimulation &simulation) {
-  j = {{"dt", simulation.m_dt},
-       {"n_steps", simulation.m_curr_step + 1},  // m_curr_step starts from 0
-       {"data", simulation.m_data}};
+void to_json(json &j, const SimpleExactSimulator &simulator) {
+  j = {{"dt", simulator.m_dt},
+       {"n_steps", simulator.m_curr_step + 1},  // m_curr_step starts from 0
+       {"simulation_steps", simulator.m_simulation_steps}};
 }
 
-void ISimulation::save() {
+void SimpleExactSimulator::save() const {
   json j = *this;
   std::ofstream o("simulation.json");
 #ifndef NDEBUG
