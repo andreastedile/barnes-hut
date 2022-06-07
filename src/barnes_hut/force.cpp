@@ -58,24 +58,4 @@ Vector2d compute_approximate_net_force_on_body(const Node& node,
   return std::visit(overloaded{visit_fork, visit_leaf}, node.data());
 }
 
-Vector2d compute_exact_net_force_on_body(const Node& node, const Body& body) {
-  const auto visit_leaf = [&](const Node::Leaf& leaf) -> Vector2d {
-    if (leaf.m_body.has_value()) {
-      return compute_gravitational_force(*leaf.m_body, body);
-    }
-    return {0, 0};
-  };
-
-  const auto visit_fork = [&](const Node::Fork& fork) -> Vector2d {
-    return std::accumulate(
-        fork.m_children.begin(), fork.m_children.end(), Vector2d{0, 0},
-        [&body](const Vector2d& total, const std::unique_ptr<Node>& curr) {
-          return (total + compute_approximate_net_force_on_body(*curr, body))
-              .eval();
-        });
-  };
-
-  return std::visit(overloaded{visit_fork, visit_leaf}, node.data());
-}
-
 }  // namespace bh

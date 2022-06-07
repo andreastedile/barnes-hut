@@ -111,12 +111,7 @@ SimulationStep &SimulationStep::operator=(SimulationStep &&other) noexcept =
     default;
 #endif
 
-ISimulation::ISimulation(const std::string &filename, double dt,
-                         SimulationType type = APPROXIMATED)
-    : m_dt(dt),
-      m_force_algorithm_fn(type == APPROXIMATED
-                               ? &compute_approximate_net_force_on_body
-                               : &compute_exact_net_force_on_body) {
+ISimulation::ISimulation(const std::string &filename, double dt) : m_dt(dt) {
   std::ifstream file(filename);
   if (!file.is_open()) {
     throw std::runtime_error("Could not open file " + filename);
@@ -148,12 +143,8 @@ ISimulation::ISimulation(const std::string &filename, double dt,
   std::cout << "Read " << n_bodies << " bodies. Simulation is ready\n";
 }
 
-ISimulation::ISimulation(std::vector<SimulatedBody> &bodies, double dt,
-                         SimulationType type = APPROXIMATED)
-    : m_dt(dt),
-      m_force_algorithm_fn(type == APPROXIMATED
-                               ? &compute_approximate_net_force_on_body
-                               : &compute_exact_net_force_on_body) {
+ISimulation::ISimulation(std::vector<SimulatedBody> &bodies, double dt)
+    : m_dt(dt) {
   AlignedBox2d bbox = compute_square_bounding_box(bodies);
   auto quadtree = std::make_shared<Node>(bbox.min(), bbox.max());
   m_data.emplace_back(std::move(bodies), std::move(quadtree));
@@ -167,16 +158,13 @@ void ISimulation::run_continuously(unsigned n_steps) {
   }
 }
 
-SimulatedBody SimulatedBody::updated(
-    const bh::Node &quadtree, double dt,
-    const std::function<Vector2d(const Node &, const Body &)>
-        &force_algorithm_fn = bh::compute_approximate_net_force_on_body) const {
+SimulatedBody SimulatedBody::updated(const bh::Node &quadtree, double dt) const {
   // The body's position is updated according to its current velocity
   Vector2d position(m_position + m_velocity * dt);
 
   // The net force on the particle is computed by adding the individual forces
   // from all the other particles.
-  Vector2d force = force_algorithm_fn(quadtree, *this);
+  Vector2d force = compute_approximate_net_force_on_body(quadtree, *this);
 
   // The body's velocity is updated according to the net force on that particle.
   Vector2d velocity(m_velocity + force / m_mass * dt);

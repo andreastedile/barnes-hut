@@ -16,10 +16,8 @@ namespace bh {
 struct SimulatedBody : Body {
   Vector2d m_velocity;
   SimulatedBody(Vector2d position, double mass, Vector2d velocity);
-  [[nodiscard]] SimulatedBody updated(
-      const bh::Node& quadtree, double dt,
-      const std::function<Vector2d(const Node&, const Body&)>&
-          m_force_algorithm_fn) const;
+  [[nodiscard]] SimulatedBody updated(const bh::Node &quadtree,
+                                      double dt) const;
 
   // Copy constructor
   SimulatedBody(const SimulatedBody &other);
@@ -29,21 +27,6 @@ struct SimulatedBody : Body {
   SimulatedBody &operator=(const SimulatedBody &other);
   // Move assignment operator
   SimulatedBody &operator=(SimulatedBody &&other) noexcept;
-};
-
-/**
- * Type of simulation.
- */
-enum SimulationType {
-  /**
-   * The computation of the net forces acting on a single body is exact.
-   */
-  EXACT,
-  /**
-   * The computation of the net forces acting on a single body uses the
-   * Barnes–Hut approximation algorithm.
-   */
-  APPROXIMATED
 };
 
 struct SimulationStep {
@@ -70,15 +53,14 @@ class ISimulation {
    * @param dt simulation timestep; defines the accuracy of the simulation
    * @param type of simulation
    */
-  ISimulation(const std::string& filename, double dt, SimulationType type);
+  ISimulation(const std::string &filename, double dt);
   /**
    * Creates a simulation with the provided bodies.
    * @param bodies to add in the simulation
    * @param dt simulation timestep; defines the accuracy of the simulation
    * @param type of simulation
    */
-  ISimulation(std::vector<SimulatedBody> &bodies, double dt,
-              SimulationType type);
+  ISimulation(std::vector<SimulatedBody> &bodies, double dt);
   virtual ~ISimulation() = default;
   /**
    * Runs the simulation for the specified number of steps.
@@ -94,12 +76,11 @@ class ISimulation {
   virtual void step() = 0;
 
  protected:
-  const std::function<Vector2d(const Node&, const Body&)> m_force_algorithm_fn;
   std::vector<SimulationStep> m_data;
   unsigned int m_curr_step = 0;
 
  private:
-  friend void to_json(json& j, const ISimulation& simulation);
+  friend void to_json(json &j, const ISimulation &simulation);
 };
 
 class SimpleSimulator : public ISimulation {

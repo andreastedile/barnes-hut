@@ -35,7 +35,7 @@ void SimpleSimulator::step() {
   updated_bodies.reserve(bodies.size());
   std::transform(std::execution::par_unseq, bodies.begin(), bodies.end(),
                  updated_bodies.begin(), [&](const SimulatedBody& body) {
-                   return body.updated(*quadtree, m_dt, m_force_algorithm_fn);
+                   return body.updated(*quadtree, m_dt);
                  });
 
   m_data.emplace_back(std::move(updated_bodies), std::move(quadtree));
