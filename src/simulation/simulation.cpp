@@ -4,6 +4,7 @@
 #include <fstream>         // ifstream
 #include <iostream>
 #include <utility>  // move
+#include <vector>
 
 #include "force.h"
 #include "node.h"
@@ -158,7 +159,8 @@ void ISimulation::run_continuously(unsigned n_steps) {
   }
 }
 
-SimulatedBody SimulatedBody::updated(const bh::Node &quadtree, double dt) const {
+SimulatedBody SimulatedBody::updated(const bh::Node &quadtree,
+                                     double dt) const {
   // The body's position is updated according to its current velocity
   Vector2d position(m_position + m_velocity * dt);
 
