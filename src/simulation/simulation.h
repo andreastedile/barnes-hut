@@ -77,7 +77,7 @@ class ISimulation {
    * @param dt simulation timestep; defines the accuracy of the simulation
    * @param type of simulation
    */
-  ISimulation(std::vector<SimulatedBody>&& bodies, double dt,
+  ISimulation(std::vector<SimulatedBody> &bodies, double dt,
               SimulationType type);
   virtual ~ISimulation() = default;
   /**

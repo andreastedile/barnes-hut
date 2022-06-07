@@ -141,17 +141,14 @@ ISimulation::ISimulation(const std::string &filename, double dt,
     bodies.push_back(std::move(body));
   }
 
-  SimulationStep step0(std::move(bodies), nullptr);
-
-  m_data.reserve(1);
-  m_data.push_back(std::move(step0));
-
   file.close();
 
-  std::cout << "Read" << n_bodies << " bodies. Simulation is ready\n";
+  m_data.emplace_back(std::move(bodies), nullptr);
+
+  std::cout << "Read " << n_bodies << " bodies. Simulation is ready\n";
 }
 
-ISimulation::ISimulation(std::vector<SimulatedBody>&& bodies, double dt,
+ISimulation::ISimulation(std::vector<SimulatedBody> &bodies, double dt,
                          SimulationType type = APPROXIMATED)
     : m_dt(dt),
       m_force_algorithm_fn(type == APPROXIMATED
@@ -159,23 +156,21 @@ ISimulation::ISimulation(std::vector<SimulatedBody>&& bodies, double dt,
                                : &compute_exact_net_force_on_body) {
   AlignedBox2d bbox = compute_square_bounding_box(bodies);
   auto quadtree = std::make_shared<Node>(bbox.min(), bbox.max());
-  SimulationStep step0(bodies, quadtree);
-  m_data.push_back(std::move(step0));
+  m_data.emplace_back(std::move(bodies), std::move(quadtree));
 }
 
 void ISimulation::run_continuously(unsigned n_steps) {
   m_data.reserve(n_steps);
 
-  for (unsigned i = 0; i < n_steps; i++) {
-    m_curr_step++;
+  for (unsigned i = 0; i < n_steps; i++, m_curr_step++) {
     step();
   }
 }
 
 SimulatedBody SimulatedBody::updated(
-    const bh::Node& quadtree, double dt,
-    const std::function<Vector2d(const Node&, const Body&)>&
-        force_algorithm_fn = bh::compute_approximate_net_force_on_body) const {
+    const bh::Node &quadtree, double dt,
+    const std::function<Vector2d(const Node &, const Body &)>
+        &force_algorithm_fn = bh::compute_approximate_net_force_on_body) const {
   // The body's position is updated according to its current velocity
   Vector2d position(m_position + m_velocity * dt);
 
