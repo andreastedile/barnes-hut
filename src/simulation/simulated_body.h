@@ -11,7 +11,7 @@ using Eigen::Vector2d;
 
 namespace bh {
 
-struct SimulatedBody : Body {
+struct SimulatedBody final : Body {
   Vector2d m_velocity;
 
   SimulatedBody(Vector2d position, double mass, Vector2d velocity);
