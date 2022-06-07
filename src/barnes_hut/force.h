@@ -1,11 +1,11 @@
 #ifndef BARNES_HUT_FORCE_H
 #define BARNES_HUT_FORCE_H
 
+#include <algorithm>  // transform_reduce
 #include <eigen3/Eigen/Eigen>
-#include <type_traits>  // enable_if, is_base_of
+#include <execution>    // par_unseq
 
 #include "body.h"
-#include "execution"
 #include "node.h"
 
 using Eigen::Vector2d;
@@ -24,10 +24,13 @@ template <typename T, typename = typename std::enable_if<
                           std::is_base_of<Body, T>::value, T>::type>
 Vector2d compute_exact_net_force_on_body(const std::vector<T>& bodies,
                                          const T& body) {
-  return std::reduce(
+  return std::transform_reduce(
       std::execution::par_unseq, bodies.begin(), bodies.end(), Vector2d{0, 0},
-      [&body](const Vector2d& total, const T& curr) {
-        return (total + compute_gravitational_force(curr, body)).eval();
+      [&body](const Vector2d& total, const Vector2d& curr) {
+        return (total + curr).eval();
+      },
+      [&body](const T& curr) {
+        return compute_gravitational_force(curr, body);
       });
 }
 
