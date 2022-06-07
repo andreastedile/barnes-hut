@@ -8,6 +8,7 @@
 
 #include "body.h"
 #include "node.h"
+#include "force.h"
 
 using Eigen::Vector2d;
 
@@ -16,8 +17,24 @@ namespace bh {
 struct SimulatedBody : Body {
   Vector2d m_velocity;
   SimulatedBody(Vector2d position, double mass, Vector2d velocity);
+
   [[nodiscard]] SimulatedBody updated(const bh::Node &quadtree,
                                       double dt) const;
+
+  [[nodiscard]] SimulatedBody updated(const std::vector<SimulatedBody> &bodies,
+                                      double dt) const {
+    // The body's position is updated according to its current velocity
+    Vector2d position(m_position + m_velocity * dt);
+
+    // The net force on the particle is computed by adding the individual forces
+    // from all the other particles.
+    Vector2d force = compute_exact_net_force_on_body(bodies, *this);
+
+    // The body's velocity is updated according to the net force on that particle.
+    Vector2d velocity(m_velocity + force / m_mass * dt);
+
+    return {position, m_mass, velocity};
+  }
 
   // Copy constructor
   SimulatedBody(const SimulatedBody &other);

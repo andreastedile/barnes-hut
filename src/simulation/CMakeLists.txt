@@ -3,7 +3,9 @@ add_library(simulation_lib
         simulation.h
         simulation_json.cpp
         simple_barnes_hut_simulator.cpp
-        simple_barnes_hut_simulator.h)
+        simple_barnes_hut_simulator.h
+        simple_exact_simulator.cpp
+        simple_exact_simulator.h)
 
 target_include_directories(simulation_lib INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>)
 
