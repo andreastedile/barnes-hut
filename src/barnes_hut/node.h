@@ -50,7 +50,6 @@ class Node {
     explicit Leaf(const Body &body);
   };
 
-  const AlignedBox2d m_box;
   /**
    * @return The top left corner of the region.
    */
@@ -122,6 +121,8 @@ class Node {
 
  private:
   unsigned m_n_nodes;
+
+  AlignedBox2d m_box;
 
   std::variant<Node::Fork, Node::Leaf> m_data;
 
