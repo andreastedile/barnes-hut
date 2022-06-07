@@ -1,9 +1,9 @@
 #include <string>
 
-#include "simple_simulator.h"
+#include "simple_barnes_hut_simulator.h"
 
 int main(int argc, char* argv[]) {
-  bh::SimpleSimulator simulator(argv[1], std::stod(argv[2]));
+  bh::SimpleBarnesHutSimulator simulator(argv[1], std::stod(argv[2]));
   simulator.run_continuously(1);
   simulator.save();
 

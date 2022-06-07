@@ -5,11 +5,11 @@
 #endif
 
 #include "node.h"
-#include "simple_simulator.h"
+#include "simple_barnes_hut_simulator.h"
 
 namespace bh {
 
-void SimpleSimulator::step() {
+void SimpleBarnesHutSimulator::step() {
 #ifndef NDEBUG
   std::cout << "Step " << m_curr_step << "\n";
 #endif
