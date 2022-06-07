@@ -5,7 +5,7 @@
 #endif
 
 #include "node.h"
-#include "simulation.h"
+#include "simple_simulator.h"
 
 namespace bh {
 

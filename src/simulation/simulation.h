@@ -83,11 +83,6 @@ class ISimulation {
   friend void to_json(json &j, const ISimulation &simulation);
 };
 
-class SimpleSimulator : public ISimulation {
-  using ISimulation::ISimulation;
-  void step() override;
-};
-
 }  // namespace bh
 
 #endif  // BARNES_HUT_SIMULATION_H

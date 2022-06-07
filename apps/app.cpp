@@ -1,9 +1,9 @@
 #include <string>
 
-#include "simulation.h"
+#include "simple_simulator.h"
 
 int main(int argc, char* argv[]) {
-  bh::SimpleSimulator simulator(argv[1], std::stod(argv[2]), bh::APPROXIMATED);
+  bh::SimpleSimulator simulator(argv[1], std::stod(argv[2]));
   simulator.run_continuously(1);
   simulator.save();
 
