@@ -31,8 +31,21 @@ struct Body {
 template <typename T, typename = typename std::enable_if<
                           std::is_base_of<Body, T>::value, T>::type>
 /**
- * Computes the minimum bounding box (usually, a rectangle) containing the
- * bodies.
+ * Computes the axis-aligned minimum bounding box containing some bodies.
+ * @details The minimum bounding box is defined by two points:
+ * <ul>
+ * <li> The bottom-left corner, whose x and y coordinates are minimal for any of
+ * the bodies
+ * <li> The top-right corner, whose x and y coordinates are maximal for any of
+ * the bodies
+ * </ul>
+ * @param bodies for which to compute the minimum bounding box; must contain at
+ * least two bodies
+ * @return the minimum bounding box; using x() and y() retrieves its bottom-left
+ * and top-right corners
+ * @throw invalid_argument if the bodies vector contains less than two bodies
+ * @example <a href="https://www.desmos.com/calculator/mintua3fvc?lang=it">on
+ * Desmos</a>
  */
 AlignedBox2d compute_minimum_bounding_box(const std::vector<T> &bodies) {
   if (bodies.size() < 2) {
