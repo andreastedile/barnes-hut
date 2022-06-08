@@ -21,6 +21,7 @@ struct SimulationStep {
 class SimpleExactSimulator final : public ISimulation {
  public:
   SimpleExactSimulator(const std::string &filename, double dt);
+  SimpleExactSimulator(std::vector<SimulatedBody> bodies, double dt);
 
  private:
   void step() override;

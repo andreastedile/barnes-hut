@@ -55,17 +55,22 @@ SimulationStep &SimulationStep::operator=(SimulationStep &&other) noexcept =
     default;
 #endif
 
-SimpleExactSimulator::SimpleExactSimulator(const std::string &filename, double dt) : ISimulation(dt) {
-  m_simulation_steps.emplace_back(SimulationStep{read_file(filename)});
-}
+SimpleExactSimulator::SimpleExactSimulator(const std::string &filename,
+                                           double dt)
+    : ISimulation(dt),
+      m_simulation_steps{SimulationStep{read_file(filename)}} {}
+
+SimpleExactSimulator::SimpleExactSimulator(std::vector<SimulatedBody> bodies,
+                                           double dt)
+    : ISimulation(dt), m_simulation_steps{SimulationStep{std::move(bodies)}} {}
 
 void SimpleExactSimulator::step() {
-  const std::vector<SimulatedBody>& bodies = m_simulation_steps.back().m_bodies;
+  const std::vector<SimulatedBody> &bodies = m_simulation_steps.back().m_bodies;
 
   std::vector<SimulatedBody> updated_bodies;
   updated_bodies.reserve(bodies.size());
   std::transform(std::execution::par_unseq, bodies.begin(), bodies.end(),
-                 updated_bodies.begin(), [&](const SimulatedBody& body) {
+                 updated_bodies.begin(), [&](const SimulatedBody &body) {
                    return body.updated(bodies, m_dt);
                  });
 

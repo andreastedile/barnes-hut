@@ -1,6 +1,8 @@
 #ifndef BARNES_HUT_SIMPLE_BARNES_HUT_SIMULATOR_H
 #define BARNES_HUT_SIMPLE_BARNES_HUT_SIMULATOR_H
 
+#include <vector>
+
 #include "simulation.h"
 
 namespace bh {
@@ -24,6 +26,7 @@ struct SimulationStep {
 class SimpleBarnesHutSimulator final : public ISimulation {
  public:
   SimpleBarnesHutSimulator(const std::string &filename, double dt);
+  SimpleBarnesHutSimulator(std::vector<SimulatedBody> bodies, double dt);
 
  private:
   void step() override;

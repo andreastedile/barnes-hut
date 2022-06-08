@@ -4,7 +4,6 @@
 #include <functional>
 #include <memory>  // shared_ptr
 #include <string>
-#include <vector>
 
 #include "body.h"
 #include "node.h"

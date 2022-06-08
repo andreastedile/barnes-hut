@@ -1,5 +1,6 @@
 #include <algorithm>
 #include <execution>
+#include <utility>
 #ifndef NDEBUG
 #include <iostream>
 #endif
@@ -65,9 +66,12 @@ SimulationStep &SimulationStep::operator=(SimulationStep &&other) noexcept =
 
 SimpleBarnesHutSimulator::SimpleBarnesHutSimulator(const std::string &filename,
                                                    double dt)
-    : ISimulation(dt) {
-  m_simulation_steps.emplace_back(SimulationStep{read_file(filename)});
-}
+    : ISimulation(dt),
+      m_simulation_steps{SimulationStep{read_file(filename)}} {}
+
+SimpleBarnesHutSimulator::SimpleBarnesHutSimulator(
+    std::vector<SimulatedBody> bodies, double dt)
+    : ISimulation(dt), m_simulation_steps{SimulationStep{std::move(bodies)}} {}
 
 void SimpleBarnesHutSimulator::step() {
   const std::vector<SimulatedBody> &bodies = m_simulation_steps.back().m_bodies;
