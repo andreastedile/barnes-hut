@@ -50,6 +50,12 @@ Node::Node(const Vector2d &bottom_left, const Vector2d &top_right)
 
 void Node::insert(const Body &new_body) {
   auto visit_leaf = [&](Node::Leaf &leaf) {
+    Subquadrant sq = get_subquadrant(new_body.m_position);
+    if (sq == OUTSIDE) {
+      throw std::invalid_argument(
+          "Attempted to insert a new body outside of the node's bounding box");
+    }
+
     if (leaf.m_body.has_value()) {
       Body &existing_body = *leaf.m_body;
 
@@ -93,7 +99,7 @@ void Node::insert(const Body &new_body) {
                 "An existing body is outside of the node's bounding box");
         }
 
-        switch (get_subquadrant(new_body.m_position)) {
+        switch (sq) {
           case NW: {
             unsigned n_nw_nodes = nw->n_nodes();
             nw->insert(new_body);
@@ -122,10 +128,8 @@ void Node::insert(const Body &new_body) {
             m_n_nodes += n_sw_new_nodes;
             break;
           }
-          case OUTSIDE:
-            throw std::invalid_argument(
-                "Attempted to insert a new body outside of the node's bounding "
-                "box");
+          default:
+            throw std::runtime_error("Reached default case in switch");
         }
 
         m_data =

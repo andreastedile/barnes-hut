@@ -1,10 +1,10 @@
+#include <catch2/catch.hpp>
 #include <iostream>
 
 #include "force.h"
-#include "catch2/catch.hpp"
 
-using bh::Node;
 using bh::Body;
+using bh::Node;
 using Eigen::Vector2d;
 
 TEST_CASE("compute gravitational force") {
@@ -84,20 +84,20 @@ TEST_CASE("compute gravitational force") {
 }
 
 TEST_CASE("compute exact net force on body") {
-  Node root(Vector2d(-10, -10), Vector2d(10, 10));
+  std::vector<Body> bodies;
   Vector2d f;
 
   // Quadtree is empty
-  f = compute_exact_net_force_on_body(root, {{0, 0}, 1});
+  f = compute_exact_net_force_on_body(bodies, Body{{0, 0}, 1});
   REQUIRE(f == Vector2d(0, 0));
 
-  root.insert({{5, 0}, 1});
-  f = compute_exact_net_force_on_body(root, {{0, 0}, 1});
+  bodies.emplace_back(Vector2d{5, 0}, 1);
+  f = compute_exact_net_force_on_body(bodies, {{0, 0}, 1});
   REQUIRE(f.x() == 0.02);  // -0.00499999989 -> -0.005f
-  REQUIRE(f.y() == 0);    // -4.37113873E-10 -> -0.0f
+  REQUIRE(f.y() == 0);     // -4.37113873E-10 -> -0.0f
 
-  root.insert({{-5, 0}, 2});
-  f = compute_exact_net_force_on_body(root, {{0, 0}, 1});
+  bodies.emplace_back(Vector2d{-5, 0}, 2);
+  f = compute_exact_net_force_on_body(bodies, {{0, 0}, 1});
   REQUIRE(f.x() == -0.02);
   // REQUIRE(f.y() == 0); // -0.0f == 0.0f
 }
