@@ -1,8 +1,8 @@
-#include <numeric>  // accumulate
-#include <variant>
+#include <numeric>  // stdaccumulate
+#include <variant>  // visit
 
 #include "node.h"
-#include "templates.h"
+#include "templates.h"  // overloaded
 
 namespace bh {
 

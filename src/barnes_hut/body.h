@@ -41,8 +41,8 @@ template <typename T, typename = typename std::enable_if<
  * </ul>
  * @param bodies for which to compute the minimum bounding box; must contain at
  * least two bodies
- * @return the minimum bounding box; using x() and y() retrieves its bottom-left
- * and top-right corners
+ * @return the minimum bounding box; x() and y() return its bottom-left and
+ * top-right corners
  * @throw invalid_argument if the bodies vector contains less than two bodies
  * @example <a href="https://www.desmos.com/calculator/mintua3fvc?lang=it">on
  * Desmos</a>

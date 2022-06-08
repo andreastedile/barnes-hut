@@ -6,20 +6,25 @@
 #include <iostream>
 #endif
 
-#include <exception>
+#include <stdexcept>  // invalid_argument, runtime_error
 
 namespace bh {
 
 Node::Fork::AggregateBody compute_aggregate_body(
     const std::array<std::unique_ptr<Node>, 4> &subquadrants) {
   Vector2d center_of_mass =
-      subquadrants[NW]->center_of_mass() * subquadrants[NW]->total_mass() +
-      subquadrants[NE]->center_of_mass() * subquadrants[NE]->total_mass() +
-      subquadrants[SE]->center_of_mass() * subquadrants[SE]->total_mass() +
-      subquadrants[SW]->center_of_mass() * subquadrants[SW]->total_mass();
-  double total_mass =
-      subquadrants[NW]->total_mass() + subquadrants[NE]->total_mass() +
-      subquadrants[SE]->total_mass() + subquadrants[SW]->total_mass();
+      subquadrants[Node::Subquadrant::NW]->center_of_mass() *
+          subquadrants[Node::Subquadrant::NW]->total_mass() +
+      subquadrants[Node::Subquadrant::NE]->center_of_mass() *
+          subquadrants[Node::Subquadrant::NE]->total_mass() +
+      subquadrants[Node::Subquadrant::SE]->center_of_mass() *
+          subquadrants[Node::Subquadrant::SE]->total_mass() +
+      subquadrants[Node::Subquadrant::SW]->center_of_mass() *
+          subquadrants[Node::Subquadrant::SW]->total_mass();
+  double total_mass = subquadrants[Node::Subquadrant::NW]->total_mass() +
+                      subquadrants[Node::Subquadrant::NE]->total_mass() +
+                      subquadrants[Node::Subquadrant::SE]->total_mass() +
+                      subquadrants[Node::Subquadrant::SW]->total_mass();
 
   return {center_of_mass / total_mass, total_mass};
 }
@@ -44,11 +49,6 @@ Node::Node(const Vector2d &bottom_left, const Vector2d &top_right)
 }
 
 void Node::insert(const Body &new_body) {
-  if (!m_box.contains(new_body.m_position)) {
-    throw std::invalid_argument(
-        "Attempted to insert a body outside the subquadrant's boundaries");
-  }
-
   auto visit_leaf = [&](Node::Leaf &leaf) {
     if (leaf.m_body.has_value()) {
       Body &existing_body = *leaf.m_body;
@@ -88,6 +88,9 @@ void Node::insert(const Body &new_body) {
             sw->insert(existing_body);
             ++m_n_nodes;
             break;
+          case OUTSIDE:
+            throw std::runtime_error(
+                "An existing body is outside of the node's bounding box");
         }
 
         switch (get_subquadrant(new_body.m_position)) {
@@ -119,6 +122,10 @@ void Node::insert(const Body &new_body) {
             m_n_nodes += n_sw_new_nodes;
             break;
           }
+          case OUTSIDE:
+            throw std::invalid_argument(
+                "Attempted to insert a new body outside of the node's bounding "
+                "box");
         }
 
         m_data =
@@ -160,6 +167,10 @@ void Node::insert(const Body &new_body) {
         m_n_nodes += n_new_sw_nodes;
         break;
       }
+      case OUTSIDE:
+        throw std::invalid_argument(
+            "Attempted to insert a new body outside of the node's bounding "
+            "box");
     }
     fork.update_aggregate_body();
   };
@@ -167,7 +178,7 @@ void Node::insert(const Body &new_body) {
   std::visit(overloaded{visit_fork, visit_leaf}, m_data);
 }
 
-Subquadrant Node::get_subquadrant(const Vector2d &point) {
+Node::Subquadrant Node::get_subquadrant(const Vector2d &point) {
   bool north = point.y() >= m_box.center().y();
   bool south = !north;
   bool west = point.x() < m_box.center().x();
@@ -181,8 +192,8 @@ Subquadrant Node::get_subquadrant(const Vector2d &point) {
     return SE;
   else if (south && west)
     return SW;
-  throw std::invalid_argument(
-      "Cannot get the subquadrant of a point outside of the bounding box");
+  else
+    return OUTSIDE;
 }
 
 Vector2d Node::center_of_mass() const {

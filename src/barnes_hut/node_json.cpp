@@ -12,10 +12,10 @@ void to_json(json &j, const Body &body) {
 }
 
 void to_json(json &j, const Node::Fork &fork) {
-  j = {{"nw", *fork.m_children[NW]},
-       {"ne", *fork.m_children[NE]},
-       {"se", *fork.m_children[SE]},
-       {"sw", *fork.m_children[SW]}};
+  j = {{"nw", *fork.m_children[Node::NW]},
+       {"ne", *fork.m_children[Node::NE]},
+       {"se", *fork.m_children[Node::SE]},
+       {"sw", *fork.m_children[Node::SW]}};
 }
 
 void to_json(  // NOLINT(misc-no-recursion)

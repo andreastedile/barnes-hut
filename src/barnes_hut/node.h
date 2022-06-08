@@ -2,6 +2,7 @@
 #define BARNES_HUT_NODE_H
 
 #include <array>  // Subquadrants
+#include <eigen3/Eigen/Eigen>
 #include <eigen3/Eigen/Geometry>
 #include <memory>  // unique_ptr
 #include <nlohmann/json.hpp>
@@ -17,12 +18,10 @@ using json = nlohmann::json;
 
 namespace bh {
 
-class Node;
-
-enum Subquadrant { NW, NE, SE, SW };
-
 class Node {
  public:
+  enum Subquadrant { NW, NE, SE, SW, OUTSIDE };
+
   /**
    * A fork in the quadtree is a node with four children.
    */
@@ -40,90 +39,145 @@ class Node {
   struct Leaf {
     std::optional<Body> m_body;
     /**
-     * Constructs an empty subquadrant.
+     * Constructs an empty node.
      */
     Leaf() = default;
     /**
-     * Constructs a subquadrant containing a single body.
-     * @param body
+     * Constructs a node containing a single body.
+     * @param body that the node will contain
      */
     explicit Leaf(const Body &body);
   };
 
   /**
-   * @return The top left corner of the region.
+   * @return Coordinates of the top-left corner of the node's bounding box.
    */
   [[nodiscard]] inline Vector2d top_left() const {
     return m_box.corner(m_box.TopLeft);
   };
   /**
-   * @return The top right corner of the region.
+   * @return Coordinates of the top-right corner of the node's bounding box.
    */
   [[nodiscard]] inline Vector2d top_right() const {
     return m_box.corner(m_box.TopRight);
   };
   /**
-   * @return The bottom right corner of the region.
+   * @return Coordinates of the bottom-right corner of the node's bounding box.
    */
   [[nodiscard]] inline Vector2d bottom_right() const {
     return m_box.corner(m_box.BottomRight);
   };
   /**
-   * @return The bottom left corner of the region.
+   * @return Coordinates of the bottom-left corner of the node's bounding box.
    */
   [[nodiscard]] inline Vector2d bottom_left() const {
     return m_box.corner(m_box.BottomLeft);
   };
   /**
-   * @return The length of the sides of the region.
+   * @return Length of the sides of the node's bounding box.
    */
   [[nodiscard]] inline double length() const {
     return (top_right() - top_left()).norm();
   };
 
   /**
-   * @return If the node is a fork in the tree, returns the center of mass of
-   *the bodies contained in the subquadrant. If is a non-empty leaf, returns the
-   *position of the single body it contains; otherwise, returns {0, 0}.
+   * Computes the center of mass of this quadtree node.
+   * @details The semantic of "center of mass" depends on the node's current
+   * type:
+   * <ul>
+   * <li> Empty leaf: the center of mass is (0, 0);
+   * <li> Leaf: the center of mass are the coordinates of the single body it
+   * contains;
+   * <li> Fork: it corresponds to the aggregate center of mass over all the
+   * bodies it contains.
+   * </ul>
+   * @return position vector of the center of mass
    **/
   [[nodiscard]] Vector2d center_of_mass() const;
 
   /**
-   * @return If the node is a fork in the tree, returns the aggregate mass of
-   * the bodies contained in the subquadrant, If it is a non-empty leaf, returns
-   * the mass of the single body it contains; otherwise, returns 0.
-   */
+   * Computes the total mass of this quadtree node.
+   * @details The semantic of "total mass" depends on the node's current type:
+   * <ul>
+   * <li> Empty leaf: the total mass is 0;
+   * <li> Leaf: the total mass is the mass of the single body it contains;
+   * <li> Fork: it corresponds to the aggregate mass over all the bodies it
+   * contains.
+   * </ul>
+   **/
   [[nodiscard]] double total_mass() const;
 
   /**
-   * @return If the node is a fork in the tree, returns the aggregate number of
-   * nodes contained in the subquadrant, which is 4 or greater. If it is a leaf,
-   * returns 1.
-   */
+   * Computes the number of nodes contained in this quadtree node, including the
+   * node itself.
+   * @details The semantic of "number of nodes" depends on the node's current
+   * type:
+   * <ul>
+   * <li> Empty leaf: the number of nodes is 1;
+   * <li> Leaf: the number of nodes is 1;
+   * <li> Fork: the number of nodes is 1 + the evaluation of the number of nodes
+   * for all the four children.
+   * </ul>
+   **/
   [[nodiscard]] unsigned n_nodes() const;
 
   [[nodiscard]] const std::variant<Fork, Leaf> &data() const;
 
   /**
-   * Creates a node representing an empty subquadrant.
-   * @param bottom_left coordinates of the bottom-left corner of the subquadrant
-   * @param top_right coordinates of the top-right corner of the subquadrant
+   * Creates an empty quadtree node, in which bodies can be inserted.
+   * @param bottom_left coordinates of the bottom-left corner of the node's
+   * bounding box
+   * @param top_right coordinates of the top-right corner of the node's bounding
+   * box
    */
   Node(const Vector2d &bottom_left, const Vector2d &top_right);
 
+  /**
+   * Inserts a new body in the quadtree. The body must be located inside of the
+   * node's bounding box.
+   * @details Depending on the node's current type, the insertion of the new
+   * body produces a different effect:
+   * <ul>
+   * <li> Empty leaf: the leaf will contain the new body;
+   * <li> Leaf with a body:
+   * <ul>
+   * <li> If the new body coincides with the body in the leaf, the mass of the
+   * body in the leaf increases by the mass of the new body;
+   * <li> Otherwise, the node's type becomes Fork (i.e., a node with four
+   * children); the body in the leaf is relocated in a child, and the new body
+   * is recursively inserted in a child node.
+   * </ul>
+   * <li> Fork: the new body is recursively inserted in one of the node's
+   * children.
+   * </ul>
+   * The choice of which child node to select when inserting a body depends on
+   * the body's subquadrant. All the operations have the effect of changing the
+   * node's center of mass and total mass.
+   * @param new_body to insert
+   * @throw invalid_argument if the body for which the insertion is attempted is
+   * located outside of the node's bounding box
+   */
   void insert(const Body &new_body);
 
   /**
-   * @param point Coordinates of the point inside the region.
-   * @return Subquadrant in which the point is located.
+   * Computes in which of the node's subquadrants a given point is located.
+   * @param point Coordinates of the point
+   * @return The subquadrant in which the point is located
    */
   Subquadrant get_subquadrant(const Vector2d &point);
 
  private:
   unsigned m_n_nodes;
 
+  /**
+   * The axis-aligned bounding box of the node; not necessarily minimum.
+   * x() and y() return its bottom-left and top-right corners.
+   */
   AlignedBox2d m_box;
 
+  /**
+   * Holds the current type of the node.
+   */
   std::variant<Node::Fork, Node::Leaf> m_data;
 
   // See "Arbitrary types conversions" in https://github.com/nlohmann/json
