@@ -19,6 +19,8 @@ struct SimulatedBody final : Body {
   // Velocity vector of the body
   Vector2d m_velocity;
 
+  SimulatedBody();
+
   /**
    * Creates a body with given position, velocity and mass.
    * @param position of the body in the cartesian plane

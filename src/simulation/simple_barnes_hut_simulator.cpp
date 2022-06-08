@@ -90,9 +90,9 @@ void SimpleBarnesHutSimulator::step() {
                   Body body(simulated.m_position, simulated.m_mass);
                   quadtree->insert(body);
                 });
-
-  std::vector<SimulatedBody> updated_bodies;
-  updated_bodies.reserve(bodies.size());
+  // This calls SimulatedBody's default constructor bodies.size() times, but we
+  // cannot do anything about it
+  std::vector<SimulatedBody> updated_bodies(bodies.size());
   std::transform(std::execution::par_unseq, bodies.begin(), bodies.end(),
                  updated_bodies.begin(), [&](const SimulatedBody &body) {
                    return body.updated(*quadtree, m_dt);

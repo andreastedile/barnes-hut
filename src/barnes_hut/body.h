@@ -20,6 +20,8 @@ struct Body {
   Vector2d m_position;
   // Mass of the body
   double m_mass;
+
+  Body();
   /**
    * Creates a body with given position and mass.
    * @param position of the body in the cartesian plane

@@ -7,6 +7,8 @@
 
 namespace bh {
 
+Body::Body() : m_position{0, 0}, m_mass(0) {}
+
 Body::Body(Vector2d position, double mass)
     : m_position(std::move(position)), m_mass(mass) {}
 

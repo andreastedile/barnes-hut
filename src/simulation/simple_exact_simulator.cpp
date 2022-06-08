@@ -67,8 +67,9 @@ SimpleExactSimulator::SimpleExactSimulator(std::vector<SimulatedBody> bodies,
 void SimpleExactSimulator::step() {
   const std::vector<SimulatedBody> &bodies = m_simulation_steps.back().m_bodies;
 
-  std::vector<SimulatedBody> updated_bodies;
-  updated_bodies.reserve(bodies.size());
+  // This calls SimulatedBody's default constructor bodies.size() times, but we
+  // cannot do anything about it
+  std::vector<SimulatedBody> updated_bodies(bodies.size());
   std::transform(std::execution::par_unseq, bodies.begin(), bodies.end(),
                  updated_bodies.begin(), [&](const SimulatedBody &body) {
                    return body.updated(bodies, m_dt);

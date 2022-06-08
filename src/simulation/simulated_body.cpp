@@ -7,6 +7,8 @@
 
 namespace bh {
 
+SimulatedBody::SimulatedBody() : Body(), m_velocity{0, 0} {}
+
 SimulatedBody::SimulatedBody(Vector2d position, double mass, Vector2d velocity)
     : Body(std::move(position), mass), m_velocity(std::move(velocity)) {}
 
