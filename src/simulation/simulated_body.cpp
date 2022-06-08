@@ -47,7 +47,7 @@ SimulatedBody &SimulatedBody::operator=(const SimulatedBody &other) = default;
 SimulatedBody &SimulatedBody::operator=(SimulatedBody &&other) noexcept {
   Body::operator=(std::move(other));
   std::cout << "SimulatedBody move assignment operator\n";
-  m_velocity = std::move(other.m_velocity);
+  m_velocity = std::move(other.m_velocity);  // NOLINT(bugprone-use-after-move)
   return *this;
 }
 #else

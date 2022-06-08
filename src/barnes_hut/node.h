@@ -6,7 +6,7 @@
 #include <eigen3/Eigen/Geometry>
 #include <memory>  // unique_ptr
 #include <nlohmann/json.hpp>
-#include <optional>  // Leaf's body
+#include <optional>  // Leaf's m_body
 #include <variant>   // Node's m_data
 #include <vector>
 
@@ -20,6 +20,7 @@ namespace bh {
 
 class Node {
  public:
+  // Used to access the Fork's array of Node children in an index-agnostic way
   enum Subquadrant { NW, NE, SE, SW, OUTSIDE };
 
   /**

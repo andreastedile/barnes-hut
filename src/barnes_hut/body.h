@@ -3,8 +3,8 @@
 
 #include <eigen3/Eigen/Eigen>
 #include <eigen3/Eigen/Geometry>
-#include <execution>
-#include <numeric>      // reduce
+#include <execution>    // par_unseq
+#include <numeric>      // transform_reduce
 #include <type_traits>  // enable_if, is_base_of
 
 using Eigen::AlignedBox2d;
@@ -12,9 +12,19 @@ using Eigen::Vector2d;
 
 namespace bh {
 
+/**
+ * A point particle in the cartesian plane
+ */
 struct Body {
+  // Position vector of the body in the cartesian plane
   Vector2d m_position;
+  // Mass of the body
   double m_mass;
+  /**
+   * Creates a body with given position and mass.
+   * @param position of the body in the cartesian plane
+   * @param mass of the body
+   */
   Body(Vector2d position, double mass);
   // Copy constructor
   Body(const Body &other);
@@ -32,15 +42,15 @@ template <typename T, typename = typename std::enable_if<
                           std::is_base_of<Body, T>::value, T>::type>
 /**
  * Computes the axis-aligned minimum bounding box containing some bodies.
- * @details The minimum bounding box is defined by two points:
+ * @details The minimum bounding box is defined by:
  * <ul>
- * <li> The bottom-left corner, whose x and y coordinates are minimal for any of
+ * <li> Its bottom-left corner, whose x and y coordinates are minimal for any of
  * the bodies
- * <li> The top-right corner, whose x and y coordinates are maximal for any of
+ * <li> Its top-right corner, whose x and y coordinates are maximal for any of
  * the bodies
  * </ul>
- * @param bodies for which to compute the minimum bounding box; must contain at
- * least two bodies
+ * @param bodies for which to compute the minimum bounding box; must be at least
+ * two
  * @return the minimum bounding box; x() and y() return its bottom-left and
  * top-right corners
  * @throw invalid_argument if the bodies vector contains less than two bodies
@@ -80,6 +90,19 @@ AlignedBox2d compute_minimum_bounding_box(const std::vector<T> &bodies) {
 
 template <typename T, typename = typename std::enable_if<
                           std::is_base_of<Body, T>::value, T>::type>
+/**
+ * Computes an axis-aligend square bounding box containing some bodies.
+ * @details The bounding box is defined by its bottom-left and top-right
+ * corners. The computed bounding box is not minimum, but is
+ *
+ * @param bodies for which to compute the minimum bounding box; must be at least
+ * two
+ * @return the minimum bounding box; x() and y() return its bottom-left and
+ * top-right corners
+ * @throw invalid_argument if the bodies vector contains less than two bodies
+ * @example <a href="https://www.desmos.com/calculator/mintua3fvc?lang=it">on
+ * Desmos</a>
+ */
 AlignedBox2d compute_square_bounding_box(const std::vector<T> &bodies) {
   AlignedBox2d min_bbox = compute_minimum_bounding_box(bodies);
   Vector2d bottom_left = min_bbox.min();
