@@ -179,10 +179,10 @@ void Node::insert(const Body &new_body) {
 }
 
 Node::Subquadrant Node::get_subquadrant(const Vector2d &point) {
-  bool north = point.y() >= m_box.center().y();
-  bool south = !north;
-  bool west = point.x() < m_box.center().x();
-  bool east = !west;
+  bool west = m_box.min().x() <= point.x() && point.x() < m_box.center().x();
+  bool east = m_box.center().x() <= point.x() && point.x() <= m_box.max().x();
+  bool south = m_box.min().y() <= point.y() && point.y() < m_box.center().y();
+  bool north = m_box.center().y() <= point.y() && point.y() <= m_box.max().y();
 
   if (north && west)
     return NW;
