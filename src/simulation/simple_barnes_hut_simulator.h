@@ -27,12 +27,12 @@ class SimpleBarnesHutSimulator final : public ISimulation {
  public:
   SimpleBarnesHutSimulator(const std::string &filename, double dt);
   SimpleBarnesHutSimulator(std::vector<SimulatedBody> bodies, double dt);
+  void save() const override;
 
  private:
   void step() override;
   std::vector<SimulationStep> m_simulation_steps;
   friend void to_json(json &j, const SimpleBarnesHutSimulator &simulator);
-  void save() const override;
 };
 
 }  // namespace bh
