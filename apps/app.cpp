@@ -1,11 +1,10 @@
 #include <string>
 
-#include "simple_barnes_hut_simulator.h"
+#include "local_barnes_hut_simulator.h"
 
 int main(int argc, char* argv[]) {
-  bh::SimpleBarnesHutSimulator simulator(argv[1], std::stod(argv[2]));
-  simulator.run_continuously(1);
-  simulator.save();
+  bh::LocalBarnesHutSimulator simulator(argv[1], std::stod(argv[2]));
+  simulator.step_continuously(1);
 
   return 0;
 }

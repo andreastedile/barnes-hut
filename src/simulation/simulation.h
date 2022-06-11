@@ -1,44 +1,51 @@
-#ifndef BARNES_HUT_SIMULATION_H
-#define BARNES_HUT_SIMULATION_H
+#ifndef BARNES_HUT_SIMULATION_EXACT_H
+#define BARNES_HUT_SIMULATION_EXACT_H
 
-#include <functional>
-#include <memory>  // shared_ptr
+#include <iostream>
+#include <nlohmann/json.hpp>
 #include <string>
+#include <type_traits>  // enable_if
+#include <vector>
 
-#include "body.h"
+using json = nlohmann::json;
+
 #include "node.h"
-#include "force.h"
-#include "simulated_body.h"
-
-using Eigen::Vector2d;
+#include "simulation_step.h"
 
 namespace bh {
 
-std::vector<SimulatedBody> read_file(const std::string &filename);
+std::vector<SimulatedBody> load(const std::string &filename);
 
+std::vector<SimulatedBody> compute_new_bodies_exact(
+    const std::vector<SimulatedBody> &bodies, double dt);
+
+std::pair<std::shared_ptr<const Node>, std::vector<SimulatedBody>>
+compute_new_bodies_barnes_hut(const std::vector<SimulatedBody> &bodies,
+                              double dt);
+
+template <typename T, typename = typename std::enable_if<
+                          std::is_base_of<SimulationStep, T>::value, T>::type>
 class ISimulation {
  public:
-  explicit ISimulation(double dt);
+  const double m_dt;
 
-  virtual ~ISimulation() = default;
-  /**
-   * Runs the simulation for the specified number of steps.
-   */
-  virtual void run_continuously(unsigned n_steps) final;
-  /**
-   * Saves the results of the simulation to a JSON file.
-   */
-  virtual void save() const = 0;
-  /**
-   * Performs a single simulation step.
-   */
+  explicit ISimulation(double dt) : m_dt{dt} {}
   virtual void step() = 0;
 
+  virtual void step_continuously(unsigned n_steps) final {
+    for (unsigned i = 0; i < n_steps; i++) {
+      std::cout << "Step " << i << '\n';
+      step();
+    }
+  }
+  [[nodiscard]] virtual json as_json() const = 0;
+  virtual void save_json() const = 0;
+  virtual const std::vector<T> &steps() const final { return m_steps; }
+
  protected:
-  unsigned m_curr_step = 0;
-  double m_dt;
+  std::vector<T> m_steps;
 };
 
 }  // namespace bh
 
-#endif  // BARNES_HUT_SIMULATION_H
+#endif  // BARNES_HUT_SIMULATION_EXACT_H

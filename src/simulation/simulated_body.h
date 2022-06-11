@@ -62,6 +62,8 @@ struct SimulatedBody final : Body {
   SimulatedBody &operator=(SimulatedBody &&other) noexcept;
 };
 
+void to_json(json &j, const SimulatedBody &body);
+
 }  // namespace bh
 
 #endif  // BARNES_HUT_SIMULATED_BODY_H

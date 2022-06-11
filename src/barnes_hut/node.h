@@ -167,6 +167,8 @@ class Node {
    */
   Subquadrant get_subquadrant(const Vector2d &point);
 
+  const AlignedBox2d &bbox() const;
+
  private:
   unsigned m_n_nodes;
 
@@ -182,6 +184,7 @@ class Node {
   std::variant<Node::Fork, Node::Leaf> m_data;
 
   // See "Arbitrary types conversions" in https://github.com/nlohmann/json
+  // Fixme: remove friend
   friend void to_json(json &j, const Node &node);
 };
 

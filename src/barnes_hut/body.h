@@ -3,9 +3,11 @@
 
 #include <eigen3/Eigen/Eigen>
 #include <eigen3/Eigen/Geometry>
-#include <execution>    // par_unseq
+#include <execution>  // par_unseq
+#include <nlohmann/json.hpp>
 #include <numeric>      // transform_reduce
 #include <type_traits>  // enable_if, is_base_of
+using nlohmann::json;
 
 using Eigen::AlignedBox2d;
 using Eigen::Vector2d;
@@ -152,6 +154,9 @@ AlignedBox2d compute_square_bounding_box(const std::vector<T> &bodies) {
 
   return {bottom_left, top_right};
 }
+
+void to_json(json &j, const Body &body);
+
 }  // namespace bh
 
 #endif  // BARNES_HUT_BODY_H

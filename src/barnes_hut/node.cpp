@@ -232,6 +232,8 @@ double Node::total_mass() const {
 
 unsigned Node::n_nodes() const { return m_n_nodes; }
 
+const AlignedBox2d &Node::bbox() const { return m_box; }
+
 const std::variant<Node::Fork, Node::Leaf> &Node::data() const {
   return m_data;
 }

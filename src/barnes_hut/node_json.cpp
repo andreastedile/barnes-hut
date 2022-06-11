@@ -2,15 +2,6 @@
 
 namespace bh {
 
-using Empty = std::monostate;
-
-void to_json(json &j, const Empty &empty) { j = "empty"; }
-
-void to_json(json &j, const Body &body) {
-  j = {{"position", {body.m_position.x(), body.m_position.y()}},
-       {"mass", body.m_mass}};
-}
-
 void to_json(json &j, const Node::Fork &fork) {
   j = {{"nw", *fork.m_children[Node::NW]},
        {"ne", *fork.m_children[Node::NE]},
@@ -18,25 +9,41 @@ void to_json(json &j, const Node::Fork &fork) {
        {"sw", *fork.m_children[Node::SW]}};
 }
 
-void to_json(  // NOLINT(misc-no-recursion)
-    json &j, const std::variant<Node::Fork, Node::Leaf> &data) {
-  // Fixme
+void to_json(json &j, const Node::Leaf &leaf) {
+  if (leaf.m_body.has_value()) {
+    // Example:
+    // "body": {
+    //   "mass": 0.25,
+    //   "position": [1.5, 2.0]
+    //  }
+    j = {{"body",
+          {{"position",
+            {leaf.m_body->m_position.x(), leaf.m_body->m_position.y()}},
+           {"mass", leaf.m_body->m_mass}}}};
+  } else {
+    // "body" : null
+    j = {{"body", nullptr}};
+  }
+}
+
+void to_json(json &j, const std::variant<Node::Fork, Node::Leaf> &data) {
   if (std::holds_alternative<Node::Fork>(data)) {
-    to_json(j, std::get<Node::Fork>(data));
+    j = {"fork", std::get<Node::Fork>(data)};
   } else if (std::holds_alternative<Node::Leaf>(data)) {
-    to_json(j["body"], std::get<Node::Leaf>(data));
+    j = {"leaf", std::get<Node::Leaf>(data)};
   }
 }
 
 void to_json(json &j, const Node &node) {
-  json data = node.m_data;
-  j = {{"top_left", {node.top_left().x(), node.top_left().y()}},
+  j = {{"bounding_box",
+        {{"bottom_left", {node.bbox().min().x(), node.bbox().min().y()}},
+         {"top_right", {node.bbox().max().x(), node.bbox().max().y()}}}},
        {"length", node.length()},
        {"center_of_mass",
         {node.center_of_mass().x(), node.center_of_mass().y()}},
        {"total_mass", node.total_mass()},
        {"n_nodes", node.n_nodes()},
-       {"data", data}};
+       node.m_data};
 }
 
 }  // namespace bh

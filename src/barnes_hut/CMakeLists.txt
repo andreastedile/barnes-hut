@@ -2,6 +2,7 @@ add_library(barnes_hut_lib
         templates.h
         body.h
         body.cpp
+        body_json.cpp
         node.h
         node.cpp
         node_json.cpp
