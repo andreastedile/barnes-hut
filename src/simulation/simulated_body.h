@@ -30,8 +30,8 @@ struct SimulatedBody final : Body {
   SimulatedBody(Vector2d position, double mass, Vector2d velocity);
 
   /**
-   * Computes the new position and velocity vectors of the body after a
-   * simulation step, using the Barnes–Hut approximation algorithm.
+   * Computes the new, approximated position and velocity vectors of the body
+   * after a simulation step, using the Barnes–Hut approximation algorithm.
    * @param quadtree containing a set of bodies that exert a gravitational force
    * on this body
    * @param dt simulation timestep; defines the accuracy of the computation: the
