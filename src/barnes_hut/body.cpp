@@ -48,7 +48,7 @@ Body &Body::operator=(const Body &other) = default;
 #ifdef DEBUG_MOVE_ASSIGNMENT_OPERATOR
 Body &Body::operator=(Body &&other) noexcept {
   std::cout << "Body move assignment operator\n";
-  m_position = std::move(m_position);
+  m_position = std::move(other.m_position);
   m_mass = other.m_mass;
   return *this;
 }
