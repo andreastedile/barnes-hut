@@ -10,7 +10,7 @@ namespace bh {
 // https://physics.nist.gov/cgi-bin/cuu/Value?bg
 // 6.674 30 x 10-11 m3 kg-1 s-2
 // #define G 0.000000000066743f
-#define G 0.5f
+#define G (double)5
 #endif
 
 #ifndef OMEGA

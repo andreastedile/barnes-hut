@@ -87,7 +87,8 @@ compute_new_bodies_barnes_hut(const std::vector<SimulatedBody> &bodies,
   std::vector<SimulatedBody> new_bodies(bodies.size());
   std::transform(std::execution::par_unseq, bodies.begin(), bodies.end(),
                  new_bodies.begin(), [&](const SimulatedBody &body) {
-                   return body.updated(*quadtree, dt);
+                   auto new_body = body.updated(*quadtree, dt);
+                   return new_body;
                  });
   return std::make_pair(std::move(quadtree), std::move(new_bodies));
 }

@@ -3,29 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>HPC Project - Parallel Barnes-Hut</title>
+    <title>Barnes–Hut simulation</title>
     <link rel="stylesheet" type="text/css" href="style.css">
 </head>
 <body>
-
-<div id="home_wrapper">
-    <h1 id="main_title">2D N-Body Gravity ISimulation</h1>
-    <p id="description">
-        In physics, the N-Body problem is the problem of predicting the individual motions of a group of celestial
-        objects interacting with each other gravitationally.
-        Solving this problem requires the calculation of the contribution of all gravitational attractions that the
-        objects are exerting on each-other. But this requires a lot of computational power, especially if there are
-        thousands of objects.
-        That's why a combination of Barnes-Hut algorithm and MPI is the best way of solving this issue. Our project will
-        take care the 2D scenario.
-    </p>
-
-    <p id="instruction">
-        Please select one of the two options provided
-    </p>
-    <hr>
-    <a class="homepage_link" href="quadtree.html">Quadtree representation</a>
-    <a class="homepage_link" href="simulation.html">Gravity simulation</a>
+<h1 id="title">View a Barnes–Hut simulation</h1>
+<input type="file" id="file-selector" onchange="removeHeadings(); loadSimulation(this)" accept=".json"
+       style="display: none;">
+<div id="welcome-wrapper">
+    <input type="button" id="file-cover" value="Upload JSON..."
+           onclick="document.getElementById('file-selector').click();"/>
+    <img src="imgs/file-upload.svg" alt="file-upload.svg">
 </div>
+<div id="svg-wrapper">
+</div>
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<script src="simulation.js">
+</script>
 </body>
 </html>
