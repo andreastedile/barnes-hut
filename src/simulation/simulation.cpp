@@ -44,14 +44,18 @@ std::tuple<std::vector<SimulatedBody>, AlignedBox2d> compute_new_bodies_exact(
   // This calls SimulatedBody's default constructor bodies.size() times, but we
   // cannot do anything about it
 #ifndef NDEBUG
-  std::cout << "Computing new bodies\n";
+  std::cout << "Computing new bodies...\n";
 #endif
   std::vector<SimulatedBody> new_bodies(bodies.size());
   std::transform(std::execution::par_unseq, bodies.begin(), bodies.end(),
                  new_bodies.begin(), [&](const SimulatedBody &body) {
                    return body.updated(bodies, dt);
                  });
+#ifndef NDEBUG
+  std::cout << "Computing new bounding box...\n";
+#endif
   auto new_bbox = compute_square_bounding_box(new_bodies);
+
   return std::make_tuple(std::move(new_bodies), std::move(new_bbox));
 }
 
@@ -60,7 +64,7 @@ std::tuple<std::vector<SimulatedBody>, AlignedBox2d,
 compute_new_bodies_barnes_hut(const std::vector<SimulatedBody> &bodies,
                               const AlignedBox2d &bbox, double dt) {
 #ifndef NDEBUG
-  std::cout << "Computing quadtree\n";
+  std::cout << "Computing quadtree...\n";
 #endif
   auto quadtree = std::make_shared<Node>(bbox.min(), bbox.max());
 
@@ -72,7 +76,7 @@ compute_new_bodies_barnes_hut(const std::vector<SimulatedBody> &bodies,
   // This calls SimulatedBody's default constructor bodies.size() times, but we
   // cannot do anything about it
 #ifndef NDEBUG
-  std::cout << "Computing new bodies\n";
+  std::cout << "Computing new bodies...\n";
 #endif
   std::vector<SimulatedBody> new_bodies(bodies.size());
   std::transform(std::execution::par_unseq, bodies.begin(), bodies.end(),
@@ -82,16 +86,9 @@ compute_new_bodies_barnes_hut(const std::vector<SimulatedBody> &bodies,
                  });
 
 #ifndef NDEBUG
-  std::cout << "Computing bounding box\n";
+  std::cout << "Computing new  bounding box...\n";
 #endif
   AlignedBox2d new_bbox = compute_square_bounding_box(new_bodies);
-#ifndef NDEBUG
-  // clang-format off
-  std::cout << "Computed bounding box: "
-          "bottom left (" << new_bbox.min().x() << " " << new_bbox.min().y() << "), "
-           "top right: (" << new_bbox.max().x() << " " << new_bbox.max().y() << ")\n";
-  // clang-format on
-#endif
 
   return std::make_tuple(std::move(new_bodies), std::move(new_bbox),
                          std::move(quadtree));
