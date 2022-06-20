@@ -7,17 +7,23 @@ namespace bh {
 
 LocalBarnesHutSimulator::LocalBarnesHutSimulator(const std::string& filename,
                                                  double dt)
-    : ISimulation<BarnesHutSimulationStep>(dt) {
+    : ISimulation(dt) {
   std::vector<SimulatedBody> bodies = load(filename);
   auto bbox = compute_square_bounding_box(bodies);
   auto quadtree = std::make_shared<Node>(bbox.min(), bbox.max());
-  m_steps.emplace_back(std::move(quadtree), std::move(bodies), std::move(bbox));
+  m_steps.emplace_back(std::move(bodies), std::move(bbox), std::move(quadtree));
 }
 
 void LocalBarnesHutSimulator::step() {
-  auto [quadtree, new_bodies] =
-      compute_new_bodies_barnes_hut(m_steps.back().m_bodies, m_dt);
-  m_steps.emplace_back(std::move(quadtree), std::move(new_bodies),
-                       quadtree->bbox());
+  auto [new_bodies, new_bbox, quadtree] = compute_new_bodies_barnes_hut(
+      m_steps.back().m_bodies, m_steps.back().m_bbox, m_dt);
+  m_steps.emplace_back(std::move(new_bodies), std::move(new_bbox),
+                       std::move(quadtree));
 }
+
+const std::vector<BarnesHutSimulationStep>& LocalBarnesHutSimulator::steps()
+    const {
+  return m_steps;
+}
+
 }  // namespace bh

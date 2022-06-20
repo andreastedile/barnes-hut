@@ -11,9 +11,9 @@ namespace bh {
 struct BarnesHutSimulationStep final : public SimulationStep {
   std::shared_ptr<const Node> m_quadtree;
 
-  BarnesHutSimulationStep(std::shared_ptr<const Node> quadtree,
-                          std::vector<SimulatedBody> bodies,
-                          Eigen::AlignedBox2d bbox);
+  BarnesHutSimulationStep(std::vector<SimulatedBody> bodies,
+                          Eigen::AlignedBox2d bbox,
+                          std::shared_ptr<const Node> quadtree);
   // Copy constructor
   BarnesHutSimulationStep(const BarnesHutSimulationStep &other);
   // Move constructor

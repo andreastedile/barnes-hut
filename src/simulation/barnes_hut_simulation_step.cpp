@@ -8,8 +8,8 @@
 namespace bh {
 
 BarnesHutSimulationStep::BarnesHutSimulationStep(
-    std::shared_ptr<const Node> quadtree, std::vector<SimulatedBody> bodies,
-    Eigen::AlignedBox2d bbox)
+    std::vector<SimulatedBody> bodies, Eigen::AlignedBox2d bbox,
+    std::shared_ptr<const Node> quadtree)
     : SimulationStep(std::move(bodies), std::move(bbox)),
       m_quadtree(std::move(quadtree)) {}
 

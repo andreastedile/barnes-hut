@@ -1,13 +1,15 @@
 #ifndef BARNES_HUT_SIMULATION_EXACT_H
 #define BARNES_HUT_SIMULATION_EXACT_H
 
+#include <eigen3/Eigen/Eigen>
 #include <iostream>
 #include <nlohmann/json.hpp>
 #include <string>
 #include <type_traits>  // enable_if
-#include <vector>
+#include <utility>      // tuple
 
 using json = nlohmann::json;
+using Eigen::AlignedBox2d;
 
 #include "node.h"
 #include "simulation_step.h"
@@ -30,7 +32,7 @@ std::vector<SimulatedBody> load(const std::string &filename);
  * smaller, the more accurate
  * @return new bodies, containing the updated position and velocity
  */
-std::vector<SimulatedBody> compute_new_bodies_exact(
+std::tuple<std::vector<SimulatedBody>, AlignedBox2d> compute_new_bodies_exact(
     const std::vector<SimulatedBody> &bodies, double dt);
 
 /**
@@ -42,18 +44,11 @@ std::vector<SimulatedBody> compute_new_bodies_exact(
  * @return new bodies, containing the updated position and velocity, and the
  * quadtree that has been computed as part of the approximation algorithm
  */
-std::pair<std::shared_ptr<const Node>, std::vector<SimulatedBody>>
+std::tuple<std::vector<SimulatedBody>, AlignedBox2d,
+           std::shared_ptr<const Node>>
 compute_new_bodies_barnes_hut(const std::vector<SimulatedBody> &bodies,
-                              double dt);
+                              const AlignedBox2d &bbox, double dt);
 
-template <typename T, typename = typename std::enable_if<
-                          std::is_base_of<SimulationStep, T>::value, T>::type>
-/**
- * @tparam T the type of struct that will contain the data produced by a
- * simulation step; must be the SimulationStep struct itself or one inheriting
- * from it.
- * @todo explain rationale of choosing SimulationStep as base struct
- */
 class ISimulation {
  public:
   const double m_dt;
@@ -89,14 +84,6 @@ class ISimulation {
    * @todo pass the filename as argument
    */
   virtual void save_json() const = 0;
-
-  /**
-   * @return the simulation steps performed so far
-   */
-  virtual const std::vector<T> &steps() const final { return m_steps; }
-
- protected:
-  std::vector<T> m_steps;
 };
 
 }  // namespace bh

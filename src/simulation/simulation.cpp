@@ -39,7 +39,7 @@ std::vector<SimulatedBody> load(const std::string &filename) {
   return bodies;
 }
 
-std::vector<SimulatedBody> compute_new_bodies_exact(
+std::tuple<std::vector<SimulatedBody>, AlignedBox2d> compute_new_bodies_exact(
     const std::vector<SimulatedBody> &bodies, const double dt) {
   // This calls SimulatedBody's default constructor bodies.size() times, but we
   // cannot do anything about it
@@ -51,24 +51,14 @@ std::vector<SimulatedBody> compute_new_bodies_exact(
                  new_bodies.begin(), [&](const SimulatedBody &body) {
                    return body.updated(bodies, dt);
                  });
-  return new_bodies;
+  auto new_bbox = compute_square_bounding_box(new_bodies);
+  return std::make_tuple(std::move(new_bodies), std::move(new_bbox));
 }
 
-std::pair<std::shared_ptr<const Node>, std::vector<SimulatedBody>>
+std::tuple<std::vector<SimulatedBody>, AlignedBox2d,
+           std::shared_ptr<const Node>>
 compute_new_bodies_barnes_hut(const std::vector<SimulatedBody> &bodies,
-                              double dt) {
-#ifndef NDEBUG
-  std::cout << "Computing bounding box\n";
-#endif
-  const auto bbox = compute_square_bounding_box(bodies);
-#ifndef NDEBUG
-  // clang-format off
-  std::cout << "Computed bounding box: "
-          "bottom left (" << bbox.min().x() << " " << bbox.min().y() << "), "
-           "top right: (" << bbox.max().x() << " " << bbox.max().y() << ")\n";
-  // clang-format on
-#endif
-
+                              const AlignedBox2d &bbox, double dt) {
 #ifndef NDEBUG
   std::cout << "Computing quadtree\n";
 #endif
@@ -90,7 +80,21 @@ compute_new_bodies_barnes_hut(const std::vector<SimulatedBody> &bodies,
                    auto new_body = body.updated(*quadtree, dt);
                    return new_body;
                  });
-  return std::make_pair(std::move(quadtree), std::move(new_bodies));
+
+#ifndef NDEBUG
+  std::cout << "Computing bounding box\n";
+#endif
+  AlignedBox2d new_bbox = compute_square_bounding_box(new_bodies);
+#ifndef NDEBUG
+  // clang-format off
+  std::cout << "Computed bounding box: "
+          "bottom left (" << new_bbox.min().x() << " " << new_bbox.min().y() << "), "
+           "top right: (" << new_bbox.max().x() << " " << new_bbox.max().y() << ")\n";
+  // clang-format on
+#endif
+
+  return std::make_tuple(std::move(new_bodies), std::move(new_bbox),
+                         std::move(quadtree));
 }
 
 }  // namespace bh
