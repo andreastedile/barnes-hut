@@ -41,7 +41,7 @@ std::vector<Body> load(const std::string &filename) {
 }
 
 std::tuple<std::vector<Body>, AlignedBox2d> compute_new_bodies_exact(
-    const std::vector<Body> &bodies, double dt) {
+    const std::vector<Body> &bodies, double dt, double G) {
   // This calls Body's default constructor bodies.size() times, but we
   // cannot do anything about it
 #ifndef NDEBUG
@@ -50,7 +50,7 @@ std::tuple<std::vector<Body>, AlignedBox2d> compute_new_bodies_exact(
   std::vector<Body> new_bodies(bodies.size());
   std::transform(std::execution::par_unseq, bodies.begin(), bodies.end(),
                  new_bodies.begin(), [&](const Body &body) {
-                   return update_body(body, bodies, dt);
+                   return update_body(body, bodies, dt, G);
                  });
 #ifndef NDEBUG
   std::cout << "Computing new bounding box...\n";
@@ -62,7 +62,8 @@ std::tuple<std::vector<Body>, AlignedBox2d> compute_new_bodies_exact(
 
 std::tuple<std::vector<Body>, AlignedBox2d, std::shared_ptr<const Node>>
 compute_new_bodies_barnes_hut(const std::vector<Body> &bodies,
-                              const AlignedBox2d &bbox, double dt) {
+                              const AlignedBox2d &bbox,
+                              double dt, double G, double omega) {
 #ifndef NDEBUG
   std::cout << "Computing quadtree...\n";
 #endif
@@ -81,7 +82,7 @@ compute_new_bodies_barnes_hut(const std::vector<Body> &bodies,
   std::vector<Body> new_bodies(bodies.size());
   std::transform(std::execution::par_unseq, bodies.begin(), bodies.end(),
                  new_bodies.begin(), [&](const Body &body) {
-                   auto new_body = update_body(body, *quadtree, dt);
+                   auto new_body = update_body(body, *quadtree, dt, G, omega);
                    return new_body;
                  });
 

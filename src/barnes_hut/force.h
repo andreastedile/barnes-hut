@@ -12,6 +12,13 @@ using Eigen::Vector2d;
 
 namespace bh {
 
+// https://physics.nist.gov/cgi-bin/cuu/Value?bg
+// 6.674 30 x 10-11 m3 kg-1 s-2
+// = 0.000000000066743
+constexpr double NEWTONIAN_G = 0.000000000066743;
+
+constexpr double DEFAULT_OMEGA = 0.5;
+
 /**
  * Computes the gravitational force that body b1 exerts on body b2.
  * @details If the two bodies coincide, the components of the resulting force
@@ -20,7 +27,8 @@ namespace bh {
  * @param b2 is subject to the gravitational force of b1
  * @return A force vector
  */
-Vector2d compute_gravitational_force(const Body& b1, const Body& b2);
+Vector2d compute_gravitational_force(const Body& b1, const Body& b2,
+                                     double G = NEWTONIAN_G);
 
 /**
  * Computes the net gravitational force that a set of bodies contained in the
@@ -30,8 +38,8 @@ Vector2d compute_gravitational_force(const Body& b1, const Body& b2);
  * @param body that is subject to the gravitational force of the bodies in node
  * @return A force vector
  */
-Vector2d compute_approximate_net_force_on_body(const Node& node,
-                                               const Body& body);
+Vector2d compute_approximate_net_force_on_body(const Node& node,const Body& body,
+                                               double G = NEWTONIAN_G, double omega = DEFAULT_OMEGA);
 
 template <typename T, typename = typename std::enable_if<
                           std::is_base_of<Body, T>::value, T>::type>
@@ -42,15 +50,15 @@ template <typename T, typename = typename std::enable_if<
  * @param body that is subject to the gravitational force of bodies
  * @return A force vector
  */
-Vector2d compute_exact_net_force_on_body(const std::vector<T>& bodies,
-                                         const T& body) {
+Vector2d compute_exact_net_force_on_body(const std::vector<T>& bodies, const T& body,
+                                         double G = NEWTONIAN_G) {
   return std::transform_reduce(
       std::execution::par_unseq, bodies.begin(), bodies.end(), Vector2d{0, 0},
       [&body](const Vector2d& total, const Vector2d& curr) {
         return (total + curr).eval();
       },
-      [&body](const T& curr) {
-        return compute_gravitational_force(curr, body);
+      [&](const T& curr) {
+        return compute_gravitational_force(curr, body, G);
       });
 }
 

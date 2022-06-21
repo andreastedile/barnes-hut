@@ -34,7 +34,7 @@ std::vector<Body> load(const std::string &filename);
  * @return new bodies, containing the updated position and velocity
  */
 std::tuple<std::vector<Body>, AlignedBox2d> compute_new_bodies_exact(
-    const std::vector<Body> &bodies, double dt);
+    const std::vector<Body> &bodies, double dt, double G);
 
 /**
  * Computes the approximated position and velocity of the bodies after a
@@ -47,17 +47,20 @@ std::tuple<std::vector<Body>, AlignedBox2d> compute_new_bodies_exact(
  */
 std::tuple<std::vector<Body>, AlignedBox2d, std::shared_ptr<const Node>>
 compute_new_bodies_barnes_hut(const std::vector<Body> &bodies,
-                              const AlignedBox2d &bbox, double dt);
+                              const AlignedBox2d &bbox,
+                              double dt, double G, double omega);
 
 class ISimulation {
  public:
   const double m_dt;
+  const double m_G;
+  const double m_omega;
 
   /**
    * @param dt simulation timestep; defines the accuracy of the computation: the
    * smaller, the more accurate
    */
-  explicit ISimulation(double dt) : m_dt{dt} {}
+  explicit ISimulation(double dt, double G, double omega) : m_dt{dt}, m_G(G), m_omega(omega) {}
 
   /**
    * Performs a single simulation step

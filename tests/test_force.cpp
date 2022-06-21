@@ -18,7 +18,7 @@ TEST_CASE("compute gravitational force") {
     Body b2({10, 0}, 1);
 
     SECTION("force that b1 exerts on b2") {
-      Vector2d f = bh::compute_gravitational_force(b1, b2);
+      Vector2d f = bh::compute_gravitational_force(b1, b2, 0.5);
       REQUIRE(f.x() == -0.005);  // -0.00499999989 -> -0.005f
       // REQUIRE(f.y() == 0); // -4.37113873E-10 -> -0.0f
     }
@@ -29,7 +29,7 @@ TEST_CASE("compute gravitational force") {
     Body b2({0, 10}, 1);
 
     SECTION("force that b1 exerts on b2") {
-      Vector2d f = bh::compute_gravitational_force(b1, b2);
+      Vector2d f = bh::compute_gravitational_force(b1, b2, 0.5);
       // REQUIRE(f.x() == 0);      // -2.18556936E-10 -> -0.0f
       REQUIRE(f.y() == -0.005);  // -0.00499999989 -> -0.005f
     }
@@ -40,7 +40,7 @@ TEST_CASE("compute gravitational force") {
     Body b2({10, 10}, 1);
 
     SECTION("force that b1 exerts on b2") {
-      Vector2d f = bh::compute_gravitational_force(b1, b2);
+      Vector2d f = bh::compute_gravitational_force(b1, b2, 0.5);
       REQUIRE(f.x() == Approx(-0.00176776695297));  // using Desmos calculator
       REQUIRE(f.y() == Approx(-0.00176776695297));
     }
@@ -51,8 +51,8 @@ TEST_CASE("compute gravitational force") {
     Body center({0, 0}, 1);
     Body right({10, 0}, 1);
 
-    Vector2d left_f = bh::compute_gravitational_force(left, center);
-    Vector2d right_f = bh::compute_gravitational_force(right, center);
+    Vector2d left_f = bh::compute_gravitational_force(left, center, 0.5);
+    Vector2d right_f = bh::compute_gravitational_force(right, center, 0.5);
     Vector2d sum_f = left_f + right_f;
     REQUIRE(sum_f.x() == 0);
     // REQUIRE(sum_f.y() == 0); // -0.0f == 0.0f
@@ -92,12 +92,12 @@ TEST_CASE("compute exact net force on body") {
   REQUIRE(f == Vector2d(0, 0));
 
   bodies.emplace_back(Vector2d{5, 0}, 1);
-  f = compute_exact_net_force_on_body(bodies, {{0, 0}, 1});
+  f = compute_exact_net_force_on_body(bodies, {{0, 0}, 1}, 0.5);
   REQUIRE(f.x() == 0.02);  // -0.00499999989 -> -0.005f
   REQUIRE(f.y() == 0);     // -4.37113873E-10 -> -0.0f
 
   bodies.emplace_back(Vector2d{-5, 0}, 2);
-  f = compute_exact_net_force_on_body(bodies, {{0, 0}, 1});
+  f = compute_exact_net_force_on_body(bodies, {{0, 0}, 1}, 0.5);
   REQUIRE(f.x() == -0.02);
   // REQUIRE(f.y() == 0); // -0.0f == 0.0f
 }
@@ -108,7 +108,7 @@ TEST_CASE("compute approximate net force on body") {
   root.insert({{7.5, -2.5}, 0.5});
   root.insert({{2.5, -7.5}, 0.5});
 
-  Vector2d f = compute_approximate_net_force_on_body(root, {{-10, 10}, 1});
+  Vector2d f = compute_approximate_net_force_on_body(root, {{-10, 10}, 1}, 0.5);
   REQUIRE(f.x() == Approx(0.000785674201318));
   REQUIRE(f.y() == Approx(-0.000785674201318));
 }

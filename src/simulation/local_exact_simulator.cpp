@@ -6,8 +6,8 @@
 
 namespace bh {
 
-LocalExactSimulator::LocalExactSimulator(const std::string& filename, double dt)
-    : ISimulation(dt) {
+LocalExactSimulator::LocalExactSimulator(const std::string& filename, double dt, double G, double omega)
+    : ISimulation(dt, G, omega) {
   auto bodies = load(filename);
   auto bbox = compute_square_bounding_box(bodies);
   m_steps.emplace_back(std::move(bodies), std::move(bbox));
@@ -15,7 +15,7 @@ LocalExactSimulator::LocalExactSimulator(const std::string& filename, double dt)
 
 void LocalExactSimulator::step() {
   auto [new_bodies, new_bbox] =
-      compute_new_bodies_exact(m_steps.back().m_bodies, m_dt);
+      compute_new_bodies_exact(m_steps.back().m_bodies, m_dt, m_G);
   m_steps.emplace_back(std::move(new_bodies), std::move(new_bbox));
 }
 

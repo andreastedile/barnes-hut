@@ -10,7 +10,7 @@ namespace bh {
 
 class LocalExactSimulator final : public ISimulation {
  public:
-  LocalExactSimulator(const std::string &filename, double dt);
+  LocalExactSimulator(const std::string &filename, double dt, double G, double omega);
   void step() override;
   [[nodiscard]] json as_json() const override;
   void save_json() const override;

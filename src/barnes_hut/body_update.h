@@ -19,7 +19,7 @@ namespace bh {
  */
 Body update_body(const Body& body,
                  const std::vector<Body>& bodies,
-                 double dt);
+                 double dt, double G);
 
 /**
  * Computes the new, approximated position and velocity vectors of the body
@@ -32,7 +32,7 @@ Body update_body(const Body& body,
  */
 Body update_body(const Body& body,
                  const Node& quadtree,
-                 double dt);
+                 double dt, double G, double omega);
 
 }  // namespace bh
 
