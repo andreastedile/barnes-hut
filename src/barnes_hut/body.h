@@ -22,14 +22,23 @@ struct Body {
   Vector2d m_position;
   // Mass of the body
   double m_mass;
+  // Velocity vector of the body
+  Vector2d m_velocity;
 
   Body();
   /**
-   * Creates a body with given position and mass.
+   * Creates a body with given position and mass, and zero velocity.
    * @param position of the body in the cartesian plane
    * @param mass of the body
    */
   Body(Vector2d position, double mass);
+  /**
+   * Creates a body with given position, mass and velocity.
+   * @param position of the body in the cartesian plane
+   * @param mass of the body
+   * @param velocity of the body
+   */
+  Body(Vector2d position, double mass, Vector2d velocity);
   // Copy constructor
   Body(const Body &other);
   // Move constructor

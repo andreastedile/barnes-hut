@@ -8,7 +8,7 @@ namespace bh {
 LocalBarnesHutSimulator::LocalBarnesHutSimulator(const std::string& filename,
                                                  double dt)
     : ISimulation(dt) {
-  std::vector<SimulatedBody> bodies = load(filename);
+  std::vector<Body> bodies = load(filename);
   auto bbox = compute_square_bounding_box(bodies);
   auto quadtree = std::make_shared<Node>(bbox.min(), bbox.max());
   m_steps.emplace_back(std::move(bodies), std::move(bbox), std::move(quadtree));

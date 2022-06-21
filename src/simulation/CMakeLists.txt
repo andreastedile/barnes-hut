@@ -1,8 +1,4 @@
 add_library(simulation_lib
-        simulated_body.cpp
-        simulated_body.h
-        simulated_body.cpp
-        simulated_body_json.cpp
         simulation_step.cpp
         simulation_step.h
         exact_simulation_step.h

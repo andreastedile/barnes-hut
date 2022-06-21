@@ -5,16 +5,16 @@
 #include <vector>
 
 #include "node.h"
-#include "simulated_body.h"
+#include "body.h"
 
 namespace bh {
 
 struct SimulationStep {
  public:
-  std::vector<SimulatedBody> m_bodies;
+  std::vector<Body> m_bodies;
   Eigen::AlignedBox2d m_bbox;
 
-  explicit SimulationStep(std::vector<SimulatedBody> bodies,
+  explicit SimulationStep(std::vector<Body> bodies,
                           Eigen::AlignedBox2d bbox);
   // Copy constructor
   SimulationStep(const SimulationStep &other);

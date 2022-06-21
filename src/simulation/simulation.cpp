@@ -7,11 +7,12 @@
 #include <memory>     // make_shared
 #include <stdexcept>  // runtime_error
 
+#include "body_update.h"
 #include "node.h"
 
 namespace bh {
 
-std::vector<SimulatedBody> load(const std::string &filename) {
+std::vector<Body> load(const std::string &filename) {
   std::ifstream file(filename);
   if (!file.is_open()) {
     throw std::runtime_error("Could not open file " + filename);
@@ -22,7 +23,7 @@ std::vector<SimulatedBody> load(const std::string &filename) {
   unsigned n_bodies;
   file >> n_bodies;
 
-  std::vector<SimulatedBody> bodies;
+  std::vector<Body> bodies;
   bodies.reserve(n_bodies);
   for (unsigned i = 0; i < n_bodies; i++) {
     double position_x, position_y;
@@ -39,17 +40,17 @@ std::vector<SimulatedBody> load(const std::string &filename) {
   return bodies;
 }
 
-std::tuple<std::vector<SimulatedBody>, AlignedBox2d> compute_new_bodies_exact(
-    const std::vector<SimulatedBody> &bodies, const double dt) {
-  // This calls SimulatedBody's default constructor bodies.size() times, but we
+std::tuple<std::vector<Body>, AlignedBox2d> compute_new_bodies_exact(
+    const std::vector<Body> &bodies, double dt) {
+  // This calls Body's default constructor bodies.size() times, but we
   // cannot do anything about it
 #ifndef NDEBUG
   std::cout << "Computing new bodies...\n";
 #endif
-  std::vector<SimulatedBody> new_bodies(bodies.size());
+  std::vector<Body> new_bodies(bodies.size());
   std::transform(std::execution::par_unseq, bodies.begin(), bodies.end(),
-                 new_bodies.begin(), [&](const SimulatedBody &body) {
-                   return body.updated(bodies, dt);
+                 new_bodies.begin(), [&](const Body &body) {
+                   return update_body(body, bodies, dt);
                  });
 #ifndef NDEBUG
   std::cout << "Computing new bounding box...\n";
@@ -59,9 +60,8 @@ std::tuple<std::vector<SimulatedBody>, AlignedBox2d> compute_new_bodies_exact(
   return std::make_tuple(std::move(new_bodies), std::move(new_bbox));
 }
 
-std::tuple<std::vector<SimulatedBody>, AlignedBox2d,
-           std::shared_ptr<const Node>>
-compute_new_bodies_barnes_hut(const std::vector<SimulatedBody> &bodies,
+std::tuple<std::vector<Body>, AlignedBox2d, std::shared_ptr<const Node>>
+compute_new_bodies_barnes_hut(const std::vector<Body> &bodies,
                               const AlignedBox2d &bbox, double dt) {
 #ifndef NDEBUG
   std::cout << "Computing quadtree...\n";
@@ -69,19 +69,19 @@ compute_new_bodies_barnes_hut(const std::vector<SimulatedBody> &bodies,
   auto quadtree = std::make_shared<Node>(bbox.min(), bbox.max());
 
   std::for_each(bodies.begin(), bodies.end(),
-                [&](const SimulatedBody &simulated) {
+                [&](const Body &simulated) {
                   Body body(simulated.m_position, simulated.m_mass);
                   quadtree->insert(body);
                 });
-  // This calls SimulatedBody's default constructor bodies.size() times, but we
+  // This calls Body's default constructor bodies.size() times, but we
   // cannot do anything about it
 #ifndef NDEBUG
   std::cout << "Computing new bodies...\n";
 #endif
-  std::vector<SimulatedBody> new_bodies(bodies.size());
+  std::vector<Body> new_bodies(bodies.size());
   std::transform(std::execution::par_unseq, bodies.begin(), bodies.end(),
-                 new_bodies.begin(), [&](const SimulatedBody &body) {
-                   auto new_body = body.updated(*quadtree, dt);
+                 new_bodies.begin(), [&](const Body &body) {
+                   auto new_body = update_body(body, *quadtree, dt);
                    return new_body;
                  });
 

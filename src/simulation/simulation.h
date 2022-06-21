@@ -11,6 +11,7 @@
 using json = nlohmann::json;
 using Eigen::AlignedBox2d;
 
+#include "body.h"
 #include "node.h"
 #include "simulation_step.h"
 
@@ -22,7 +23,7 @@ namespace bh {
  * @param filename file containing the bodies' data
  * @return bodies corresponding to the data in the file
  */
-std::vector<SimulatedBody> load(const std::string &filename);
+std::vector<Body> load(const std::string &filename);
 
 /**
  * Computes the exact position and velocity of the bodies after a simulation
@@ -32,8 +33,8 @@ std::vector<SimulatedBody> load(const std::string &filename);
  * smaller, the more accurate
  * @return new bodies, containing the updated position and velocity
  */
-std::tuple<std::vector<SimulatedBody>, AlignedBox2d> compute_new_bodies_exact(
-    const std::vector<SimulatedBody> &bodies, double dt);
+std::tuple<std::vector<Body>, AlignedBox2d> compute_new_bodies_exact(
+    const std::vector<Body> &bodies, double dt);
 
 /**
  * Computes the approximated position and velocity of the bodies after a
@@ -44,9 +45,8 @@ std::tuple<std::vector<SimulatedBody>, AlignedBox2d> compute_new_bodies_exact(
  * @return new bodies, containing the updated position and velocity, and the
  * quadtree that has been computed as part of the approximation algorithm
  */
-std::tuple<std::vector<SimulatedBody>, AlignedBox2d,
-           std::shared_ptr<const Node>>
-compute_new_bodies_barnes_hut(const std::vector<SimulatedBody> &bodies,
+std::tuple<std::vector<Body>, AlignedBox2d, std::shared_ptr<const Node>>
+compute_new_bodies_barnes_hut(const std::vector<Body> &bodies,
                               const AlignedBox2d &bbox, double dt);
 
 class ISimulation {

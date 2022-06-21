@@ -7,7 +7,9 @@ add_library(barnes_hut_lib
         node.cpp
         node_json.cpp
         force.h
-        force.cpp)
+        force.cpp
+        body_update.cpp
+        body_update.h)
 
 target_include_directories(barnes_hut_lib INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>)
 

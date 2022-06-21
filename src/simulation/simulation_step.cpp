@@ -7,7 +7,7 @@
 
 namespace bh {
 
-SimulationStep::SimulationStep(std::vector<SimulatedBody> bodies,
+SimulationStep::SimulationStep(std::vector<Body> bodies,
                                Eigen::AlignedBox2d bbox)
     : m_bodies(std::move(bodies)), m_bbox(std::move(bbox)) {}
 
