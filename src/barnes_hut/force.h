@@ -1,9 +1,7 @@
 #ifndef BARNES_HUT_FORCE_H
 #define BARNES_HUT_FORCE_H
 
-#include <algorithm>  // transform_reduce
 #include <eigen3/Eigen/Eigen>
-#include <execution>  // par_unseq
 
 #include "body.h"
 #include "node.h"
@@ -38,11 +36,9 @@ Vector2d compute_gravitational_force(const Body& b1, const Body& b2,
  * @param body that is subject to the gravitational force of the bodies in node
  * @return A force vector
  */
-Vector2d compute_approximate_net_force_on_body(const Node& node,const Body& body,
+Vector2d compute_approximate_net_force_on_body(const Node& node, const Body& body,
                                                double G = NEWTONIAN_G, double omega = DEFAULT_OMEGA);
 
-template <typename T, typename = typename std::enable_if<
-                          std::is_base_of<Body, T>::value, T>::type>
 /**
  * Computes the exact gravitational force that a set of bodies exert on a body,
  * without any approximation.
@@ -50,17 +46,8 @@ template <typename T, typename = typename std::enable_if<
  * @param body that is subject to the gravitational force of bodies
  * @return A force vector
  */
-Vector2d compute_exact_net_force_on_body(const std::vector<T>& bodies, const T& body,
-                                         double G = NEWTONIAN_G) {
-  return std::transform_reduce(
-      std::execution::par_unseq, bodies.begin(), bodies.end(), Vector2d{0, 0},
-      [&body](const Vector2d& total, const Vector2d& curr) {
-        return (total + curr).eval();
-      },
-      [&](const T& curr) {
-        return compute_gravitational_force(curr, body, G);
-      });
-}
+Vector2d compute_exact_net_force_on_body(const std::vector<Body>& bodies, const Body& body,
+                                         double G = NEWTONIAN_G);
 
 }  // namespace bh
 

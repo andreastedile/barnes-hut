@@ -1,5 +1,6 @@
-#include <numeric>  // stdaccumulate
-#include <variant>  // visit
+#include <execution>  // par_unseq
+#include <numeric>    // accumulate, transform_reduce
+#include <variant>    // visit
 
 #include "node.h"
 #include "templates.h"  // overloaded
@@ -45,6 +46,18 @@ Vector2d compute_approximate_net_force_on_body(const Node& node, const Body& bod
   };
 
   return std::visit(overloaded{visit_fork, visit_leaf}, node.data());
+}
+
+Vector2d compute_exact_net_force_on_body(const std::vector<Body>& bodies, const Body& body,
+                                         double G) {
+  return std::transform_reduce(
+      std::execution::par_unseq, bodies.begin(), bodies.end(), Vector2d{0, 0},
+      [](const Vector2d& total, const Vector2d& curr) {
+        return (total + curr).eval();
+      },
+      [&](const Body& curr) {
+        return compute_gravitational_force(curr, body, G);
+      });
 }
 
 }  // namespace bh
