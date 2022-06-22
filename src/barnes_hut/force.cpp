@@ -9,15 +9,15 @@ namespace bh {
 
 Vector2d compute_gravitational_force(const Body& b1, const Body& b2, double G) {
   Vector2d direction_v = b1.m_position - b2.m_position;
-  double distance = direction_v.norm();
-  if (distance == 0) {
+  if (double distance = direction_v.norm(); distance > 0) {
+    double magnitude = (G * b1.m_mass * b2.m_mass) / std::pow(distance, 2.f);
+    double angle = std::atan2(direction_v.y(), direction_v.x());
+    double fx = std::cos(angle) * magnitude;
+    double fy = std::sin(angle) * magnitude;
+    return {fx, fy};
+  } else {
     return {0, 0};
   }
-  double magnitude = (G * b1.m_mass * b2.m_mass) / std::pow(distance, 2.f);
-  double angle = std::atan2(direction_v.y(), direction_v.x());
-  double fx = std::cos(angle) * magnitude;
-  double fy = std::sin(angle) * magnitude;
-  return {fx, fy};
 }
 
 Vector2d compute_approximate_net_force_on_body(const Node& node, const Body& body,
