@@ -60,7 +60,7 @@ class ISimulation {
    * @param dt simulation timestep; defines the accuracy of the computation: the
    * smaller, the more accurate
    */
-  explicit ISimulation(double dt, double G, double omega) : m_dt{dt}, m_G(G), m_omega(omega) {}
+  explicit ISimulation(double dt, double G, double omega);
 
   /**
    * Performs a single simulation step
@@ -70,12 +70,7 @@ class ISimulation {
   /**
    * @param n_steps number of simulation steps to perform
    */
-  virtual void step_continuously(unsigned n_steps) final {
-    for (unsigned i = 0; i < n_steps; i++) {
-      std::cout << "Step " << i << '\n';
-      step();
-    }
-  }
+  virtual void step_continuously(int n_steps) final;
 
   /**
    * @return the JSON representation of the simulation

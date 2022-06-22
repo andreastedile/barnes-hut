@@ -40,6 +40,9 @@ std::vector<Body> load(const std::string &filename) {
   return bodies;
 }
 
+ISimulation::ISimulation(double dt, double G, double omega)
+    : m_dt{dt}, m_G(G), m_omega(omega) {}
+
 std::tuple<std::vector<Body>, AlignedBox2d> compute_new_bodies_exact(
     const std::vector<Body> &bodies, double dt, double G) {
   // This calls Body's default constructor bodies.size() times, but we
@@ -93,6 +96,13 @@ compute_new_bodies_barnes_hut(const std::vector<Body> &bodies,
 
   return std::make_tuple(std::move(new_bodies), std::move(new_bbox),
                          std::move(quadtree));
+}
+
+void ISimulation::step_continuously(int n_steps) {
+  for (int i = 0; i < n_steps; i++) {
+    std::cout << "Step " << i << '\n';
+    step();
+  }
 }
 
 }  // namespace bh
