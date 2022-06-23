@@ -13,7 +13,12 @@ add_library(simulation_lib
         local_exact_simulator.h
         local_barnes_hut_simulator.cpp
         local_barnes_hut_simulator_json.cpp
-        local_barnes_hut_simulator.h)
+        local_barnes_hut_simulator.h
+        mpi_datatypes.cpp
+        mpi_datatypes.h
+        serialization.cpp
+        serialization.h
+        templates.h)
 
 target_include_directories(simulation_lib INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>)
 
