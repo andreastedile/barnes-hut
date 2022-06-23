@@ -28,10 +28,12 @@ class Node {
    */
   struct Fork {
     using AggregateBody = Body;
-    std::array<std::unique_ptr<Node>, 4> m_children;
-    AggregateBody m_aggregate_body;
-    explicit Fork(std::array<std::unique_ptr<Node>, 4> children);
+    explicit Fork(std::array<std::unique_ptr<Node>, 4> children, int n_nodes);
     void update_aggregate_body();
+
+    std::array<std::unique_ptr<Node>, 4> m_children;
+    int m_n_nodes;
+    AggregateBody m_aggregate_body;
   };
 
   /**
@@ -109,18 +111,9 @@ class Node {
   [[nodiscard]] double total_mass() const;
 
   /**
-   * Computes the number of nodes contained in this quadtree node, including the
-   * node itself.
-   * @details The semantic of "number of nodes" depends on the node's current
-   * type:
-   * <ul>
-   * <li> Empty leaf: the number of nodes is 1;
-   * <li> Leaf: the number of nodes is 1;
-   * <li> Fork: the number of nodes is 1 + the evaluation of the number of nodes
-   * for all the four children.
-   * </ul>
-   **/
-  [[nodiscard]] unsigned n_nodes() const;
+   * @return number of nodes contained in the quadtree rooted in this node
+   */
+  [[nodiscard]] int n_nodes() const;
 
   [[nodiscard]] const std::variant<Fork, Leaf> &data() const;
 
@@ -167,11 +160,9 @@ class Node {
    */
   Subquadrant get_subquadrant(const Vector2d &point);
 
-  const AlignedBox2d &bbox() const;
+  [[nodiscard]] const AlignedBox2d &bbox() const;
 
  private:
-  unsigned m_n_nodes;
-
   /**
    * The axis-aligned bounding box of the node; not necessarily minimum.
    * x() and y() return its bottom-left and top-right corners.
