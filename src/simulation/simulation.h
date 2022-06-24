@@ -7,6 +7,8 @@
 #include <string>
 #include <type_traits>  // enable_if
 #include <utility>      // tuple
+#include <vector>
+#include <memory>
 
 using json = nlohmann::json;
 using Eigen::AlignedBox2d;
@@ -72,6 +74,8 @@ class ISimulation {
    */
   virtual void step_continuously(int n_steps) final;
 
+  [[nodiscard]] virtual const std::vector<std::shared_ptr<SimulationStep>> &steps() const final;
+
   /**
    * @return the JSON representation of the simulation
    */
@@ -82,6 +86,9 @@ class ISimulation {
    * @todo pass the filename as argument
    */
   virtual void save_json() const = 0;
+
+ protected:
+  std::vector<std::shared_ptr<SimulationStep>> m_simulation_steps;
 };
 
 }  // namespace bh

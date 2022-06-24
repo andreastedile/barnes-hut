@@ -1,6 +1,7 @@
 #include <fstream>  // ostream
 
 #include "local_barnes_hut_simulator.h"
+#include "barnes_hut_simulation_step.h"
 
 namespace bh {
 
@@ -8,7 +9,7 @@ void to_json(json &j, const LocalBarnesHutSimulator &simulator) {
   json steps;
   std::transform(simulator.steps().begin(), simulator.steps().end(),
                  std::back_inserter(steps),
-                 [](const auto &step) { return step; });
+                 [](const auto &step) { return static_cast<const BarnesHutSimulationStep&>(*step); });
 
   j = {{"dt", simulator.m_dt},
        {"n_steps", simulator.steps().size()},

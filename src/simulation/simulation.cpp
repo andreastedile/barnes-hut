@@ -98,6 +98,10 @@ compute_new_bodies_barnes_hut(const std::vector<Body> &bodies,
                          std::move(quadtree));
 }
 
+const std::vector<std::shared_ptr<SimulationStep>> &ISimulation::steps() const {
+  return m_simulation_steps;
+};
+
 void ISimulation::step_continuously(int n_steps) {
   for (int i = 0; i < n_steps; i++) {
     std::cout << "Step " << i << '\n';

@@ -1,8 +1,10 @@
 #include "local_exact_simulator.h"
 
+#include <memory>   // make_shared
 #include <utility>  // move
 
 #include "body.h"  // compute_square_bounding_box
+#include "exact_simulation_step.h"
 
 namespace bh {
 
@@ -10,17 +12,15 @@ LocalExactSimulator::LocalExactSimulator(const std::string& filename, double dt,
     : ISimulation(dt, G, omega) {
   auto bodies = load(filename);
   auto bbox = compute_square_bounding_box(bodies);
-  m_steps.emplace_back(std::move(bodies), std::move(bbox));
+  auto simulation_step = std::make_shared<ExactSimulationStep>(std::move(bodies), std::move(bbox));
+  m_simulation_steps.push_back(std::move(simulation_step));
 }
 
 void LocalExactSimulator::step() {
   auto [new_bodies, new_bbox] =
-      compute_new_bodies_exact(m_steps.back().m_bodies, m_dt, m_G);
-  m_steps.emplace_back(std::move(new_bodies), std::move(new_bbox));
-}
-
-const std::vector<ExactSimulationStep>& LocalExactSimulator::steps() const {
-  return m_steps;
+      compute_new_bodies_exact(m_simulation_steps.back()->m_bodies, m_dt, m_G);
+  auto simulation_step = std::make_shared<ExactSimulationStep>(std::move(new_bodies), std::move(new_bbox));
+  m_simulation_steps.push_back(std::move(simulation_step));
 }
 
 }  // namespace bh

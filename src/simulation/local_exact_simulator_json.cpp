@@ -1,5 +1,6 @@
 #include <fstream>  // ofstream
 
+#include "exact_simulation_step.h"
 #include "local_exact_simulator.h"
 
 namespace bh {
@@ -8,7 +9,7 @@ void to_json(json &j, const LocalExactSimulator &simulator) {
   json steps;
   std::transform(simulator.steps().begin(), simulator.steps().end(),
                  std::back_inserter(steps),
-                 [](const auto &step) { return step; });
+                 [](const auto &step) { return static_cast<ExactSimulationStep &>(*step); });
 
   j = {{"dt", simulator.m_dt},
        {"n_steps", simulator.steps().size()},
