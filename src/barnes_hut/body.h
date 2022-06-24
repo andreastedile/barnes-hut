@@ -67,7 +67,7 @@ struct Body {
 AlignedBox2d compute_minimum_bounding_box(const std::vector<Body> &bodies);
 
 /**
- * Computes an axis-aligend square bounding box containing some bodies.
+ * Computes an axis-aligned square bounding box containing some bodies.
  * @details The bounding box is defined by its bottom-left and top-right
  * corners. The computed bounding box is not minimum, but is
  *
@@ -76,8 +76,6 @@ AlignedBox2d compute_minimum_bounding_box(const std::vector<Body> &bodies);
  * @return the minimum bounding box; x() and y() return its bottom-left and
  * top-right corners
  * @throw invalid_argument if the bodies vector contains less than two bodies
- * @example <a href="https://www.desmos.com/calculator/mintua3fvc?lang=it">on
- * Desmos</a>
  */
 AlignedBox2d compute_square_bounding_box(const std::vector<Body> &bodies);
 

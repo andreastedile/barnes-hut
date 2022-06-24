@@ -54,8 +54,7 @@ class Node {
 
   /**
    * Computes the center of mass of this quadtree node.
-   * @details The semantic of "center of mass" depends on the node's current
-   * type:
+   * @details
    * <ul>
    * <li> Empty leaf: the center of mass is (0, 0);
    * <li> Leaf: the center of mass are the coordinates of the single body it
@@ -69,7 +68,7 @@ class Node {
 
   /**
    * Computes the total mass of this quadtree node.
-   * @details The semantic of "total mass" depends on the node's current type:
+   * @details
    * <ul>
    * <li> Empty leaf: the total mass is 0;
    * <li> Leaf: the total mass is the mass of the single body it contains;
@@ -95,9 +94,9 @@ class Node {
    */
   Node(const Vector2d &bottom_left, const Vector2d &top_right);
 
-  Node(const Vector2d& bottom_left, const Vector2d& top_right, Fork fork) : m_box(bottom_left, top_right), m_data(std::move(fork)) {}
+  Node(const Vector2d &bottom_left, const Vector2d &top_right, Fork fork) : m_box(bottom_left, top_right), m_data(std::move(fork)) {}
 
-  Node(const Vector2d& bottom_left, const Vector2d& top_right, Leaf leaf) : m_box(bottom_left, top_right), m_data(std::move(leaf)) {}
+  Node(const Vector2d &bottom_left, const Vector2d &top_right, Leaf leaf) : m_box(bottom_left, top_right), m_data(std::move(leaf)) {}
 
   /**
    * Inserts a new body in the quadtree. The body must be located inside of the
