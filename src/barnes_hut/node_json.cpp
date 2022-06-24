@@ -43,7 +43,7 @@ void to_json(json &j, const Node &node) {
         {node.center_of_mass().x(), node.center_of_mass().y()}},
        {"total_mass", node.total_mass()},
        {"n_nodes", node.n_nodes()},
-       node.m_data};
+       node.data()};
 }
 
 }  // namespace bh

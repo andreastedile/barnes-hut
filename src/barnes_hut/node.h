@@ -21,7 +21,11 @@ namespace bh {
 class Node {
  public:
   // Used to access the Fork's array of Node children in an index-agnostic way
-  enum Subquadrant { NW, NE, SE, SW, OUTSIDE };
+  enum Subquadrant { NW,
+                     NE,
+                     SE,
+                     SW,
+                     OUTSIDE };
 
   /**
    * A fork in the quadtree is a node with four children.
@@ -145,11 +149,9 @@ class Node {
    * Holds the current type of the node.
    */
   std::variant<Node::Fork, Node::Leaf> m_data;
-
-  // See "Arbitrary types conversions" in https://github.com/nlohmann/json
-  // Fixme: remove friend
-  friend void to_json(json &j, const Node &node);
 };
+
+void to_json(json &j, const Node &node);
 
 }  // namespace bh
 
