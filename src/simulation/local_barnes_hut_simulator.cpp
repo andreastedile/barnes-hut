@@ -1,5 +1,9 @@
 #include "local_barnes_hut_simulator.h"
 
+#include <fstream>  // ofstream
+#ifndef NDEBUG
+#include <iomanip>  // setw
+#endif
 #include <memory>   // make_shared
 #include <utility>  // move
 
@@ -23,6 +27,17 @@ std::shared_ptr<SimulationStep> LocalBarnesHutSimulator::step() {
   auto simulation_step = std::make_shared<BarnesHutSimulationStep>(std::move(new_bodies), std::move(new_bbox), std::move(quadtree));
   m_simulation_steps.push_back(simulation_step);
   return simulation_step;
+}
+
+json LocalBarnesHutSimulator::to_json() const { return *this; }
+
+void LocalBarnesHutSimulator::save() const {
+  std::ofstream o("simulation.json");
+#ifndef NDEBUG
+  o << std::setw(2) << to_json();
+#else
+  o << to_json();
+#endif
 }
 
 }  // namespace bh

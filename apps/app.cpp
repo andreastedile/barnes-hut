@@ -42,6 +42,6 @@ int main(int argc, char* argv[]) {
   simulator.step_continuously(app.get<int>("steps"));
 
   std::cout << "Simulation completed. Saving JSON...\n";
-  simulator.save_json();
+  simulator.save();
   return 0;
 }

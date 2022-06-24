@@ -78,13 +78,15 @@ class ISimulation {
   /**
    * @return the JSON representation of the simulation
    */
-  [[nodiscard]] virtual json as_json() const = 0;
+  [[nodiscard]] virtual json to_json() const = 0;
 
   /**
    * Saves the JSON representation of the simulation to a file
    * @todo pass the filename as argument
+   * @todo maybe it's possible not to require subclasses to implement this,
+   * but provide a default implementation ourselves
    */
-  virtual void save_json() const = 0;
+  virtual void save() const = 0;
 
  protected:
   std::vector<std::shared_ptr<SimulationStep>> m_simulation_steps;
