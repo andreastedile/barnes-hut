@@ -4,7 +4,8 @@ add_executable(testlib
         test_force.cpp
         test_body.cpp
         test_serialization.cpp
-        test_deserialization.cpp)
+        test_deserialization.cpp
+        test_eigen.cpp)
 
 target_link_libraries(testlib PRIVATE barnes_hut_lib simulation_lib Catch2::Catch2)
 
