@@ -11,13 +11,13 @@ function quadtreeToSvg(quadtree) {
     const svg = d3.create("svg");
 
     // https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/viewBox
-    const bbox = quadtree.bounding_box;
-    const bl = bbox.bottom_left;
-    const tr = bbox.top_right;
-    const minX = bl[0];
-    const minY = bl[1];
-    const maxX = tr[0];
-    const maxY = tr[1];
+    const bbox = quadtree.boundingBox;
+    const bl = bbox.bottomLeft;
+    const tr = bbox.topRight;
+    const minX = bl.x;
+    const minY = bl.y;
+    const maxX = tr.x;
+    const maxY = tr.y;
     const bboxWidth = Math.abs(maxX - minX);
     const bboxHeight = Math.abs(maxY - minY);
     svg.attr("viewBox", `${minX} ${minY} ${bboxWidth} ${bboxHeight}`)
@@ -28,17 +28,17 @@ function quadtreeToSvg(quadtree) {
     while (quadtrees.length > 0) {
         const qt = quadtrees.shift();
 
-        const rectBbox = qt.bounding_box;
-        const rectBl = rectBbox.bottom_left;
-        const rectTl = rectBbox.top_right;
-        const rectMinX = rectBl[0];
-        const rectMinY = rectBl[1];
-        const rectMaxX = rectTl[0];
-        const rectMaxY = rectTl[1];
+        const rectBbox = qt.boundingBox;
+        const rectBl = rectBbox.bottomLeft;
+        const rectTl = rectBbox.topRight;
+        const rectMinX = rectBl.x;
+        const rectMinY = rectBl.y;
+        const rectMaxX = rectTl.x;
+        const rectMaxY = rectTl.y;
         const rectWidth = Math.abs(rectMaxX - rectMinX);
         const rectHeight = Math.abs(rectMaxY - rectMinY);
 
-        const STROKE_WIDTH = 0.5
+        const STROKE_WIDTH = 0.5;
         svg.append("rect")
             .attr("x", rectMinX)
             .attr("y", rectMinY)
@@ -56,12 +56,10 @@ function quadtreeToSvg(quadtree) {
             body = qt.leaf.body;
             let CIRCLE_RADIUS = bboxWidth / 100;
             CIRCLE_RADIUS *= body.mass;
-            const bodyX = body.position[0];
-            const bodyY = body.position[1];
             svg.append("circle")
                 .style("vector-effect", "non-scaling-stroke")
-                .attr("cx", bodyX)
-                .attr("cy", bodyY)
+                .attr("cx", body.position.x)
+                .attr("cy", body.position.y)
                 .attr("r", CIRCLE_RADIUS);
         }
     }
@@ -93,7 +91,7 @@ const sleep = (secs) => new Promise((res) => setTimeout(res, secs * 1000));
 async function loadSimulation(input) {
     const file = input.files[0];
     const json = await parseJSON(file);
-    const nSteps = json.n_steps;
+    const nSteps = json.nSteps;
 
     // The quadtree of the first step consists only of a one root node without any bodies.
     if (nSteps === 0) return;
@@ -104,7 +102,7 @@ async function loadSimulation(input) {
         // Remove the old quadtree svg
         d3.select("#svg-wrapper").selectAll("*").remove();
 
-        const quadtree = json.simulation_steps[i].quadtree;
+        const quadtree = json.simulationSteps[i].quadtree;
 
         // Set the new quadtree svg
         d3.select("#svg-wrapper").append(() => quadtreeToSvg(quadtree).node());
