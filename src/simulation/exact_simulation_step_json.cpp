@@ -2,6 +2,8 @@
 using nlohmann::json;
 
 #include "exact_simulation_step.h"
+// Do not remove the #include below! It allows serializing Eigen datatypes.
+#include "../eigen_json.h"
 
 namespace bh {
 
@@ -11,10 +13,8 @@ void to_json(json &j, const ExactSimulationStep &step) {
                  std::back_inserter(bodies),
                  [](const auto &step) { return step; });
 
-  j = {{"bodies", bodies},
-       {"bounding_box",
-        {{"bottom_left", {step.m_bbox.min().x(), step.m_bbox.min().y()}},
-         {"top_right", {step.m_bbox.max().x(), step.m_bbox.max().y()}}}}};
+  j = json{{"bodies", bodies},
+           {"boundingBox", step.m_bbox}};
 }
 
 }  // namespace bh

@@ -2,6 +2,8 @@
 using nlohmann::json;
 
 #include "barnes_hut_simulation_step.h"
+// Do not remove the #include below! It allows serializing Eigen datatypes.
+#include "../eigen_json.h"
 
 namespace bh {
 
@@ -11,11 +13,9 @@ void to_json(json &j, const BarnesHutSimulationStep &step) {
                  std::back_inserter(bodies),
                  [](const auto &step) { return step; });
 
-  j = {{"quadtree", *step.m_quadtree},
-       {"bodies", bodies},
-       {"bounding_box",
-        {{"bottom_left", {step.m_bbox.min().x(), step.m_bbox.min().y()}},
-         {"top_right", {step.m_bbox.max().x(), step.m_bbox.max().y()}}}}};
+  j = json{{"quadtree", *step.m_quadtree},
+           {"bodies", bodies},
+           {"boundingBox", step.m_bbox}};
 }
 
 }  // namespace bh

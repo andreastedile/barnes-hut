@@ -20,7 +20,8 @@ add_library(simulation_lib
         serialization.h
         deserialization.cpp
         deserialization.h
-        templates.h)
+        templates.h
+        ../eigen_json.h)
 
 target_include_directories(simulation_lib INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>)
 

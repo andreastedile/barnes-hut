@@ -10,7 +10,7 @@ add_library(barnes_hut_lib
         force.cpp
         body_update.cpp
         body_update.h
-        eigen_json.h)
+        ../eigen_json.h)
 
 target_include_directories(barnes_hut_lib INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>)
 
