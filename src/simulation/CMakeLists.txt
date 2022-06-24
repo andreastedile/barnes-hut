@@ -18,6 +18,8 @@ add_library(simulation_lib
         mpi_datatypes.h
         serialization.cpp
         serialization.h
+        deserialization.cpp
+        deserialization.h
         templates.h)
 
 target_include_directories(simulation_lib INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>)
