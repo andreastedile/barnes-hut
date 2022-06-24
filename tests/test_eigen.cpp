@@ -41,3 +41,10 @@ TEST_CASE("eigen aligned box containment") {
   REQUIRE_FALSE(box.contains(Vector2d(10 + DBL_MIN, 5)));
   REQUIRE_FALSE(box.contains(Vector2d(5, 0 - DBL_MIN)));
 }
+
+TEST_CASE("square sides") {
+  const AlignedBox2d box(Vector2d(0, 0), Vector2d(10, 5));
+
+  REQUIRE(box.sizes().x() == 10);
+  REQUIRE(box.sizes().y() == 5);
+}
