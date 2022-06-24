@@ -31,7 +31,7 @@ Vector2d compute_approximate_net_force_on_body(const Node& node, const Body& bod
 
   const auto visit_fork = [&](const Node::Fork& fork) -> Vector2d {
     if (double distance = (body.m_position - node.center_of_mass()).norm();
-        node.length() / distance < omega) {
+        node.bbox().sizes().x() / distance < omega) {
       // Approximation
       return bh::compute_gravitational_force(
           {node.center_of_mass(), node.total_mass()}, body, G);

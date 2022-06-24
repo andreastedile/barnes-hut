@@ -26,16 +26,16 @@ void serialize_impl(const Node& node, std::vector<mpi::Node>& nodes, int idx) {
     mpi::Node::Fork::AggregateBody aggregate_body{visited.m_aggregate_body.m_position.x(), visited.m_aggregate_body.m_position.y(),
                                                   visited.m_aggregate_body.m_mass};
     mpi::Node::Fork fork{children, node.n_nodes(), aggregate_body};
-    nodes[idx] = mpi::Node{fork, node.bottom_left().x(), node.bottom_left().y(), node.top_right().x(), node.top_right().y()};
+    nodes[idx] = mpi::Node{fork, node.bbox().min().x(), node.bbox().min().y(), node.bbox().max().x(), node.bbox().max().y()};
   };
   auto visit_leaf = [&](const Node::Leaf& visited) {
     if (visited.m_body.has_value()) {
       mpi::Body body{visited.m_body->m_position.x(), visited.m_body->m_position.y(), visited.m_body->m_mass};
       mpi::Node::Leaf leaf{body};
-      nodes[idx] = mpi::Node(leaf, node.bottom_left().x(), node.bottom_left().y(), node.top_right().x(), node.top_right().y());
+      nodes[idx] = mpi::Node(leaf, node.bbox().min().x(), node.bbox().min().y(), node.bbox().max().x(), node.bbox().max().y());
     } else {
       mpi::Node::Leaf leaf{};
-      nodes[idx] = mpi::Node(leaf, node.bottom_left().x(), node.bottom_left().y(), node.top_right().x(), node.top_right().y());
+      nodes[idx] = mpi::Node(leaf, node.bbox().min().x(), node.bbox().min().y(), node.bbox().max().x(), node.bbox().max().y());
     }
   };
 

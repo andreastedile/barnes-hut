@@ -38,7 +38,7 @@ void to_json(json &j, const Node &node) {
   j = {{"bounding_box",
         {{"bottom_left", {node.bbox().min().x(), node.bbox().min().y()}},
          {"top_right", {node.bbox().max().x(), node.bbox().max().y()}}}},
-       {"length", node.length()},
+       {"length", node.bbox().sizes().x()},
        {"center_of_mass",
         {node.center_of_mass().x(), node.center_of_mass().y()}},
        {"total_mass", node.total_mass()},

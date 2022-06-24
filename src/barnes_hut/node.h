@@ -53,37 +53,6 @@ class Node {
   };
 
   /**
-   * @return Coordinates of the top-left corner of the node's bounding box.
-   */
-  [[nodiscard]] inline Vector2d top_left() const {
-    return m_box.corner(m_box.TopLeft);
-  };
-  /**
-   * @return Coordinates of the top-right corner of the node's bounding box.
-   */
-  [[nodiscard]] inline Vector2d top_right() const {
-    return m_box.corner(m_box.TopRight);
-  };
-  /**
-   * @return Coordinates of the bottom-right corner of the node's bounding box.
-   */
-  [[nodiscard]] inline Vector2d bottom_right() const {
-    return m_box.corner(m_box.BottomRight);
-  };
-  /**
-   * @return Coordinates of the bottom-left corner of the node's bounding box.
-   */
-  [[nodiscard]] inline Vector2d bottom_left() const {
-    return m_box.corner(m_box.BottomLeft);
-  };
-  /**
-   * @return Length of the sides of the node's bounding box.
-   */
-  [[nodiscard]] inline double length() const {
-    return (top_right() - top_left()).norm();
-  };
-
-  /**
    * Computes the center of mass of this quadtree node.
    * @details The semantic of "center of mass" depends on the node's current
    * type:
@@ -164,13 +133,13 @@ class Node {
    */
   Subquadrant get_subquadrant(const Vector2d &point);
 
+  /**
+   * The axis-aligned square bounding box of the node; not necessarily minimum.
+   * x() and y() return its bottom-left and top-right corners.
+   */
   [[nodiscard]] const AlignedBox2d &bbox() const;
 
  private:
-  /**
-   * The axis-aligned bounding box of the node; not necessarily minimum.
-   * x() and y() return its bottom-left and top-right corners.
-   */
   AlignedBox2d m_box;
 
   /**

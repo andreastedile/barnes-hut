@@ -72,10 +72,10 @@ void Node::insert(const Body &new_body) {
       // recurison.
       else {
         std::array<std::unique_ptr<Node>, 4> children{
-            std::make_unique<Node>((top_left() + bottom_left()) / 2, (top_right() + top_left()) / 2),
-            std::make_unique<Node>(m_box.center(), top_right()),
-            std::make_unique<Node>((bottom_right() + bottom_left()) / 2, (top_right() + bottom_right()) / 2),
-            std::make_unique<Node>(bottom_left(), m_box.center())};
+            std::make_unique<Node>((m_box.corner(m_box.TopLeft) + m_box.corner(m_box.BottomLeft)) / 2, (m_box.corner(m_box.TopRight) + m_box.corner(m_box.TopLeft)) / 2),
+            std::make_unique<Node>(m_box.center(), m_box.corner(m_box.TopRight)),
+            std::make_unique<Node>((m_box.corner(m_box.BottomRight) + m_box.corner(m_box.BottomLeft)) / 2, (m_box.corner(m_box.TopRight) + m_box.corner(m_box.BottomRight)) / 2),
+            std::make_unique<Node>(m_box.corner(m_box.BottomLeft), m_box.center())};
 
         // keep track of how many new quadtree nodes are created as part of the insertion process
         int n_nodes = 4;

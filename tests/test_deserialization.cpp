@@ -14,8 +14,8 @@ TEST_CASE("deserialize an empty quadtree") {
   auto quadtree = deserialize({node});
 
   REQUIRE(quadtree->n_nodes() == 1);
-  REQUIRE(quadtree->bottom_left() == Vector2d{0, 0});
-  REQUIRE(quadtree->top_right() == Vector2d{10, 0});
+  REQUIRE(quadtree->bbox() .min()== Vector2d{0, 0});
+  REQUIRE(quadtree->bbox() .max()== Vector2d{10, 0});
   REQUIRE(std::holds_alternative<Node::Leaf>(quadtree->data()));
   const auto &data = std::get<Node::Leaf>(quadtree->data());
   REQUIRE_FALSE(data.m_body.has_value());
@@ -29,8 +29,8 @@ TEST_CASE("deserialize a quadtree with single node") {
   auto quadtree = deserialize({node});
 
   REQUIRE(quadtree->n_nodes() == 1);
-  REQUIRE(quadtree->bottom_left() == Vector2d{0, 0});
-  REQUIRE(quadtree->top_right() == Vector2d{10, 0});
+  REQUIRE(quadtree->bbox() .min()== Vector2d{0, 0});
+  REQUIRE(quadtree->bbox() .max()== Vector2d{10, 0});
   REQUIRE(std::holds_alternative<Node::Leaf>(quadtree->data()));
   const auto &data = std::get<Node::Leaf>(quadtree->data());
   REQUIRE(data.m_body.has_value());
@@ -63,8 +63,8 @@ TEST_CASE("deserialize a fork") {
 
   auto quadtree = deserialize({root, nwNode, neNode, seNode, swNode});
 
-  REQUIRE(quadtree->bottom_left() == Vector2d{0, 0});
-  REQUIRE(quadtree->top_right() == Vector2d{10, 10});
+  REQUIRE(quadtree->bbox() .min()== Vector2d{0, 0});
+  REQUIRE(quadtree->bbox() .max()== Vector2d{10, 10});
   REQUIRE(quadtree->n_nodes() == 5);
   REQUIRE(quadtree->center_of_mass() == Vector2d{5,5});
   REQUIRE(quadtree->total_mass() == 1);
@@ -72,32 +72,32 @@ TEST_CASE("deserialize a fork") {
   const auto& data = std::get<Node::Fork>(quadtree->data());
 
   const auto &nw = *data.m_children[Node::NW];
-  REQUIRE(nw.bottom_left() == Vector2d{0, 5});
-  REQUIRE(nw.top_right() == Vector2d{5, 10});
+  REQUIRE(nw.bbox().min() == Vector2d{0, 5});
+  REQUIRE(nw.bbox().max() == Vector2d{5, 10});
   REQUIRE(nw.n_nodes() == 1);
   REQUIRE(nw.center_of_mass() == Vector2d{2.5, 7.5});
   REQUIRE(nw.total_mass() == 0.25);
   REQUIRE(std::holds_alternative<Node::Leaf>(nw.data()));
 
   const auto &ne = *data.m_children[Node::NE];
-  REQUIRE(ne.bottom_left() == Vector2d{5, 5});
-  REQUIRE(ne.top_right() == Vector2d{10, 10});
+  REQUIRE(ne.bbox().min() == Vector2d{5, 5});
+  REQUIRE(ne.bbox().max() == Vector2d{10, 10});
   REQUIRE(ne.n_nodes() == 1);
   REQUIRE(ne.center_of_mass() == Vector2d{7.5, 7.5});
   REQUIRE(ne.total_mass() == 0.25);
   REQUIRE(std::holds_alternative<Node::Leaf>(ne.data()));
 
   const auto &se = *data.m_children[Node::SE];
-  REQUIRE(se.bottom_left() == Vector2d{5, 0});
-  REQUIRE(se.top_right() == Vector2d{10, 5});
+  REQUIRE(se.bbox().min() == Vector2d{5, 0});
+  REQUIRE(se.bbox().max() == Vector2d{10, 5});
   REQUIRE(se.n_nodes() == 1);
   REQUIRE(se.center_of_mass() == Vector2d{7.5, 2.5});
   REQUIRE(se.total_mass() == 0.25);
   REQUIRE(std::holds_alternative<Node::Leaf>(se.data()));
 
   const auto &sw = *data.m_children[Node::SW];
-  REQUIRE(sw.bottom_left() == Vector2d{0, 0});
-  REQUIRE(sw.top_right() == Vector2d{5, 5});
+  REQUIRE(sw.bbox().min() == Vector2d{0, 0});
+  REQUIRE(sw.bbox().max() == Vector2d{5, 5});
   REQUIRE(sw.n_nodes() == 1);
   REQUIRE(sw.center_of_mass() == Vector2d{2.5, 2.5});
   REQUIRE(sw.total_mass() == 0.25);
