@@ -2,13 +2,12 @@
 #define BARNES_HUT_SIMULATION_EXACT_H
 
 #include <eigen3/Eigen/Eigen>
-#include <iostream>
+#include <memory>  // shared_ptr
 #include <nlohmann/json.hpp>
 #include <string>
 #include <type_traits>  // enable_if
 #include <utility>      // tuple
 #include <vector>
-#include <memory>
 
 using json = nlohmann::json;
 using Eigen::AlignedBox2d;
@@ -67,7 +66,7 @@ class ISimulation {
   /**
    * Performs a single simulation step
    */
-  virtual void step() = 0;
+  virtual std::shared_ptr<SimulationStep> step() = 0;
 
   /**
    * @param n_steps number of simulation steps to perform

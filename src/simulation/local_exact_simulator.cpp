@@ -16,11 +16,12 @@ LocalExactSimulator::LocalExactSimulator(const std::string& filename, double dt,
   m_simulation_steps.push_back(std::move(simulation_step));
 }
 
-void LocalExactSimulator::step() {
+std::shared_ptr<SimulationStep> LocalExactSimulator::step() {
   auto [new_bodies, new_bbox] =
       compute_new_bodies_exact(m_simulation_steps.back()->m_bodies, m_dt, m_G);
   auto simulation_step = std::make_shared<ExactSimulationStep>(std::move(new_bodies), std::move(new_bbox));
-  m_simulation_steps.push_back(std::move(simulation_step));
+  m_simulation_steps.push_back(simulation_step);
+  return simulation_step;
 }
 
 }  // namespace bh
