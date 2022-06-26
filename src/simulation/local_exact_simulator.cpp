@@ -16,6 +16,9 @@ LocalExactSimulator::LocalExactSimulator(const std::string& filename, double dt,
     : ISimulation(dt, G, omega) {
   auto bodies = load(filename);
   auto bbox = compute_square_bounding_box(bodies);
+
+  m_max_bbox = bbox;
+
   auto simulation_step = std::make_shared<ExactSimulationStep>(std::move(bodies), std::move(bbox));
   m_simulation_steps.push_back(std::move(simulation_step));
 }
