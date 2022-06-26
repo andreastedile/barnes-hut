@@ -113,19 +113,26 @@ void ISimulation::step_continuously(int n_steps) {
   }
 }
 
-void ISimulation::update_max_bbox(AlignedBox2d bbox) {
-  if (m_max_bbox.min() == Vector2d{0, 0} && m_max_bbox.max() == Vector2d{0, 0}) {
-    m_max_bbox = bbox;
-  } else {
-    m_max_bbox = AlignedBox2d(
-        Vector2d(std::min(m_max_bbox.min().x(), bbox.min().x()), std::min(m_max_bbox.min().y(), bbox.min().y())),
-        Vector2d(std::max(m_max_bbox.max().x(), bbox.max().x()), std::max(m_max_bbox.max().y(), bbox.max().y())));
-  }
+void ISimulation::update_max_bbox(const AlignedBox2d& bbox) {
 #ifndef NDEBUG
-  std::cout << "max bbox is\n"
-            << m_max_bbox.min() << "\n---\n"
-            << m_max_bbox.max() << std::endl;
+  if (bbox.min().x() < max_bbox().min().x()) {
+    std::cout << "bounding box min x decreases from " << m_max_bbox.min().x() << " to " << bbox.min().x() << '\n';
+  }
+  if (bbox.min().y() < max_bbox().min().y()) {
+    std::cout << "bounding box min y decreases from " << m_max_bbox.min().y() << " to " << bbox.min().y() << '\n';
+  }
+  if (bbox.max().x() > max_bbox().max().x()) {
+    std::cout << "bounding box max x increases from " << m_max_bbox.max().x() << " to " << bbox.max().x() << '\n';
+  }
+  if (bbox.max().y() > max_bbox().max().y()) {
+    std::cout << "bounding box max y increases from " << m_max_bbox.max().y() << " to " << bbox.max().y() << '\n';
+  }
 #endif
+
+  m_max_bbox.min().x() = std::min(m_max_bbox.min().x(), bbox.min().x());
+  m_max_bbox.min().y() = std::min(m_max_bbox.min().y(), bbox.min().y());
+  m_max_bbox.max().x() = std::max(m_max_bbox.max().x(), bbox.max().x());
+  m_max_bbox.max().y() = std::max(m_max_bbox.max().y(), bbox.max().y());
 }
 
 }  // namespace bh

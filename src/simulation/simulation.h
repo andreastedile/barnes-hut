@@ -90,9 +90,9 @@ class ISimulation {
    */
   virtual void save() const = 0;
 
-  void update_max_bbox(AlignedBox2d bbox);
-
 protected:
+ virtual void update_max_bbox(const AlignedBox2d& bbox) final;
+
   std::vector<std::shared_ptr<SimulationStep>> m_simulation_steps;
   AlignedBox2d m_max_bbox;
 };
