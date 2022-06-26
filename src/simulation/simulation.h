@@ -75,7 +75,7 @@ class ISimulation {
 
   [[nodiscard]] virtual const std::vector<std::shared_ptr<SimulationStep>> &steps() const final;
 
-  [[nodiscard]] AlignedBox2d max_bbox() const;
+  [[nodiscard]] virtual const AlignedBox2d& max_bbox() const final;
 
   /**
    * @return the JSON representation of the simulation

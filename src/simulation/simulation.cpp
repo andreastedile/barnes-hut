@@ -102,7 +102,7 @@ const std::vector<std::shared_ptr<SimulationStep>> &ISimulation::steps() const {
   return m_simulation_steps;
 }
 
-AlignedBox2d ISimulation::max_bbox() const {
+const AlignedBox2d &ISimulation::max_bbox() const {
   return m_max_bbox;
 }
 
