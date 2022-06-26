@@ -41,7 +41,7 @@ std::vector<Body> load(const std::string &filename) {
 }
 
 ISimulation::ISimulation(double dt, double G, double omega)
-    : m_dt{dt}, m_G(G), m_omega(omega) {}
+    : m_dt{dt}, m_G(G), m_omega(omega), m_max_bbox(AlignedBox2d{Vector2d{0, 0}, Vector2d{0, 0}}) {}
 
 std::tuple<std::vector<Body>, AlignedBox2d> compute_new_bodies_exact(
     const std::vector<Body> &bodies, double dt, double G) {
@@ -98,15 +98,33 @@ compute_new_bodies_barnes_hut(const std::vector<Body> &bodies,
                          std::move(quadtree));
 }
 
-const std::vector<std::shared_ptr<SimulationStep>> &ISimulation::steps() const {
-  return m_simulation_steps;
-};
-
-void ISimulation::step_continuously(int n_steps) {
-  for (int i = 0; i < n_steps; i++) {
-    std::cout << "Step " << i << '\n';
-    step();
+  const std::vector<std::shared_ptr<SimulationStep>> &ISimulation::steps() const {
+    return m_simulation_steps;
   }
-}
+
+  AlignedBox2d ISimulation::max_bbox() const {
+    return m_max_bbox;
+  }
+
+  void ISimulation::step_continuously(int n_steps) {
+    for (int i = 0; i < n_steps; i++) {
+      std::cout << "Step " << i << '\n';
+      step();
+    }
+  }
+
+  void ISimulation::update_max_bbox(AlignedBox2d bbox) {
+    if (m_max_bbox.min() == Vector2d{0, 0} && m_max_bbox.max() == Vector2d{0, 0}) {
+      m_max_bbox = bbox;
+    } else {
+      m_max_bbox = AlignedBox2d(
+          Vector2d(std::min(m_max_bbox.min().x(), bbox.min().x()), std::min(m_max_bbox.min().y(), bbox.min().y())),
+          Vector2d(std::max(m_max_bbox.max().x(), bbox.max().x()), std::max(m_max_bbox.max().y(), bbox.max().y()))
+      );
+    }
+#ifndef NDEBUG
+    std::cout << "max bbox is\n" << m_max_bbox.min() << "\n---\n" << m_max_bbox.max() << std::endl;
+#endif
+  }
 
 }  // namespace bh

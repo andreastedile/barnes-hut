@@ -1,7 +1,25 @@
+var ROOT_MinX;
+var ROOT_MinY;
+var ROOT_Width;
+var ROOT_Height;
+
 function removeHeadings() {
     console.log("Remove headings");
     d3.select("#welcome-wrapper").remove();
     d3.select("#title").remove();
+}
+
+function setupMaxBbox(rootBbox) {
+    const rootMinX = rootBbox.bottomLeft.x;
+    const rootMinY = rootBbox.bottomLeft.y;
+    const rootMaxX = rootBbox.topRight.x;
+    const rootMaxY = rootBbox.topRight.y;
+    const rootWidth = Math.abs(rootMaxX - rootMinX);
+    const rootHeight = Math.abs(rootMaxY - rootMinY);
+    ROOT_MinX = rootMinX;
+    ROOT_MinY = rootMinY;
+    ROOT_Width = rootWidth;
+    ROOT_Height = rootHeight;
 }
 
 /**
@@ -11,16 +29,20 @@ function quadtreeToSvg(quadtree) {
     const svg = d3.create("svg");
 
     // https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/viewBox
-    const rootBbox = quadtree.boundingBox;
-    const rootMinX = rootBbox.bottomLeft.x;
-    const rootMinY = rootBbox.bottomLeft.y;
-    const rootMaxX = rootBbox.topRight.x;
-    const rootMaxY = rootBbox.topRight.y;
-    const rootWidth = Math.abs(rootMaxX - rootMinX);
-    const rootHeight = Math.abs(rootMaxY - rootMinY);
-    svg.attr("viewBox", `${rootMinX} ${rootMinY} ${rootWidth} ${rootHeight}`)
+    svg.attr("viewBox", `${ROOT_MinX} ${ROOT_MinY} ${ROOT_Width} ${ROOT_Height}`)
         .attr("width", window.innerWidth)
         .attr("height", window.innerHeight);
+
+    svg.append("rect")
+        .attr("x", ROOT_MinX)
+        .attr("y", ROOT_MinY)
+        .attr("width", ROOT_Width)
+        .attr("height", ROOT_Height)
+        .style("stroke-width", "1")
+        .style("stroke", "blue")
+        .style("opacity", "0.05")
+        .style("fill", "none")
+        .style("vector-effect", "non-scaling-stroke")
 
     const nodes_to_process = [quadtree];
     while (nodes_to_process.length > 0) {
@@ -50,7 +72,7 @@ function quadtreeToSvg(quadtree) {
             nodes_to_process.push(node.fork.nw, node.fork.ne, node.fork.se, node.fork.sw);
         } else if (node.leaf.body) {
             body = node.leaf.body;
-            const CIRCLE_RADIUS = (rootWidth / 100) * body.mass;
+            const CIRCLE_RADIUS = (ROOT_Width / 100) * body.mass;
             svg.append("circle")
                 .style("vector-effect", "non-scaling-stroke")
                 .attr("cx", body.position.x)
@@ -91,6 +113,8 @@ async function loadSimulation(input) {
     // The quadtree of the first step consists only of a one root node without any bodies.
     if (nSteps === 0) return;
 
+    setupMaxBbox(json.maxBoundingBox);
+
     for (let i = 1; i < nSteps; i++) {
         console.log("Step " + i);
 
@@ -102,6 +126,6 @@ async function loadSimulation(input) {
         // Set the new quadtree svg
         d3.select("#svg-wrapper").append(() => quadtreeToSvg(quadtree).node());
 
-        await sleep(0.5);
+        await sleep(0.2);
     }
 }

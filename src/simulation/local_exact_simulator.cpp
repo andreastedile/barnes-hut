@@ -25,6 +25,7 @@ std::shared_ptr<SimulationStep> LocalExactSimulator::step() {
       compute_new_bodies_exact(m_simulation_steps.back()->m_bodies, m_dt, m_G);
   auto simulation_step = std::make_shared<ExactSimulationStep>(std::move(new_bodies), std::move(new_bbox));
   m_simulation_steps.push_back(simulation_step);
+  update_max_bbox(new_bbox);
   return simulation_step;
 }
 

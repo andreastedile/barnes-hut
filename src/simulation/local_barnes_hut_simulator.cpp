@@ -26,6 +26,7 @@ std::shared_ptr<SimulationStep> LocalBarnesHutSimulator::step() {
       m_simulation_steps.back()->m_bodies, m_simulation_steps.back()->m_bbox, m_dt, m_G, m_omega);
   auto simulation_step = std::make_shared<BarnesHutSimulationStep>(std::move(new_bodies), std::move(new_bbox), std::move(quadtree));
   m_simulation_steps.push_back(simulation_step);
+  update_max_bbox(new_bbox);
   return simulation_step;
 }
 
