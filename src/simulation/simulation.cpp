@@ -9,6 +9,7 @@
 
 #include "body_update.h"
 #include "node.h"
+#include "quadtree.h"
 
 namespace bh {
 
@@ -67,18 +68,8 @@ std::tuple<std::vector<Body>, AlignedBox2d, std::shared_ptr<const Node>>
 compute_new_bodies_barnes_hut(const std::vector<Body> &bodies,
                               const AlignedBox2d &bbox,
                               double dt, double G, double omega) {
-#ifndef NDEBUG
-  std::cout << "Computing quadtree...\n";
-#endif
-  auto quadtree = std::make_shared<Node>(bbox.min(), bbox.max());
+  auto quadtree = construct_quadtree(bodies);
 
-  std::for_each(bodies.begin(), bodies.end(),
-                [&](const Body &simulated) {
-                  Body body(simulated.m_position, simulated.m_mass);
-                  quadtree->insert(body);
-                });
-  // This calls Body's default constructor bodies.size() times, but we
-  // cannot do anything about it
 #ifndef NDEBUG
   std::cout << "Computing new bodies...\n";
 #endif
