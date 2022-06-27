@@ -12,8 +12,8 @@
 
 namespace bh {
 
-LocalExactSimulator::LocalExactSimulator(const std::string& filename, double dt, double G, double omega)
-    : ISimulation(dt, G, omega) {
+LocalExactSimulator::LocalExactSimulator(const std::string& filename, double dt, double G)
+    : ISimulation(dt, G) {
   auto bodies = load(filename);
   m_max_bbox = compute_square_bounding_box(bodies);
   m_simulation_steps.push_back(std::make_shared<ExactSimulationStep>(std::move(bodies), m_max_bbox));

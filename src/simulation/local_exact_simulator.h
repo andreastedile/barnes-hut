@@ -8,7 +8,7 @@ namespace bh {
 
 class LocalExactSimulator final : public ISimulation {
  public:
-  LocalExactSimulator(const std::string &filename, double dt, double G, double omega);
+  LocalExactSimulator(const std::string &filename, double dt, double G);
   void step() override;
   [[nodiscard]] json to_json() const override;
   void save() const override;

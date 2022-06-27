@@ -36,8 +36,8 @@ std::vector<Body> load(const std::string &filename) {
   return bodies;
 }
 
-ISimulation::ISimulation(double dt, double G, double omega)
-    : m_dt{dt}, m_G(G), m_omega(omega), m_max_bbox(AlignedBox2d{Vector2d{0, 0}, Vector2d{0, 0}}) {}
+ISimulation::ISimulation(double dt, double G)
+    : m_dt{dt}, m_G(G), m_max_bbox(AlignedBox2d{Vector2d{0, 0}, Vector2d{0, 0}}) {}
 
 const std::vector<std::shared_ptr<SimulationStep>> &ISimulation::steps() const {
   return m_simulation_steps;

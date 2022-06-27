@@ -13,7 +13,7 @@
 namespace bh {
 
 LocalBarnesHutSimulator::LocalBarnesHutSimulator(const std::string& filename, double dt, double G, double omega)
-    : ISimulation(dt, G, omega) {
+    : ISimulation(dt, G), m_omega(omega) {
   auto bodies = load(filename);
   m_max_bbox = compute_square_bounding_box(bodies);
   auto quadtree = std::make_shared<Node>(m_max_bbox.min(), m_max_bbox.max());

@@ -5,7 +5,7 @@
 #include <memory>  // shared_ptr
 #include <nlohmann/json.hpp>
 #include <string>
-#include <utility>      // tuple
+#include <utility>  // tuple
 #include <vector>
 
 using json = nlohmann::json;
@@ -23,19 +23,18 @@ namespace bh {
  * @param filename file containing the bodies' data
  * @return bodies corresponding to the data in the file
  */
-std::vector<Body> load(const std::string &filename);
+std::vector<Body> load(const std::string& filename);
 
 class ISimulation {
  public:
   const double m_dt;
   const double m_G;
-  const double m_omega;
 
   /**
    * @param dt simulation timestep; defines the accuracy of the computation: the
    * smaller, the more accurate
    */
-  explicit ISimulation(double dt, double G, double omega);
+  ISimulation(double dt, double G);
 
   /**
    * Performs a single simulation step
@@ -47,7 +46,7 @@ class ISimulation {
    */
   virtual void step_continuously(int n_steps) final;
 
-  [[nodiscard]] virtual const std::vector<std::shared_ptr<SimulationStep>> &steps() const final;
+  [[nodiscard]] virtual const std::vector<std::shared_ptr<SimulationStep>>& steps() const final;
 
   [[nodiscard]] virtual const AlignedBox2d& max_bbox() const final;
 
@@ -64,8 +63,8 @@ class ISimulation {
    */
   virtual void save() const = 0;
 
-protected:
- virtual void update_max_bbox(const AlignedBox2d& bbox) final;
+ protected:
+  virtual void update_max_bbox(const AlignedBox2d& bbox) final;
 
   std::vector<std::shared_ptr<SimulationStep>> m_simulation_steps;
   AlignedBox2d m_max_bbox;

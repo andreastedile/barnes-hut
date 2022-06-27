@@ -11,6 +11,8 @@ class LocalBarnesHutSimulator final : public ISimulation {
   void step() override;
   [[nodiscard]] json to_json() const override;
   void save() const override;
+
+  const double m_omega;
 };
 
 void to_json(json &j, const LocalBarnesHutSimulator &simulator);
