@@ -7,54 +7,43 @@
 
 namespace bh {
 
-SimulationStep::SimulationStep(std::vector<Body> bodies,
-                               Eigen::AlignedBox2d bbox)
-    : m_bodies(std::move(bodies)), m_bbox(std::move(bbox)) {}
+SimulationStep::SimulationStep(std::vector<Body> bodies, const Eigen::AlignedBox2d &bbox)
+    : m_bodies(std::move(bodies)), m_bbox(bbox) {}
 
-// Copy constructor
-#ifdef DEBUG_COPY_CONSTRUCTOR
+const std::vector<Body> &SimulationStep::bodies() const {
+  return m_bodies;
+}
+
+const AlignedBox2d &SimulationStep::bbox() const {
+  return m_bbox;
+}
+
+#ifdef DEBUG_CONSTRUCTOR_AND_ASSIGNMENT_OPERATORS
+
 SimulationStep::SimulationStep(const SimulationStep &other)
     : m_bodies(other.m_bodies), m_bbox(other.m_bbox) {
   std::cout << "SimulationStep copy constructor\n";
 }
-#else
-SimulationStep::SimulationStep(const SimulationStep &other) = default;
-#endif
 
-// Move constructor
-#ifdef DEBUG_MOVE_CONSTRUCTOR
 SimulationStep::SimulationStep(SimulationStep &&other) noexcept
-    : m_bodies(std::move(other.m_bodies)), m_bbox(std::move(other.m_bbox)) {
+    : m_bodies(std::move(other.m_bodies)), m_bbox(other.m_bbox) {
   std::cout << "SimulationStep move constructor\n";
 }
-#else
-SimulationStep::SimulationStep(SimulationStep &&other) noexcept = default;
-#endif
 
-// Copy assignment operator
-#ifdef DEBUG_COPY_ASSIGNMENT_OPERATOR
 SimulationStep &SimulationStep::operator=(const SimulationStep &other) {
   std::cout << "SimulationStep copy assignment operator\n";
   m_bodies = other.m_bodies;
   m_bbox = other.m_bbox;
   return *this;
 }
-#else
-SimulationStep &SimulationStep::operator=(const SimulationStep &other) =
-    default;
-#endif
 
-// Move assignment operator
-#ifdef DEBUG_MOVE_ASSIGNMENT_OPERATOR
 SimulationStep &SimulationStep::operator=(SimulationStep &&other) noexcept {
   std::cout << "SimulationStep move assignment operator\n";
   m_bodies = std::move(other.m_bodies);
-  m_bbox = std::move(other.m_bbox);
+  m_bbox = other.m_bbox;
   return *this;
 }
-#else
-SimulationStep &SimulationStep::operator=(SimulationStep &&other) noexcept =
-    default;
+
 #endif
 
 }  // namespace bh

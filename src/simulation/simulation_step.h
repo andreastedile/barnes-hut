@@ -4,26 +4,29 @@
 #include <eigen3/Eigen/Geometry>
 #include <vector>
 
-#include "node.h"
 #include "body.h"
+
+using Eigen::AlignedBox2d;
 
 namespace bh {
 
-struct SimulationStep {
+class SimulationStep {
  public:
-  std::vector<Body> m_bodies;
-  Eigen::AlignedBox2d m_bbox;
+  SimulationStep(std::vector<Body> bodies, const AlignedBox2d &bbox);
 
-  explicit SimulationStep(std::vector<Body> bodies,
-                          Eigen::AlignedBox2d bbox);
-  // Copy constructor
+  [[nodiscard]] const std::vector<Body> &bodies() const;
+  [[nodiscard]] const AlignedBox2d &bbox() const;
+
+#ifdef DEBUG_CONSTRUCTOR_AND_ASSIGNMENT_OPERATORS
   SimulationStep(const SimulationStep &other);
-  // Move constructor
   SimulationStep(SimulationStep &&other) noexcept;
-  // Copy assignment operator
   SimulationStep &operator=(const SimulationStep &other);
-  // Move assignment operator
   SimulationStep &operator=(SimulationStep &&other) noexcept;
+#endif
+
+ protected:
+  std::vector<Body> m_bodies;
+  AlignedBox2d m_bbox;
 };
 
 }  // namespace bh

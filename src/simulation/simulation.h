@@ -5,7 +5,6 @@
 #include <memory>  // shared_ptr
 #include <nlohmann/json.hpp>
 #include <string>
-#include <type_traits>  // enable_if
 #include <utility>      // tuple
 #include <vector>
 
@@ -26,31 +25,6 @@ namespace bh {
  */
 std::vector<Body> load(const std::string &filename);
 
-/**
- * Computes the exact position and velocity of the bodies after a simulation
- * step.
- * @param bodies for which to compute the updated position and velocity
- * @param dt simulation timestep; defines the accuracy of the computation: the
- * smaller, the more accurate
- * @return new bodies, containing the updated position and velocity
- */
-std::tuple<std::vector<Body>, AlignedBox2d> compute_new_bodies_exact(
-    const std::vector<Body> &bodies, double dt, double G);
-
-/**
- * Computes the approximated position and velocity of the bodies after a
- * simulation step, using the Barnes–Hut approximation algorithm.
- * @param bodies for which to compute the updated position and velocity
- * @param dt simulation timestep; defines the accuracy of the computation: the
- * smaller, the more accurate
- * @return new bodies, containing the updated position and velocity, and the
- * quadtree that has been computed as part of the approximation algorithm
- */
-std::tuple<std::vector<Body>, AlignedBox2d, std::shared_ptr<const Node>>
-compute_new_bodies_barnes_hut(const std::vector<Body> &bodies,
-                              const AlignedBox2d &bbox,
-                              double dt, double G, double omega);
-
 class ISimulation {
  public:
   const double m_dt;
@@ -66,7 +40,7 @@ class ISimulation {
   /**
    * Performs a single simulation step
    */
-  virtual std::shared_ptr<SimulationStep> step() = 0;
+  virtual void step() = 0;
 
   /**
    * @param n_steps number of simulation steps to perform

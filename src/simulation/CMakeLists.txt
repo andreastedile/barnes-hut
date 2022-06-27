@@ -1,6 +1,7 @@
 add_library(simulation_lib
         simulation_step.cpp
         simulation_step.h
+        exact_simulation_step.cpp
         exact_simulation_step.h
         exact_simulation_step_json.cpp
         barnes_hut_simulation_step.cpp
@@ -25,17 +26,8 @@ add_library(simulation_lib
 
 target_include_directories(simulation_lib INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>)
 
-if (DEBUG_COPY_CONSTRUCTOR)
-    target_compile_definitions(simulation_lib PRIVATE DEBUG_COPY_CONSTRUCTOR)
-endif ()
-if (DEBUG_MOVE_CONSTRUCTOR)
-    target_compile_definitions(simulation_lib PRIVATE DEBUG_MOVE_CONSTRUCTOR)
-endif ()
-if (DEBUG_COPY_ASSIGNMENT_OPERATOR)
-    target_compile_definitions(simulation_lib PRIVATE DEBUG_COPY_ASSIGNMENT_OPERATOR)
-endif ()
-if (DEBUG_MOVE_ASSIGNMENT_OPERATOR)
-    target_compile_definitions(simulation_lib PRIVATE DEBUG_MOVE_ASSIGNMENT_OPERATOR)
+if (DEBUG_CONSTRUCTOR_AND_ASSIGNMENT_OPERATORS)
+    target_compile_definitions(simulation_lib PRIVATE DEBUG_CONSTRUCTOR_AND_ASSIGNMENT_OPERATORS)
 endif ()
 
 target_link_libraries(simulation_lib PRIVATE barnes_hut_lib)

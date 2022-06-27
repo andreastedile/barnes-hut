@@ -8,7 +8,7 @@ namespace bh {
 class LocalBarnesHutSimulator final : public ISimulation {
  public:
   LocalBarnesHutSimulator(const std::string &filename, double dt, double G, double omega);
-  std::shared_ptr<SimulationStep> step() override;
+  void step() override;
   [[nodiscard]] json to_json() const override;
   void save() const override;
 };

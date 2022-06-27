@@ -9,12 +9,12 @@ namespace bh {
 
 void to_json(json &j, const ExactSimulationStep &step) {
   json bodies;
-  std::transform(step.m_bodies.begin(), step.m_bodies.end(),
+  std::transform(step.bodies().begin(), step.bodies().end(),
                  std::back_inserter(bodies),
                  [](const auto &step) { return step; });
 
   j = json{{"bodies", bodies},
-           {"boundingBox", step.m_bbox}};
+           {"boundingBox", step.bodies()}};
 }
 
 }  // namespace bh
