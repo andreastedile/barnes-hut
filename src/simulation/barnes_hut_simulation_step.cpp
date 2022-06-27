@@ -12,7 +12,7 @@
 
 namespace bh {
 
-BarnesHutSimulationStep::BarnesHutSimulationStep(std::vector<Body> bodies, const Eigen::AlignedBox2d &bbox, std::shared_ptr<const Node> quadtree)
+BarnesHutSimulationStep::BarnesHutSimulationStep(std::vector<Body> bodies, const AlignedBox2d &bbox, std::shared_ptr<const Node> quadtree)
     : SimulationStep(std::move(bodies), bbox),
       m_quadtree(std::move(quadtree)) {}
 
@@ -20,19 +20,19 @@ const Node &BarnesHutSimulationStep::quadtree() const {
   return *m_quadtree;
 }
 
-BarnesHutSimulationStep perform_barnes_hut_simulation_step(const BarnesHutSimulationStep &simulation_step, double dt, double G, double omega) {
+std::tuple<std::vector<Body>, AlignedBox2d, std::unique_ptr<Node>> perform_barnes_hut_simulation_step(const std::vector<Body> &bodies, double dt, double G, double omega) {
 #ifndef NDEBUG
   std::cout << "Constructing quadtree...\n";
 #endif
-  auto quadtree = construct_quadtree(simulation_step.bodies());
+  auto quadtree = construct_quadtree(bodies);
 
 #ifndef NDEBUG
   std::cout << "Computing new bodies...\n";
 #endif
-  std::vector<Body> bodies(simulation_step.bodies().size());
+  std::vector<Body> new_bodies(bodies.size());
   std::transform(std::execution::par_unseq,
-                 simulation_step.bodies().begin(), simulation_step.bodies().end(),
-                 bodies.begin(),
+                 bodies.begin(), bodies.end(),
+                 new_bodies.begin(),
                  [&](const Body &body) {
                    return update_body(body, *quadtree, dt, G, omega);
                  });
@@ -42,7 +42,7 @@ BarnesHutSimulationStep perform_barnes_hut_simulation_step(const BarnesHutSimula
 #endif
   auto bbox = compute_square_bounding_box(bodies);
 
-  return {std::move(bodies), bbox, std::move(quadtree)};
+  return {new_bodies, std::move(bbox), std::move(quadtree)};
 }
 
 #ifdef DEBUG_CONSTRUCTOR_AND_ASSIGNMENT_OPERATORS

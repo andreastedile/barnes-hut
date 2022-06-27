@@ -20,9 +20,9 @@ LocalExactSimulator::LocalExactSimulator(const std::string& filename, double dt,
 }
 
 void LocalExactSimulator::step() {
-  auto simulation_step = perform_exact_simulation_step(*std::static_pointer_cast<ExactSimulationStep>(m_simulation_steps.back()), m_dt, m_G);
-  update_max_bbox(simulation_step.bbox());
-  m_simulation_steps.push_back(std::make_shared<ExactSimulationStep>(std::move(simulation_step)));
+  auto [bodies, bbox] = perform_exact_simulation_step(std::static_pointer_cast<ExactSimulationStep>(m_simulation_steps.back())->bodies(), m_dt, m_G);
+  update_max_bbox(bbox);
+  m_simulation_steps.push_back(std::make_shared<ExactSimulationStep>(std::move(bodies), std::move(bbox)));
 }
 
 json LocalExactSimulator::to_json() const { return *this; }

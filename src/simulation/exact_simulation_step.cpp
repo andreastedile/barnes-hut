@@ -11,18 +11,18 @@
 
 namespace bh {
 
-ExactSimulationStep::ExactSimulationStep(std::vector<Body> bodies, const Eigen::AlignedBox2d& bbox)
+ExactSimulationStep::ExactSimulationStep(std::vector<Body> bodies, const AlignedBox2d& bbox)
     : SimulationStep(std::move(bodies), bbox) {}
 
-ExactSimulationStep perform_exact_simulation_step(const ExactSimulationStep& simulation_step, double dt, double G) {
+std::pair<std::vector<Body>, AlignedBox2d> perform_exact_simulation_step(const std::vector<Body>& bodies, double dt, double G) {
 #ifndef NDEBUG
   std::cout << "Computing new bodies...\n";
 #endif
   // This calls Body's default constructor bodies.size() times, but we cannot do anything about it
-  std::vector<Body> bodies(simulation_step.bodies().size());
+  std::vector<Body> new_bodies(bodies.size());
   std::transform(std::execution::par_unseq,
-                 simulation_step.bodies().begin(), simulation_step.bodies().end(),
-                 bodies.begin(),
+                 bodies.begin(), bodies.end(),
+                 new_bodies.begin(),
                  [&](const Body& body) {
                    return update_body(body, bodies, dt, G);
                  });
@@ -31,7 +31,7 @@ ExactSimulationStep perform_exact_simulation_step(const ExactSimulationStep& sim
 #endif
   auto bbox = compute_square_bounding_box(bodies);
 
-  return {std::move(bodies), bbox};
+  return {new_bodies, bbox};
 }
 
 }  // namespace bh

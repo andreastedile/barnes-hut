@@ -21,9 +21,9 @@ LocalBarnesHutSimulator::LocalBarnesHutSimulator(const std::string& filename, do
 }
 
 void LocalBarnesHutSimulator::step() {
-  auto simulation_step = perform_barnes_hut_simulation_step(*std::static_pointer_cast<BarnesHutSimulationStep>(m_simulation_steps.back()), m_dt, m_G, m_omega);
-  update_max_bbox(simulation_step.bbox());
-  m_simulation_steps.push_back(std::make_shared<BarnesHutSimulationStep>(std::move(simulation_step)));
+  auto [bodies, bbox, quadtree] = perform_barnes_hut_simulation_step(std::static_pointer_cast<BarnesHutSimulationStep>(m_simulation_steps.back())->bodies(), m_dt, m_G, m_omega);
+  update_max_bbox(bbox);
+  m_simulation_steps.push_back(std::make_shared<BarnesHutSimulationStep>(std::move(bodies), std::move(bbox), std::move(quadtree)));
 }
 
 json LocalBarnesHutSimulator::to_json() const { return *this; }
