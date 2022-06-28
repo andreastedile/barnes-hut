@@ -7,6 +7,8 @@ add_library(simulation_lib
         barnes_hut_simulation_step.cpp
         barnes_hut_simulation_step.h
         barnes_hut_simulation_step_json.cpp
+        mpi_barnes_hut_simulator.cpp
+        mpi_barnes_hut_simulator.h
         simulation.cpp
         simulation.h
         local_exact_simulator.cpp

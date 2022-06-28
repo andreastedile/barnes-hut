@@ -5,7 +5,8 @@ add_executable(testlib
         test_body.cpp
         test_serialization.cpp
         test_deserialization.cpp
-        test_eigen.cpp)
+        test_eigen.cpp
+        test_barnes_hut_simulator.cpp)
 
 target_link_libraries(testlib PRIVATE barnes_hut_lib simulation_lib Catch2::Catch2)
 
