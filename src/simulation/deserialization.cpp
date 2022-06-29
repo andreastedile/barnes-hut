@@ -42,7 +42,7 @@ std::unique_ptr<Node> deserialize_impl(const std::vector<mpi::Node> &nodes, int 
   }
 }
 
-std::unique_ptr<Node> deserialize(const std::vector<mpi::Node> &nodes) {
+std::unique_ptr<Node> deserialize_quadtree(const std::vector<mpi::Node> &nodes) {
   return deserialize_impl(nodes, 0);
 }
 

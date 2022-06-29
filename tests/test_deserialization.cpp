@@ -8,10 +8,10 @@
 using namespace bh;
 using Eigen::Vector2d;
 
-TEST_CASE("deserialize an empty quadtree") {
+TEST_CASE("deserialize_quadtree an empty quadtree") {
   mpi::Node node{mpi::Node::Leaf{}, 0, 0, 10, 0};
 
-  auto quadtree = deserialize({node});
+  auto quadtree = deserialize_quadtree({node});
 
   REQUIRE(quadtree->n_nodes() == 1);
   REQUIRE(quadtree->bbox() .min()== Vector2d{0, 0});
@@ -21,12 +21,12 @@ TEST_CASE("deserialize an empty quadtree") {
   REQUIRE_FALSE(data.m_body.has_value());
 }
 
-TEST_CASE("deserialize a quadtree with single node") {
+TEST_CASE("deserialize_quadtree a quadtree with single node") {
   mpi::Body body{1.3, 4.5, 0.25};
   mpi::Node::Leaf leaf{body};
   mpi::Node node{leaf, 0, 0, 10, 0};
 
-  auto quadtree = deserialize({node});
+  auto quadtree = deserialize_quadtree({node});
 
   REQUIRE(quadtree->n_nodes() == 1);
   REQUIRE(quadtree->bbox() .min()== Vector2d{0, 0});
@@ -39,7 +39,7 @@ TEST_CASE("deserialize a quadtree with single node") {
 }
 
 // https://www.desmos.com/calculator/ybk7rumtbn?lang=it
-TEST_CASE("deserialize a fork") {
+TEST_CASE("deserialize_quadtree a fork") {
   mpi::Body nwBody{2.5, 7.5, 0.25};
   mpi::Node::Leaf nwLeaf{nwBody};
   mpi::Node nwNode{nwLeaf, 0, 5, 5, 10};
@@ -61,7 +61,7 @@ TEST_CASE("deserialize a fork") {
   mpi::Node::Fork fork{children, 4, aggregate_body};
   mpi::Node root{fork, 0, 0, 10, 10};
 
-  auto quadtree = deserialize({root, nwNode, neNode, seNode, swNode});
+  auto quadtree = deserialize_quadtree({root, nwNode, neNode, seNode, swNode});
 
   REQUIRE(quadtree->bbox() .min()== Vector2d{0, 0});
   REQUIRE(quadtree->bbox() .max()== Vector2d{10, 10});
