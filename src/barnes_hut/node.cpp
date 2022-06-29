@@ -10,21 +10,12 @@
 
 namespace bh {
 
-Node::Fork::AggregateBody compute_aggregate_body(
-    const std::array<std::unique_ptr<Node>, 4> &subquadrants) {
-  Vector2d center_of_mass =
-      subquadrants[Node::Subquadrant::NW]->center_of_mass() *
-          subquadrants[Node::Subquadrant::NW]->total_mass() +
-      subquadrants[Node::Subquadrant::NE]->center_of_mass() *
-          subquadrants[Node::Subquadrant::NE]->total_mass() +
-      subquadrants[Node::Subquadrant::SE]->center_of_mass() *
-          subquadrants[Node::Subquadrant::SE]->total_mass() +
-      subquadrants[Node::Subquadrant::SW]->center_of_mass() *
-          subquadrants[Node::Subquadrant::SW]->total_mass();
-  double total_mass = subquadrants[Node::Subquadrant::NW]->total_mass() +
-                      subquadrants[Node::Subquadrant::NE]->total_mass() +
-                      subquadrants[Node::Subquadrant::SE]->total_mass() +
-                      subquadrants[Node::Subquadrant::SW]->total_mass();
+Node::Fork::AggregateBody compute_aggregate_body(const Node &nw,const Node &ne,const Node &se,const Node &sw) {
+  Vector2d center_of_mass = nw.center_of_mass() * nw.total_mass() +
+                            ne.center_of_mass() * ne.total_mass() +
+                            se.center_of_mass() * se.total_mass() +
+                            sw.center_of_mass() * sw.total_mass();
+  double total_mass = nw.total_mass() + ne.total_mass() + se.total_mass() + sw.total_mass();
 
   return {center_of_mass / total_mass, total_mass};
 }
@@ -37,7 +28,10 @@ Node::Fork::Fork(std::array<std::unique_ptr<Node>, 4> children, int n_nodes, Agg
       m_aggregate_body(std::move(aggregate_body)) {}
 
 void Node::Fork::update_aggregate_body() {
-  m_aggregate_body = compute_aggregate_body(m_children);
+  m_aggregate_body = compute_aggregate_body(*m_children[Node::Subquadrant::NW],
+                                            *m_children[Node::Subquadrant::NE],
+                                            *m_children[Node::Subquadrant::SE],
+                                            *m_children[Node::Subquadrant::SW]);
 }
 
 Node::Node(const Vector2d &bottom_left, const Vector2d &top_right)
@@ -131,7 +125,7 @@ void Node::insert(const Body &new_body) {
             throw std::runtime_error("Reached default case in switch");
         }
 
-        auto aggregate_body = compute_aggregate_body(children);
+        auto aggregate_body = compute_aggregate_body(*children[Node::NW], *children[Node::NW], *children[Node::NW],*children[Node::NW]);
         m_data = Fork(std::move(children), n_nodes, std::move(aggregate_body));
       }
     } else {

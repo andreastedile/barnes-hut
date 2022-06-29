@@ -1,7 +1,7 @@
 #ifndef BARNES_HUT_NODE_H
 #define BARNES_HUT_NODE_H
 
-#include <array>  // Subquadrants
+#include <array>
 #include <eigen3/Eigen/Eigen>
 #include <eigen3/Eigen/Geometry>
 #include <memory>  // unique_ptr
@@ -152,6 +152,8 @@ class Node {
 };
 
 void to_json(json &j, const Node &node);
+
+Node::Fork::AggregateBody compute_aggregate_body(const Node &nw, const Node &ne, const Node &se, const Node &sw);
 
 }  // namespace bh
 
