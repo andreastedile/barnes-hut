@@ -3,12 +3,16 @@
 #include <eigen3/Eigen/Geometry>
 #include <iostream>
 #include <limits>
+#include <memory>
+#include <utility>
+#include <variant>
 
 #include "node.h"
+#include "quadtree.h"
 
 using namespace bh;
-using Eigen::Vector2d;
 using Eigen::AlignedBox2d;
+using Eigen::Vector2d;
 
 TEST_CASE("empty tree creation") {
   Node root({0, 0}, {10, 10});
@@ -110,3 +114,75 @@ TEST_CASE("adding coinciding bodies") {
   REQUIRE(body.m_position == Vector2d{2, 2});
   REQUIRE(body.m_mass == 2);
 }
+
+TEST_CASE("merge four nodes with empty leaves") {
+  auto nw = std::make_unique<Node>(Vector2d{0, 1}, Vector2d{1, 2});
+  auto ne = std::make_unique<Node>(Vector2d{1, 1}, Vector2d{2, 2});
+  auto se = std::make_unique<Node>(Vector2d{1, 0}, Vector2d{2, 1});
+  auto sw = std::make_unique<Node>(Vector2d{0, 0}, Vector2d{1, 1});
+  auto qt = merge_quadtrees(std::move(nw), std::move(ne), std::move(se), std::move(sw));
+  REQUIRE(qt->bbox().min() == Vector2d{0, 0});
+  REQUIRE(qt->bbox().max() == Vector2d{2, 2});
+  const auto& data = qt->data();
+  // both are equivalent
+  REQUIRE(qt->n_nodes() == 1);
+  const auto &leaf = std::get<Node::Leaf>(data);
+  const auto body = leaf.m_body;
+  REQUIRE_FALSE(body);
+}
+
+TEST_CASE("merge four nodes with just one body") {
+  auto nw = std::make_unique<Node>(Vector2d{0, 1}, Vector2d{1, 2});
+  nw->insert({Vector2d{0.5, 1.5}, 0.25});
+  auto ne = std::make_unique<Node>(Vector2d{1, 1}, Vector2d{2, 2});
+  auto se = std::make_unique<Node>(Vector2d{1, 0}, Vector2d{2, 1});
+  auto sw = std::make_unique<Node>(Vector2d{0, 0}, Vector2d{1, 1});
+  auto qt = merge_quadtrees(std::move(nw), std::move(ne), std::move(se), std::move(sw));
+  REQUIRE(qt->bbox().min() == Vector2d{0, 0});
+  REQUIRE(qt->bbox().max() == Vector2d{2, 2});
+  const auto& data = qt->data();
+  // both are equivalent
+  REQUIRE(qt->n_nodes() == 1);
+  const auto &leaf = std::get<Node::Leaf>(data);
+  REQUIRE(leaf.m_body);
+  REQUIRE(leaf.m_body.value().m_position == Vector2d{0.5, 1.5});
+  REQUIRE(leaf.m_body.value().m_mass == 0.25);
+}
+
+TEST_CASE("merge four nodes with two bodies") {
+  auto nw = std::make_unique<Node>(Vector2d{0, 1}, Vector2d{1, 2});
+  nw->insert({Vector2d{0.5, 1.5}, 0.25});
+  auto ne = std::make_unique<Node>(Vector2d{1, 1}, Vector2d{2, 2});
+  ne->insert({Vector2d{1.5, 1.5}, 0.25});
+  auto se = std::make_unique<Node>(Vector2d{1, 0}, Vector2d{2, 1});
+  auto sw = std::make_unique<Node>(Vector2d{0, 0}, Vector2d{1, 1});
+  auto qt = merge_quadtrees(std::move(nw), std::move(ne), std::move(se), std::move(sw));
+  REQUIRE(qt->bbox().min() == Vector2d{0, 0});
+  REQUIRE(qt->bbox().max() == Vector2d{2, 2});
+  const auto& data = qt->data();
+  // both are equivalent
+  REQUIRE(qt->n_nodes() == 5);
+
+  const auto &fork = std::get<Node::Fork>(data);
+  const auto &fork_nw = *fork.m_children[Node::NW];
+  const auto &fork_ne = *fork.m_children[Node::NE];
+  const auto &fork_se = *fork.m_children[Node::SE];
+  const auto &fork_sw = *fork.m_children[Node::SW];
+
+  const auto &leaf_nw = std::get<Node::Leaf>(fork_nw.data());
+  REQUIRE(leaf_nw.m_body);
+  REQUIRE(leaf_nw.m_body.value().m_position == Vector2d{0.5, 1.5});
+  REQUIRE(leaf_nw.m_body.value().m_mass == 0.25);
+
+  const auto &leaf_ne = std::get<Node::Leaf>(fork_ne.data());
+  REQUIRE(leaf_ne.m_body);
+  REQUIRE(leaf_ne.m_body.value().m_position == Vector2d{1.5, 1.5});
+  REQUIRE(leaf_ne.m_body.value().m_mass == 0.25);
+
+  const auto &leaf_se = std::get<Node::Leaf>(fork_se.data());
+  REQUIRE_FALSE(leaf_se.m_body);
+
+  const auto &leaf_sw = std::get<Node::Leaf>(fork_sw.data());
+  REQUIRE_FALSE(leaf_sw.m_body);
+}
+
