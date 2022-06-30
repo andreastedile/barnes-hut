@@ -57,4 +57,35 @@ std::unique_ptr<Node> merge_quadtrees(std::unique_ptr<Node> nw, std::unique_ptr<
   return std::make_unique<Node>(std::move(bottom_left), std::move(top_right), std::move(fork));
 }
 
+std::unique_ptr<Node> reconstruct_quadtree(QuadtreeMatrix& matrix) {
+  const int N_ROWS = static_cast<int>(matrix.size());
+  const int N_COLS = N_ROWS;
+
+  // N_COLS == 1 would be equivalent
+  if (N_ROWS == 1) {
+    return std::move(matrix[0][0]);
+  }
+
+  const int N_NEW_ROWS = N_ROWS / 2;
+  const int N_NEW_COLS = N_NEW_ROWS;
+
+  QuadtreeMatrix new_matrix(N_NEW_ROWS);
+  for (int i = 0; i < N_NEW_ROWS; i++) {
+    new_matrix[i].resize(N_NEW_COLS);
+  }
+
+  for (int i = 0; i < N_ROWS; i += 2) {
+    for (int j = 0; j < N_COLS; j += 2) {
+      const int N = i;
+      const int S = i + 1;
+      const int W = j;
+      const int E = j + 1;
+      auto new_node = merge_quadtrees(std::move(matrix[N][W]), std::move(matrix[N][E]), std::move(matrix[S][E]), std::move(matrix[S][W]));
+      new_matrix[i / 2][j / 2] = std::move(new_node);
+    }
+  }
+
+  return reconstruct_quadtree(new_matrix);
+}
+
 }  // namespace bh
