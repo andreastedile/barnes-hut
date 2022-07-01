@@ -10,7 +10,7 @@ class LocalBarnesHutSimulator final : public ISimulation {
   LocalBarnesHutSimulator(const std::string &filename, double dt, double G, double omega);
   void step() override;
   [[nodiscard]] json to_json() const override;
-  void save() const override;
+  void save(const std::string& filename) const override;
 
   const double m_omega;
 };

@@ -31,6 +31,8 @@ int main(int argc, char* argv[]) {
       .scan<'g', double>()
       .default_value(bh::DEFAULT_OMEGA)
       .help("specify the simulation omega");
+  app.add_argument("-output")
+      .help("specify the output filename");
   app.add_argument("-type")
       .default_value(std::string("barnes-hut"))
       .action([](const std::string& type) {
@@ -68,7 +70,12 @@ int main(int argc, char* argv[]) {
 
   simulator->step_continuously(app.get<int>("steps"));
 
-  std::cout << "Simulation completed. Saving JSON...\n";
-  // simulator.save();
+  std::cout << "Simulation completed\n";
+
+  if (auto output = app.present("-output")) {
+    std::cout << "Saving JSON to " << *output << "...\n";
+    simulator->save(*output);
+  }
+
   return 0;
 }

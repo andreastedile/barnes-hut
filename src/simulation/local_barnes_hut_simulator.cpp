@@ -54,8 +54,8 @@ void LocalBarnesHutSimulator::step() {
 
 json LocalBarnesHutSimulator::to_json() const { return *this; }
 
-void LocalBarnesHutSimulator::save() const {
-  std::ofstream o("simulation.json");
+void LocalBarnesHutSimulator::save(const std::string& filename) const {
+  std::ofstream o(filename);
 #ifndef NDEBUG
   o << std::setw(2) << to_json();
 #else

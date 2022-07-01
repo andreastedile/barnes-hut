@@ -49,8 +49,8 @@ void LocalExactSimulator::step() {
 
 json LocalExactSimulator::to_json() const { return *this; }
 
-void LocalExactSimulator::save() const {
-  std::ofstream o("simulation.json");
+void LocalExactSimulator::save(const std::string& filename) const {
+  std::ofstream o(filename);
 #ifndef NDEBUG
   o << std::setw(2) << to_json();
 #else

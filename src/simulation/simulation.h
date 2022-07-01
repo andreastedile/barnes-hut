@@ -57,11 +57,10 @@ class ISimulation {
 
   /**
    * Saves the JSON representation of the simulation to a file
-   * @todo pass the filename as argument
    * @todo maybe it's possible not to require subclasses to implement this,
    * but provide a default implementation ourselves
    */
-  virtual void save() const = 0;
+  virtual void save(const std::string& filename) const = 0;
 
  protected:
   virtual void update_max_bbox(const AlignedBox2d& bbox) final;
