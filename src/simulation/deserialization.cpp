@@ -1,6 +1,8 @@
 #include "deserialization.h"
 
+#include <algorithm>  // transform
 #include <eigen3/Eigen/Eigen>
+#include <execution>  // par_unseq
 #include <stdexcept>
 
 using Eigen::Vector2d;
@@ -44,6 +46,21 @@ std::unique_ptr<Node> deserialize_impl(const std::vector<mpi::Node> &nodes, int 
 
 std::unique_ptr<Node> deserialize_quadtree(const std::vector<mpi::Node> &nodes) {
   return deserialize_impl(nodes, 0);
+}
+
+Body deserialize(const mpi::Body &body) {
+  return {Vector2d{body.position_x, body.position_y}, body.mass};
+}
+
+std::vector<Body> deserialize(const std::vector<mpi::Body> &bodies) {
+  std::vector<Body> deserialized(bodies.size());
+  std::transform(std::execution::par_unseq,
+                 bodies.begin(), bodies.end(),
+                 deserialized.begin(),
+                 [](const mpi::Body &body) {
+                   return deserialize(body);
+                 });
+  return deserialized;
 }
 
 }  // namespace bh
