@@ -36,8 +36,16 @@ std::vector<Body> load(const std::string &filename) {
   return bodies;
 }
 
-ISimulation::ISimulation(double dt, double G)
-    : m_dt{dt}, m_G(G), m_max_bbox(AlignedBox2d{Vector2d{0, 0}, Vector2d{0, 0}}) {}
+ISimulation::ISimulation(std::shared_ptr<SimulationStep> step_zero, double dt, double G)
+    : m_n_bodies{static_cast<int>(step_zero->bodies().size())},
+      m_dt{dt},
+      m_G(G),
+      m_simulation_steps{std::move(step_zero)} {
+#ifndef NDEBUG
+  std::cout << "ISimulation constructor called\n";
+#endif
+  m_max_bbox = m_simulation_steps.back()->bbox();
+}
 
 const std::vector<std::shared_ptr<SimulationStep>> &ISimulation::steps() const {
   return m_simulation_steps;

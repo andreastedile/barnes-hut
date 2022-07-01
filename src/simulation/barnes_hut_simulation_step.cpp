@@ -9,9 +9,11 @@
 
 namespace bh {
 
+BarnesHutSimulationStep::BarnesHutSimulationStep(std::vector<Body> bodies, const AlignedBox2d &bbox)
+    : SimulationStep(std::move(bodies), bbox), m_quadtree(std::make_shared<Node>(Vector2d{0,0}, Vector2d{0,0})) {}
+
 BarnesHutSimulationStep::BarnesHutSimulationStep(std::vector<Body> bodies, const AlignedBox2d &bbox, std::shared_ptr<const Node> quadtree)
-    : SimulationStep(std::move(bodies), bbox),
-      m_quadtree(std::move(quadtree)) {}
+    : SimulationStep(std::move(bodies), bbox), m_quadtree(std::move(quadtree)) {}
 
 const Node &BarnesHutSimulationStep::quadtree() const {
   return *m_quadtree;

@@ -17,12 +17,10 @@
 namespace bh {
 
 LocalBarnesHutSimulator::LocalBarnesHutSimulator(const std::string& filename, double dt, double G, double omega)
-    : ISimulation(dt, G), m_omega(omega) {
-  auto bodies = load(filename);
-  m_max_bbox = compute_square_bounding_box(bodies);
-  auto quadtree = std::make_shared<Node>(m_max_bbox.min(), m_max_bbox.max());
-  m_simulation_steps.push_back(std::make_shared<BarnesHutSimulationStep>(std::move(bodies), m_max_bbox, std::move(quadtree)));
-}
+    : LocalBarnesHutSimulator(load(filename), dt, G, omega) {}
+
+LocalBarnesHutSimulator::LocalBarnesHutSimulator(std::vector<Body> step_zero, double dt, double G, double omega)
+: ISimulation(std::make_shared<BarnesHutSimulationStep>(std::move(step_zero), compute_square_bounding_box(step_zero)), dt, G), m_omega{omega} {}
 
 void LocalBarnesHutSimulator::step() {
 #ifndef NDEBUG

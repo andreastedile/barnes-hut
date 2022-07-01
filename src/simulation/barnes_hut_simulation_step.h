@@ -10,6 +10,7 @@ namespace bh {
 
 class BarnesHutSimulationStep final : public SimulationStep {
  public:
+  BarnesHutSimulationStep(std::vector<Body> bodies, const AlignedBox2d &bbox);
   BarnesHutSimulationStep(std::vector<Body> bodies, const AlignedBox2d &bbox, std::shared_ptr<const Node> quadtree);
 
   [[nodiscard]] const Node &quadtree() const;

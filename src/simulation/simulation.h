@@ -27,14 +27,11 @@ std::vector<Body> load(const std::string& filename);
 
 class ISimulation {
  public:
+  const int m_n_bodies;
   const double m_dt;
   const double m_G;
 
-  /**
-   * @param dt simulation timestep; defines the accuracy of the computation: the
-   * smaller, the more accurate
-   */
-  ISimulation(double dt, double G);
+  ISimulation(std::shared_ptr<SimulationStep> step_zero, double dt, double G);
 
   /**
    * Performs a single simulation step
