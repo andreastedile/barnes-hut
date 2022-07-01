@@ -1,9 +1,7 @@
 #ifndef BARNES_HUT_BARNES_HUT_SIMULATION_STEP_H
 #define BARNES_HUT_BARNES_HUT_SIMULATION_STEP_H
 
-#include <eigen3/Eigen/Geometry>
-#include <memory>  // shared_ptr, unique_ptr
-#include <tuple>
+#include <memory>  // shared_ptr
 
 #include "node.h"
 #include "simulation_step.h"
@@ -26,13 +24,6 @@ class BarnesHutSimulationStep final : public SimulationStep {
  protected:
   std::shared_ptr<const Node> m_quadtree;
 };
-
-/**
- * @param dt simulation timestep; defines the accuracy of the computation: the  smaller, the more accurate
- * @param G gravitational constant
- * @param omega
- */
-std::tuple<std::vector<Body>, AlignedBox2d, std::unique_ptr<Node>> perform_barnes_hut_simulation_step(const std::vector<Body> &bodies, double dt, double G, double omega);
 
 void to_json(json &j, const BarnesHutSimulationStep &step);
 

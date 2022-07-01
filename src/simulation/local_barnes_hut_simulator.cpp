@@ -3,12 +3,16 @@
 #include <fstream>  // ofstream
 #ifndef NDEBUG
 #include <iomanip>  // setw
+#include <iostream>
 #endif
-#include <memory>   // make_shared, static_pointer_cast
-#include <utility>  // move
+#include <execution>  // par_unseq
+#include <memory>     // make_shared, static_pointer_cast
+#include <utility>    // move
 
 #include "barnes_hut_simulation_step.h"
-#include "body.h"  // compute_square_bounding_box
+#include "body.h"
+#include "body_update.h"
+#include "quadtree.h"
 
 namespace bh {
 
@@ -21,9 +25,31 @@ LocalBarnesHutSimulator::LocalBarnesHutSimulator(const std::string& filename, do
 }
 
 void LocalBarnesHutSimulator::step() {
-  auto [bodies, bbox, quadtree] = perform_barnes_hut_simulation_step(std::static_pointer_cast<BarnesHutSimulationStep>(m_simulation_steps.back())->bodies(), m_dt, m_G, m_omega);
+#ifndef NDEBUG
+  std::cout << "Constructing quadtree...\n";
+#endif
+  const auto& bodies = std::static_pointer_cast<BarnesHutSimulationStep>(m_simulation_steps.back())->bodies();
+  auto quadtree = construct_quadtree(bodies);
+
+#ifndef NDEBUG
+  std::cout << "Computing new bodies...\n";
+#endif
+  std::vector<Body> new_bodies(bodies.size());
+  std::transform(std::execution::par_unseq,
+                 bodies.begin(), bodies.end(),
+                 new_bodies.begin(),
+                 [&](const Body& body) {
+                   return update_body(body, *quadtree, m_dt, m_G, m_omega);
+                 });
+
+#ifndef NDEBUG
+  std::cout << "Computing new  bounding box...\n";
+#endif
+  auto bbox = compute_square_bounding_box(bodies);
+
   update_max_bbox(bbox);
-  m_simulation_steps.push_back(std::make_shared<BarnesHutSimulationStep>(std::move(bodies), std::move(bbox), std::move(quadtree)));
+
+  m_simulation_steps.push_back(std::make_shared<BarnesHutSimulationStep>(std::move(new_bodies), std::move(bbox), std::move(quadtree)));
 }
 
 json LocalBarnesHutSimulator::to_json() const { return *this; }

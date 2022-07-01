@@ -2,7 +2,6 @@
 #define BARNES_HUT_LOCAL_EXACT_SIMULATOR_H
 
 #include "simulation.h"
-#include "exact_simulation_step.h"
 
 namespace bh {
 
