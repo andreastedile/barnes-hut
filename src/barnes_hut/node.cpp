@@ -10,7 +10,7 @@
 
 namespace bh {
 
-Node::Fork::AggregateBody compute_aggregate_body(const Node &nw,const Node &ne,const Node &se,const Node &sw) {
+Node::Fork::AggregateBody compute_aggregate_body(const Node &nw, const Node &ne, const Node &se, const Node &sw) {
   Vector2d center_of_mass = nw.center_of_mass() * nw.total_mass() +
                             ne.center_of_mass() * ne.total_mass() +
                             se.center_of_mass() * se.total_mass() +
@@ -26,13 +26,6 @@ Node::Fork::Fork(std::array<std::unique_ptr<Node>, 4> children, int n_nodes, Agg
     : m_children(std::move(children)),
       m_n_nodes(n_nodes),
       m_aggregate_body(std::move(aggregate_body)) {}
-
-void Node::Fork::update_aggregate_body() {
-  m_aggregate_body = compute_aggregate_body(*m_children[Node::Subquadrant::NW],
-                                            *m_children[Node::Subquadrant::NE],
-                                            *m_children[Node::Subquadrant::SE],
-                                            *m_children[Node::Subquadrant::SW]);
-}
 
 Node::Node(const Vector2d &bottom_left, const Vector2d &top_right)
     : m_data(Leaf()), m_box(bottom_left, top_right) {
@@ -125,7 +118,7 @@ void Node::insert(const Body &new_body) {
             throw std::runtime_error("Reached default case in switch");
         }
 
-        auto aggregate_body = compute_aggregate_body(*children[Node::NW], *children[Node::NW], *children[Node::NW],*children[Node::NW]);
+        auto aggregate_body = compute_aggregate_body(*children[Node::NW], *children[Node::NW], *children[Node::NW], *children[Node::NW]);
         m_data = Fork(std::move(children), n_nodes, std::move(aggregate_body));
       }
     } else {
@@ -169,7 +162,7 @@ void Node::insert(const Body &new_body) {
             "Attempted to insert a new body outside of the node's bounding "
             "box");
     }
-    fork.update_aggregate_body();
+    fork.m_aggregate_body = compute_aggregate_body(*fork.m_children[NW], *fork.m_children[NE], *fork.m_children[SE], *fork.m_children[SW]);
   };
 
   std::visit(overloaded{visit_fork, visit_leaf}, m_data);

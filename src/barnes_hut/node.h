@@ -33,7 +33,6 @@ class Node {
   struct Fork {
     using AggregateBody = Body;
     Fork(std::array<std::unique_ptr<Node>, 4> children, int n_nodes, AggregateBody aggregate_body);
-    void update_aggregate_body();
 
     std::array<std::unique_ptr<Node>, 4> m_children;
     int m_n_nodes;
