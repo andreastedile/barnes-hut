@@ -1,13 +1,25 @@
 #include "mpi_barnes_hut_simulator.h"
 
 #include <eigen3/Eigen/Eigen>
+#include <eigen3/Eigen/Geometry>
 #include <execution>  // par_unseq
 #include <numeric>    // partial_sum
+using Eigen::AlignedBox2d;
 using Eigen::Vector2d;
 
+#include "body.h"
 #include "deserialization.h"
 
 namespace bh {
+
+std::vector<Body> filter_bodies_by_subquadrant(const std::vector<Body>& bodies, const AlignedBox2d& bbox) {
+  std::vector<Body> filtered;
+  std::copy_if(bodies.begin(), bodies.end(), std::back_inserter(filtered), [&bbox](const Body& body) {
+    return body.m_position.x() >= bbox.min().x() && body.m_position.x() < bbox.max().x() &&
+           body.m_position.y() >= bbox.min().y() && body.m_position.y() < bbox.max().y();
+  });
+  return filtered;
+}
 
 AlignedBox2d compute_bounding_box_for_processor(const AlignedBox2d& bbox, int n_procs, int proc_id) {
   const int N_ROWS = static_cast<int>(std::sqrt(n_procs));
