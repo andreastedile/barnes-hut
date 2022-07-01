@@ -32,7 +32,7 @@ void LocalBarnesHutSimulator::step() {
 #ifndef NDEBUG
   std::cout << "Computing new bodies...\n";
 #endif
-  std::vector<Body> new_bodies(bodies.size());
+  std::vector<Body> new_bodies(m_n_bodies);
   std::transform(std::execution::par_unseq,
                  bodies.begin(), bodies.end(),
                  new_bodies.begin(),

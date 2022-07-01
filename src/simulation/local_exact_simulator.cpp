@@ -28,8 +28,8 @@ void LocalExactSimulator::step() {
 #ifndef NDEBUG
   std::cout << "Computing new bodies...\n";
 #endif
-  // This calls Body's default constructor bodies.size() times, but we cannot do anything about it
-  std::vector<Body> new_bodies(bodies.size());
+  // This calls Body's default constructor m_n_bodies times, but we cannot do anything about it
+  std::vector<Body> new_bodies(m_n_bodies);
   std::transform(std::execution::par_unseq,
                  bodies.begin(), bodies.end(),
                  new_bodies.begin(),
