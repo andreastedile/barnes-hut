@@ -28,8 +28,9 @@ AlignedBox2d compute_minimum_bounding_box(const std::vector<Body> &bodies) {
   Vector2d top_right = std::transform_reduce(
       std::execution::par_unseq, bodies.begin(), bodies.end(),
       // // Vector2d(Eigen::Infinity, Eigen::Infinity), // does not work
-      Vector2d(std::numeric_limits<double>::min(),
-               std::numeric_limits<double>::min()),
+      // https://stackoverflow.com/a/39648441/15255146
+      Vector2d(std::numeric_limits<double>::lowest(),
+               std::numeric_limits<double>::lowest()),
       [](const Vector2d &top_right, const Vector2d &body) {
         return Vector2d(std::max(top_right.x(), body.x()),
                         std::max(top_right.y(), body.y()));

@@ -14,6 +14,15 @@ TEST_CASE("compute minimum bounding box") {
   REQUIRE(box.max() == Vector2d(7, 4));
 }
 
+TEST_CASE("compute minimum bounding, edge case") {
+  std::vector<bh::Body> nodes;
+  nodes.push_back({{1, 0}, 0});  // bottom-right body
+  nodes.push_back({{1, 0}, 0});  // top-left body
+  auto box = bh::compute_minimum_bounding_box(nodes);
+  REQUIRE(box.min() == Vector2d(1, 0));
+  REQUIRE(box.max() == Vector2d(1, 0));
+}
+
 TEST_CASE("compute square bounding box") {
   std::vector<bh::Body> nodes;
   nodes.push_back({{2.5, 4.0625}, 0});     // top-right node
