@@ -14,6 +14,8 @@ using Eigen::AlignedBox2d;
 
 namespace bh {
 
+AlignedBox2d compute_bounding_box_for_processor(const AlignedBox2d& bbox, int n_procs, int proc_id);
+
 class MpiBarnesHutSimulator final : public ISimulation {
  public:
   static MpiBarnesHutSimulator from_file(int proc_id, int n_procs, const std::string& filename, double dt, double G, double omega);
