@@ -63,6 +63,11 @@ AlignedBox2d compute_square_bounding_box(const std::vector<Body> &bodies) {
     top_left -= Vector2d(diff / 2, 0);
     bottom_right += Vector2d(diff / 2, 0);
     top_right += Vector2d(diff / 2, 0);
+  } else if (bottom_left == top_right) {
+    bottom_left += Vector2d(-0.5, -0.5);
+    top_left += Vector2d(-0.5, 0.5);
+    top_right += Vector2d(0.5, 0.5);
+    bottom_right += Vector2d(0.5, -0.5);
   }
 
   // We now snap the square's corners to the grid, but this may produce a
