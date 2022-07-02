@@ -42,55 +42,33 @@ AlignedBox2d compute_minimum_bounding_box(const std::vector<Body> &bodies) {
 
 AlignedBox2d compute_square_bounding_box(const std::vector<Body> &bodies) {
   AlignedBox2d min_bbox = compute_minimum_bounding_box(bodies);
-  Vector2d bottom_left = min_bbox.min();
-  Vector2d top_right = min_bbox.max();
-  Vector2d top_left(bottom_left.x(), top_right.y());
-  Vector2d bottom_right(top_right.x(), bottom_left.y());
 
-  // Usually, the minimum bounding box is a rectangle. In this case, we have to
-  // convert it into a square.
-  double width = (top_right - top_left).norm();
-  double height = (top_left - bottom_left).norm();
-  if (width > height) {
-    double diff = width - height;
-    bottom_left -= Vector2d(0, diff / 2);
-    bottom_right -= Vector2d(0, diff / 2);
-    top_right += Vector2d(0, diff / 2);
-    top_left += Vector2d(0, diff / 2);
-  } else if (height > width) {
-    double diff = height - width;
-    bottom_left -= Vector2d(diff / 2, 0);
-    top_left -= Vector2d(diff / 2, 0);
-    bottom_right += Vector2d(diff / 2, 0);
-    top_right += Vector2d(diff / 2, 0);
-  } else if (bottom_left == top_right) {
-    bottom_left += Vector2d(-0.5, -0.5);
-    top_left += Vector2d(-0.5, 0.5);
-    top_right += Vector2d(0.5, 0.5);
-    bottom_right += Vector2d(0.5, -0.5);
+  if (double diff = min_bbox.sizes().x() > min_bbox.sizes().y(); diff > 0) {
+    // width > height
+    min_bbox.min() -= Vector2d(0, diff / 2);
+    min_bbox.max() += Vector2d(0, diff / 2);
+  } else if ( diff = min_bbox.sizes().y() > min_bbox.sizes().x(); diff > 0) {
+    // height > width
+    min_bbox.min() -= Vector2d(diff / 2, 0);
+    min_bbox.max() += Vector2d(diff / 2, 0);
+  } else if (min_bbox.min() == min_bbox.max()) {
+    // bounding box degenerated to a point
+    min_bbox.min() += Vector2d(-0.5, -0.5);
+    min_bbox.max() += Vector2d(0.5, 0.5);
   }
 
-  // We now snap the square's corners to the grid, but this may produce a
-  // rectangle.
-  bottom_left = {std::floor(bottom_left.x()), std::floor(bottom_left.y())};
-  top_right = {std::ceil(top_right.x()), std::ceil(top_right.y())};
-  top_left = {std::floor(top_left.x()), std::ceil(top_left.y())};
-  bottom_right = {std::ceil(bottom_right.x()), std::floor(bottom_right.y())};
+  // We now snap the square's corners to the grid, but this may produce a rectangle.
+  min_bbox.min() = {std::floor(min_bbox.min().x()), std::floor(min_bbox.min().y())};
+  min_bbox.max() = {std::ceil(min_bbox.max().x()), std::ceil(min_bbox.max().y())};
 
   // We now extend the rectangle into a square.
-  width = (top_right - top_left).norm();
-  height = (top_left - bottom_left).norm();
-  if (width > height) {
-    double diff = width - height;
-    top_right += Vector2d(0, diff);
-    top_left += Vector2d(0, diff);
-  } else if (height > width) {
-    double diff = height - width;
-    top_right += Vector2d(diff, 0);
-    bottom_right += Vector2d(diff, 0);
+  if (double diff = min_bbox.sizes().x() - min_bbox.sizes().y(); diff > 0) {
+    min_bbox.max() += Vector2d(0, diff);
+  } else if (diff = min_bbox.sizes().y() - min_bbox.sizes().x(); diff > 0) {
+    min_bbox.max() += Vector2d(diff, 0);
   }
 
-  return {bottom_left, top_right};
+  return min_bbox;
 }
 
 }  // namespace bh
