@@ -35,14 +35,13 @@ struct Body {
    * @param velocity of the body
    */
   Body(Vector2d position, double mass, Vector2d velocity);
-  // Copy constructor
+
+#ifdef DEBUG_CONSTRUCTOR_AND_ASSIGNMENT_OPERATORS
   Body(const Body &other);
-  // Move constructor
   Body(Body &&other) noexcept;
-  // Copy assignment operator
   Body &operator=(const Body &other);
-  // Move assignment operator
   Body &operator=(Body &&other) noexcept;
+#endif
 };
 
 void to_json(json &j, const Body &body);

@@ -18,17 +18,8 @@ add_library(barnes_hut_lib
 
 target_include_directories(barnes_hut_lib INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>)
 
-if (DEBUG_COPY_CONSTRUCTOR)
-    target_compile_definitions(barnes_hut_lib PRIVATE DEBUG_COPY_CONSTRUCTOR)
-endif()
-if (DEBUG_MOVE_CONSTRUCTOR)
-    target_compile_definitions(barnes_hut_lib PRIVATE DEBUG_MOVE_CONSTRUCTOR)
-endif()
-if (DEBUG_COPY_ASSIGNMENT_OPERATOR)
-    target_compile_definitions(barnes_hut_lib PRIVATE DEBUG_COPY_ASSIGNMENT_OPERATOR)
-endif()
-if (DEBUG_MOVE_ASSIGNMENT_OPERATOR)
-    target_compile_definitions(barnes_hut_lib PRIVATE DEBUG_MOVE_ASSIGNMENT_OPERATOR)
+if (DEBUG_CONSTRUCTOR_AND_ASSIGNMENT_OPERATORS)
+    target_compile_definitions(barnes_hut_lib PRIVATE DEBUG_CONSTRUCTOR_AND_ASSIGNMENT_OPERATORS)
 endif()
 
 target_link_libraries(barnes_hut_lib PRIVATE Eigen3::Eigen)
