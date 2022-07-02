@@ -249,15 +249,13 @@ void MpiBarnesHutSimulator::step() {
   }
 }
 
-json MpiBarnesHutSimulator::to_json() const {
-  return *this;
-}
 
 void MpiBarnesHutSimulator::save(const std::string& filename) const {
   if (m_proc_id == 0) {
     std::ofstream o(filename);
 #ifndef NDEBUG
-    o << std::setw(2) << to_json();
+    json j = *this;
+    o << std::setw(2) << j;
 #else
     o << to_json();
 #endif

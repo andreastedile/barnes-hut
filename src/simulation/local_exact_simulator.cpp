@@ -47,12 +47,11 @@ void LocalExactSimulator::step() {
   m_simulation_steps.push_back(std::make_shared<ExactSimulationStep>(std::move(new_bodies), std::move(bbox)));
 }
 
-json LocalExactSimulator::to_json() const { return *this; }
-
 void LocalExactSimulator::save(const std::string& filename) const {
+  json j = *this;
   std::ofstream o(filename);
 #ifndef NDEBUG
-  o << std::setw(2) << to_json();
+  o << std::setw(2) << j;
 #else
   o << to_json();
 #endif

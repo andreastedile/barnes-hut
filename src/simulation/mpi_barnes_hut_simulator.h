@@ -24,7 +24,6 @@ class MpiBarnesHutSimulator final : public ISimulation {
                         std::vector<int> recv_n_bodies, std::vector<int> recv_n_bytes,
                         const AlignedBox2d& bbox);
   void step() override;
-  [[nodiscard]] json to_json() const override;
   void save(const std::string& filename) const override;
 
   const double m_omega;

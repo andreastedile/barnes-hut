@@ -48,11 +48,6 @@ class ISimulation {
   [[nodiscard]] virtual const AlignedBox2d& max_bbox() const final;
 
   /**
-   * @return the JSON representation of the simulation
-   */
-  [[nodiscard]] virtual json to_json() const = 0;
-
-  /**
    * Saves the JSON representation of the simulation to a file
    * @todo maybe it's possible not to require subclasses to implement this,
    * but provide a default implementation ourselves

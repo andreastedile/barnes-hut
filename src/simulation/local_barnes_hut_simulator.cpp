@@ -51,12 +51,11 @@ void LocalBarnesHutSimulator::step() {
   m_simulation_steps.push_back(std::make_shared<BarnesHutSimulationStep>(std::move(new_bodies), std::move(bbox), std::move(quadtree)));
 }
 
-json LocalBarnesHutSimulator::to_json() const { return *this; }
-
 void LocalBarnesHutSimulator::save(const std::string& filename) const {
+  json j = *this;
   std::ofstream o(filename);
 #ifndef NDEBUG
-  o << std::setw(2) << to_json();
+  o << std::setw(2) << j;
 #else
   o << to_json();
 #endif

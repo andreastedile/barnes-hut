@@ -11,7 +11,6 @@ class LocalExactSimulator final : public ISimulation {
   LocalExactSimulator(std::vector<Body> step_zero, double dt, double G);
 
   void step() override;
-  [[nodiscard]] json to_json() const override;
   void save(const std::string& filename) const override;
 };
 
