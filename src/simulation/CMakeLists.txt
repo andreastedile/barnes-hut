@@ -8,6 +8,7 @@ add_library(simulation_lib
         barnes_hut_simulation_step.h
         barnes_hut_simulation_step_json.cpp
         mpi_barnes_hut_simulator.cpp
+        mpi_barnes_hut_simulator_json.cpp
         mpi_barnes_hut_simulator.h
         simulation.cpp
         simulation.h
@@ -36,3 +37,4 @@ target_link_libraries(simulation_lib PRIVATE barnes_hut_lib)
 target_link_libraries(simulation_lib PRIVATE Eigen3::Eigen)
 target_link_libraries(simulation_lib PRIVATE nlohmann_json::nlohmann_json)
 target_link_libraries(simulation_lib PRIVATE TBB::tbb)
+target_link_libraries(simulation_lib PUBLIC MPI::MPI_CXX)

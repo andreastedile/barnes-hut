@@ -1,14 +1,17 @@
+#include <mpi.h>
+
+#include <algorithm>
 #include <argparse/argparse.hpp>
 #include <iostream>
 #include <memory>
 #include <stdexcept>
 #include <string>
 #include <vector>
-#include <algorithm>
 
 #include "force.h"
 #include "local_barnes_hut_simulator.h"
 #include "local_exact_simulator.h"
+#include "mpi_barnes_hut_simulator.h"
 
 int main(int argc, char* argv[]) {
   argparse::ArgumentParser app("Barnes–Hut simulation");
@@ -34,9 +37,9 @@ int main(int argc, char* argv[]) {
   app.add_argument("-output")
       .help("specify the output filename");
   app.add_argument("-type")
-      .default_value(std::string("barnes-hut"))
+      .default_value(std::string("local-barnes-hut"))
       .action([](const std::string& type) {
-        static const std::vector<std::string> choices{"barnes-hut", "exact"};
+        static const std::vector<std::string> choices{"local-barnes-hut", "mpi-barnes-hut", "local-exact"};
         if (std::find(choices.begin(), choices.end(), type) != choices.end()) {
           return type;
         } else {
@@ -55,17 +58,45 @@ int main(int argc, char* argv[]) {
 
   std::unique_ptr<bh::ISimulation> simulator;
   const auto type = app.get<std::string>("type");
-  if (type == "barnes-hut") {
+  if (type == "local-barnes-hut") {
     simulator = std::make_unique<bh::LocalBarnesHutSimulator>(
         app.get<std::string>("input"),
         app.get<double>("dt"),
         app.get<double>("-G"),
         app.get<double>("-omega"));
-  } else if (type == "exact") {
+  } else if (type == "local-exact") {
     simulator = std::make_unique<bh::LocalExactSimulator>(
         app.get<std::string>("input"),
         app.get<double>("dt"),
         app.get<double>("-G"));
+  } else if (type == "mpi-barnes-hut") {
+    MPI_Init(nullptr, nullptr);
+
+    int proc_id, n_procs;
+    MPI_Comm_rank(MPI_COMM_WORLD, &proc_id);
+    MPI_Comm_size(MPI_COMM_WORLD, &n_procs);
+
+    auto is_power_of_four = [&](int n) {
+      if (n == 0)
+        return 0;
+      while (n != 1) {
+        if (n % 4 != 0)
+          return 0;
+        n = n / 4;
+      }
+      return 1;
+    };
+//    if (is_power_of_four(n_procs) == 1) {
+//      throw std::invalid_argument("number of processors must be a power of 4!");
+//    }
+
+    simulator = std::make_unique<bh::MpiBarnesHutSimulator>(
+        bh::MpiBarnesHutSimulator::from_file(proc_id,
+                                             n_procs,
+                                             app.get<std::string>("input"),
+                                             app.get<double>("dt"),
+                                             app.get<double>("-G"),
+                                             app.get<double>("-omega")));
   }
 
   simulator->step_continuously(app.get<int>("steps"));
