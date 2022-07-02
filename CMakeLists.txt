@@ -29,5 +29,5 @@ if (iwyu_path)
 endif ()
 
 add_subdirectory(src)
-add_subdirectory(tests)
-add_subdirectory(apps)
+#add_subdirectory(tests)
+add_subdirectory(simulators)

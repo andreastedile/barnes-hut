@@ -5,7 +5,7 @@
 
 using namespace bh;
 
-TEST_CASE("serialize an empty quadtree") {
+TEST_CASE("serialize_quadtree an empty quadtree") {
   Node quadtree({0, 0}, {10, 10});
   auto serialized = serialize(quadtree);
   REQUIRE(serialized.size() == 1);
@@ -18,7 +18,7 @@ TEST_CASE("serialize an empty quadtree") {
   REQUIRE_FALSE(node.data.leaf.has_value);
 }
 
-TEST_CASE("serialize a quadtree with single node") {
+TEST_CASE("serialize_quadtree a quadtree with single node") {
   Node quadtree({0, 0}, {10, 10});
   quadtree.insert({{7.5, 7.5}, 0.25});
   auto serialized = serialize(quadtree);
@@ -36,7 +36,7 @@ TEST_CASE("serialize a quadtree with single node") {
 }
 
 // https://www.desmos.com/calculator/wpyi6tikb2?lang=it
-TEST_CASE("serialize complex quadtree") {
+TEST_CASE("serialize_quadtree complex quadtree") {
   Node quadtree({0, 0}, {10, 10});
   quadtree.insert({{0, 0}, 0.25});
   quadtree.insert({{2, 2}, 0.25});

@@ -186,7 +186,7 @@ TEST_CASE("merge four nodes with two bodies") {
 }
 
 TEST_CASE("reconstruct 8x8 quadtree matrix") {
-  QuadtreeMatrix matrix(8);
+  QuadtreeGrid matrix(8);
   for (int i = 0; i < 8; i++) {
     matrix[i].resize(8);
   }
