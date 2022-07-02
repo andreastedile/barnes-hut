@@ -10,7 +10,8 @@
 #include <memory>     // make_shared, static_pointer_cast
 #include <utility>    // move
 
-#include "body.h"  // compute_square_bounding_box
+#include "body.h"
+#include "bounding_box.h"
 #include "body_update.h"
 #include "exact_simulation_step.h"
 

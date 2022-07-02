@@ -2,6 +2,8 @@ add_library(barnes_hut_lib
         templates.h
         body.h
         body.cpp
+        bounding_box.cpp
+        bounding_box.h
         quadtree.cpp
         quadtree.h
         body_json.cpp

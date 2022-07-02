@@ -12,6 +12,7 @@
 #include "barnes_hut_simulation_step.h"
 #include "body.h"
 #include "body_update.h"
+#include "bounding_box.h"
 #include "quadtree.h"
 
 namespace bh {
@@ -20,7 +21,7 @@ LocalBarnesHutSimulator::LocalBarnesHutSimulator(const std::string& filename, do
     : LocalBarnesHutSimulator(load(filename), dt, G, omega) {}
 
 LocalBarnesHutSimulator::LocalBarnesHutSimulator(std::vector<Body> step_zero, double dt, double G, double omega)
-: ISimulation(std::make_shared<BarnesHutSimulationStep>(std::move(step_zero), compute_square_bounding_box(step_zero)), dt, G), m_omega{omega} {}
+    : ISimulation(std::make_shared<BarnesHutSimulationStep>(std::move(step_zero), compute_square_bounding_box(step_zero)), dt, G), m_omega{omega} {}
 
 void LocalBarnesHutSimulator::step() {
 #ifndef NDEBUG

@@ -1,4 +1,5 @@
 #include "quadtree.h"
+#include "bounding_box.h"
 
 #include <algorithm>  // transform, count_if
 #include <array>

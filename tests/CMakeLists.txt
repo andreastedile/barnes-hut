@@ -2,7 +2,7 @@ add_executable(testlib
         testlib.cpp
         test_quadtree.cpp
         test_force.cpp
-        test_body.cpp
+        test_bounding_box.cpp
         test_serialization.cpp
         test_deserialization.cpp
         test_eigen.cpp
