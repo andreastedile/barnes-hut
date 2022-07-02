@@ -118,7 +118,7 @@ void Node::insert(const Body &new_body) {
             throw std::runtime_error("Reached default case in switch");
         }
 
-        auto aggregate_body = compute_aggregate_body(*children[Node::NW], *children[Node::NW], *children[Node::NW], *children[Node::NW]);
+        auto aggregate_body = compute_aggregate_body(*children[Node::NW], *children[Node::NE], *children[Node::SE], *children[Node::SW]);
         m_data = Fork(std::move(children), n_nodes, std::move(aggregate_body));
       }
     } else {
