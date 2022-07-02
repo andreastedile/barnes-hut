@@ -1,6 +1,7 @@
 #include "../eigen_json.h"
 #include "barnes_hut_simulation_step.h"
 #include "mpi_barnes_hut_simulator.h"
+#include "simulation.h"
 
 namespace bh {
 
@@ -12,7 +13,7 @@ void to_json(json &j, const MpiBarnesHutSimulator &simulator) {
 
   j = json{{"dt", simulator.m_dt},
            {"nSteps", simulator.steps().size()},
-           {"maxBoundingBox", simulator.max_bbox()},
+           {"maxBoundingBox", compute_max_bbox(simulator.steps())},
            {"simulationSteps", steps}};
 }
 

@@ -232,14 +232,13 @@ void MpiBarnesHutSimulator::step() {
     std::cout << "Updating maximum bounding box...\n";
   }
 #endif
-  update_max_bbox(complete_bbox);
 
 #ifndef NDEBUG
   if (m_proc_id == 0) {
     std::cout << "Computing bounding box...\n";
   }
 #endif
-  m_bbox = compute_bounding_box_for_processor(m_max_bbox, m_n_procs, m_proc_id);
+  m_bbox = compute_bounding_box_for_processor(complete_bbox, m_n_procs, m_proc_id);
 
   auto simulation_step = std::make_shared<BarnesHutSimulationStep>(std::move(all_bodies), std::move(complete_bbox), std::move(complete_quadtree));
   if (m_proc_id == 0) {

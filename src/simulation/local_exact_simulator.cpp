@@ -11,8 +11,8 @@
 #include <utility>    // move
 
 #include "body.h"
-#include "bounding_box.h"
 #include "body_update.h"
+#include "bounding_box.h"
 #include "exact_simulation_step.h"
 
 namespace bh {
@@ -41,8 +41,6 @@ void LocalExactSimulator::step() {
   std::cout << "Computing new bounding box...\n";
 #endif
   auto bbox = compute_square_bounding_box(bodies);
-
-  update_max_bbox(bbox);
 
   m_simulation_steps.push_back(std::make_shared<ExactSimulationStep>(std::move(new_bodies), std::move(bbox)));
 }

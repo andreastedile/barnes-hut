@@ -1,7 +1,9 @@
 #include "simulation.h"
 
+#include <execution>
 #include <fstream>  // ifstream
 #include <iostream>
+#include <numeric>    // transform_reduce
 #include <stdexcept>  // runtime_error
 
 #include "node.h"
@@ -36,6 +38,19 @@ std::vector<Body> load(const std::string &filename) {
   return bodies;
 }
 
+AlignedBox2d compute_max_bbox(const std::vector<std::shared_ptr<SimulationStep>> &simulation_steps) {
+  return std::transform_reduce(
+      std::execution::par_unseq,
+      simulation_steps.begin(), simulation_steps.end(),
+      simulation_steps.front()->bbox(),
+      [](const AlignedBox2d &max_so_far, const AlignedBox2d &curr) {
+        return max_so_far.merged(curr);
+      },
+      [](const std::shared_ptr<SimulationStep> &step) {
+        return step->bbox();
+      });
+}
+
 ISimulation::ISimulation(std::shared_ptr<SimulationStep> step_zero, double dt, double G)
     : m_n_bodies{static_cast<int>(step_zero->bodies().size())},
       m_dt{dt},
@@ -44,15 +59,10 @@ ISimulation::ISimulation(std::shared_ptr<SimulationStep> step_zero, double dt, d
 #ifndef NDEBUG
   std::cout << "ISimulation constructor called\n";
 #endif
-  m_max_bbox = m_simulation_steps.back()->bbox();
 }
 
 const std::vector<std::shared_ptr<SimulationStep>> &ISimulation::steps() const {
   return m_simulation_steps;
-}
-
-const AlignedBox2d &ISimulation::max_bbox() const {
-  return m_max_bbox;
 }
 
 void ISimulation::step_continuously(int n_steps) {
@@ -60,28 +70,6 @@ void ISimulation::step_continuously(int n_steps) {
     std::cout << "Step " << i << '\n';
     step();
   }
-}
-
-void ISimulation::update_max_bbox(const AlignedBox2d& bbox) {
-#ifndef NDEBUG
-  if (bbox.min().x() < max_bbox().min().x()) {
-    std::cout << "bounding box min x decreases from " << m_max_bbox.min().x() << " to " << bbox.min().x() << '\n';
-  }
-  if (bbox.min().y() < max_bbox().min().y()) {
-    std::cout << "bounding box min y decreases from " << m_max_bbox.min().y() << " to " << bbox.min().y() << '\n';
-  }
-  if (bbox.max().x() > max_bbox().max().x()) {
-    std::cout << "bounding box max x increases from " << m_max_bbox.max().x() << " to " << bbox.max().x() << '\n';
-  }
-  if (bbox.max().y() > max_bbox().max().y()) {
-    std::cout << "bounding box max y increases from " << m_max_bbox.max().y() << " to " << bbox.max().y() << '\n';
-  }
-#endif
-
-  m_max_bbox.min().x() = std::min(m_max_bbox.min().x(), bbox.min().x());
-  m_max_bbox.min().y() = std::min(m_max_bbox.min().y(), bbox.min().y());
-  m_max_bbox.max().x() = std::max(m_max_bbox.max().x(), bbox.max().x());
-  m_max_bbox.max().y() = std::max(m_max_bbox.max().y(), bbox.max().y());
 }
 
 }  // namespace bh

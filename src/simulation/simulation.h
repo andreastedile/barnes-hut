@@ -25,6 +25,8 @@ namespace bh {
  */
 std::vector<Body> load(const std::string& filename);
 
+AlignedBox2d compute_max_bbox(const std::vector<std::shared_ptr<SimulationStep>>& simulation_steps);
+
 class ISimulation {
  public:
   const int m_n_bodies;
@@ -45,8 +47,6 @@ class ISimulation {
 
   [[nodiscard]] virtual const std::vector<std::shared_ptr<SimulationStep>>& steps() const final;
 
-  [[nodiscard]] virtual const AlignedBox2d& max_bbox() const final;
-
   /**
    * Saves the JSON representation of the simulation to a file
    * @todo maybe it's possible not to require subclasses to implement this,
@@ -55,10 +55,7 @@ class ISimulation {
   virtual void save(const std::string& filename) const = 0;
 
  protected:
-  virtual void update_max_bbox(const AlignedBox2d& bbox) final;
-
   std::vector<std::shared_ptr<SimulationStep>> m_simulation_steps;
-  AlignedBox2d m_max_bbox;
 };
 
 }  // namespace bh

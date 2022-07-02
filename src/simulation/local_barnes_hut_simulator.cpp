@@ -46,8 +46,6 @@ void LocalBarnesHutSimulator::step() {
 #endif
   auto bbox = compute_square_bounding_box(bodies);
 
-  update_max_bbox(bbox);
-
   m_simulation_steps.push_back(std::make_shared<BarnesHutSimulationStep>(std::move(new_bodies), std::move(bbox), std::move(quadtree)));
 }
 
