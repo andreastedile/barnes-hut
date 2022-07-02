@@ -1,5 +1,8 @@
 #include "body.h"
 
+#include <istream>  // istream
+#include <stdexcept>
+#include <string>   // to_string
 #include <utility>  // move
 #ifndef NDEBUG
 #include <iostream>
@@ -7,13 +10,25 @@
 
 namespace bh {
 
-Body::Body() : m_position{0, 0}, m_mass(0) {}
+Body::Body() : m_position{0, 0}, m_mass{0}, m_velocity{0, 0} {}
 
 Body::Body(Vector2d position, double mass)
     : m_position(std::move(position)), m_mass(mass), m_velocity{0, 0} {}
 
 Body::Body(Vector2d position, double mass, Vector2d velocity)
     : m_position(std::move(position)), m_mass(mass), m_velocity(std::move(velocity)) {}
+
+std::istream &operator>>(std::istream &stream, Body &body) {
+  stream >> body.m_position.x();
+  stream >> body.m_position.y();
+  stream >> body.m_mass;
+  if (body.m_mass < 0) {
+    throw std::runtime_error("invalid body mass (read " + std::to_string(body.m_mass) + ", should be non-negative)");
+  }
+  stream >> body.m_velocity.x();
+  stream >> body.m_velocity.y();
+  return stream;
+}
 
 #ifdef DEBUG_CONSTRUCTOR_AND_ASSIGNMENT_OPERATORS
 
