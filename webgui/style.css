@@ -56,3 +56,16 @@ div#welcome-wrapper img {
     width: 100px;
     opacity: 60%;
 }
+
+div#options {
+    position: fixed;
+    top: 20px;
+    left: 10px;
+    background-color: beige;
+    padding: 10px;
+    border-radius: 3px;
+}
+
+input#sleep {
+    width: 70px;
+}

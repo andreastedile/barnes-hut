@@ -3,10 +3,20 @@ var ROOT_MinY;
 var ROOT_Width;
 var ROOT_Height;
 
+var SLEEP_Time = 0.2;
+var USEMAX_Bbox = true;
+
+var SVG_Width;
+var SVG_Height;
+
 function removeHeadings() {
     console.log("Remove headings");
     d3.select("#welcome-wrapper").remove();
     d3.select("#title").remove();
+}
+
+function showOptions() {
+    document.getElementById("options").style.display = "block";
 }
 
 function setupMaxBbox(rootBbox) {
@@ -22,22 +32,33 @@ function setupMaxBbox(rootBbox) {
     ROOT_Height = rootHeight;
 }
 
+function setupSVGSize() {
+    SVG_Width = window.innerWidth;
+    SVG_Height = window.innerHeight;
+}
+
 /**
  * Produces the SVG from a quadtree
  */
 function quadtreeToSvg(quadtree) {
     const svg = d3.create("svg");
 
+    // get the viewbox size based on USEMAX flag
+    let rootX = (USEMAX_Bbox) ? ROOT_MinX : quadtree.boundingBox.bottomLeft.x;
+    let rootY = (USEMAX_Bbox) ? ROOT_MinY : quadtree.boundingBox.bottomLeft.y;
+    let rootW = (USEMAX_Bbox) ? ROOT_Width : quadtree.boundingBox.topRight.x - quadtree.boundingBox.bottomLeft.x;
+    let rootH = (USEMAX_Bbox) ? ROOT_Height : quadtree.boundingBox.topRight.y - quadtree.boundingBox.bottomLeft.y;
+
     // https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/viewBox
-    svg.attr("viewBox", `${ROOT_MinX} ${ROOT_MinY} ${ROOT_Width} ${ROOT_Height}`)
-        .attr("width", window.innerWidth)
-        .attr("height", window.innerHeight);
+    svg.attr("viewBox", `${rootX} ${rootY} ${rootW} ${rootH}`)
+        .attr("width", SVG_Width)
+        .attr("height", SVG_Height);
 
     svg.append("rect")
-        .attr("x", ROOT_MinX)
-        .attr("y", ROOT_MinY)
-        .attr("width", ROOT_Width)
-        .attr("height", ROOT_Height)
+        .attr("x", rootX)
+        .attr("y", rootY)
+        .attr("width", rootW)
+        .attr("height", rootH)
         .style("stroke-width", "1")
         .style("stroke", "blue")
         .style("opacity", "0.05")
@@ -72,7 +93,7 @@ function quadtreeToSvg(quadtree) {
             nodes_to_process.push(node.fork.nw, node.fork.ne, node.fork.se, node.fork.sw);
         } else if (node.leaf.body) {
             body = node.leaf.body;
-            const CIRCLE_RADIUS = (ROOT_Width / 100) * body.mass;
+            const CIRCLE_RADIUS = rootW / 300;//(ROOT_Width / 100) * body.mass;
             svg.append("circle")
                 .style("vector-effect", "non-scaling-stroke")
                 .attr("cx", body.position.x)
@@ -103,7 +124,10 @@ async function parseJSON(file) {
     });
 }
 
-const sleep = (secs) => new Promise((res) => setTimeout(res, secs * 1000));
+const sleep = (secs) => new Promise((res) => {
+    console.log("sleeping... " + secs);
+    setTimeout(res, secs * 1000)
+});
 
 async function loadSimulation(input) {
     const file = input.files[0];
@@ -114,6 +138,7 @@ async function loadSimulation(input) {
     if (nSteps === 0) return;
 
     setupMaxBbox(json.maxBoundingBox);
+    setupSVGSize();
 
     for (let i = 1; i < nSteps; i++) {
         console.log("Step " + i);
@@ -126,6 +151,27 @@ async function loadSimulation(input) {
         // Set the new quadtree svg
         d3.select("#svg-wrapper").append(() => quadtreeToSvg(quadtree).node());
 
-        await sleep(0.2);
+        if (SLEEP_Time > 0) {
+            await sleep(SLEEP_Time);
+        }
     }
+}
+
+function toggleViewbox(input) {
+    console.log("toggling viewbox!", input.checked);
+    if (input.checked) {
+        USEMAX_Bbox = true;
+    } else {
+        USEMAX_Bbox = false;
+    }
+}
+
+function updateSleep(input) {
+    if (input.value < 0) {
+        input.value = 0;
+    } else if (input.value > 500) {
+        input.value = 500;
+    }
+    console.log("updating sleep!", input.value);
+    SLEEP_Time = input.value / 1000;
 }

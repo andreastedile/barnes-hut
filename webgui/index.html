@@ -8,8 +8,15 @@
 </head>
 <body>
 <h1 id="title">View a Barnes–Hut simulation</h1>
-<input type="file" id="file-selector" onchange="removeHeadings(); loadSimulation(this)" accept=".json"
+<input type="file" id="file-selector" onchange="removeHeadings(); showOptions(); loadSimulation(this)" accept=".json"
        style="display: none;">
+<div id="options" style="display: none">
+    <input type="checkbox" id="view-box" name="view-box" value="Max" checked onchange="toggleViewbox(this)">
+    <label for="view-box">use max viewbox as viewbox</label><br><br>
+
+    <input type="number" id="sleep" name="sleep" min="0" max="500" value="200" onchange="updateSleep(this)">
+    <label for="sleep">sleep time(ms)(0-500)</label>
+</div>
 <div id="welcome-wrapper">
     <input type="button" id="file-cover" value="Upload JSON..."
            onclick="document.getElementById('file-selector').click();"/>
