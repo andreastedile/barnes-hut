@@ -9,35 +9,35 @@ using Eigen::Vector2d;
 namespace bh {
 
 AlignedBox2d compute_minimum_bounding_box(const std::vector<Body> &bodies) {
-  if (bodies.size() < 2) {
-    throw std::invalid_argument(
-        "cannot compute the minimum bounding box for less than two bodies");
+  if (bodies.empty()) {
+    return {Vector2d{0, 0}, Vector2d{0, 0}};
+  } else if (bodies.size() == 1) {
+    return {bodies[0].m_position, bodies[0].m_position};
+  } else {
+    // Compute the (typically rectangular) bounding box containing all bodies
+    auto bottom_left = std::transform_reduce(
+        std::execution::par_unseq,
+        bodies.begin(), bodies.end(),
+        Vector2d(std::numeric_limits<double>::max(), std::numeric_limits<double>::max()),
+        [](const Vector2d &bottom_left, const Vector2d &body) -> Vector2d {
+          return {std::min(bottom_left.x(), body.x()), std::min(bottom_left.y(), body.y())};
+        },
+        [](const Body &body) {
+          return body.m_position;
+        });
+    auto top_right = std::transform_reduce(
+        std::execution::par_unseq,
+        bodies.begin(), bodies.end(),
+        Vector2d(std::numeric_limits<double>::lowest(), std::numeric_limits<double>::lowest()),
+        [](const Vector2d &top_right, const Vector2d &body) -> Vector2d {
+          return {std::max(top_right.x(), body.x()), std::max(top_right.y(), body.y())};
+        },
+        [](const Body &body) {
+          return body.m_position;
+        });
+
+    return {bottom_left, top_right};
   }
-
-  // Compute the rectangular bounding box containing all bodies
-  Vector2d bottom_left = std::transform_reduce(
-      std::execution::par_unseq, bodies.begin(), bodies.end(),
-      // Vector2d(Eigen::Infinity, Eigen::Infinity), // does not work
-      Vector2d(std::numeric_limits<double>::max(),
-               std::numeric_limits<double>::max()),
-      [](const Vector2d &bottom_left, const Vector2d &body) {
-        return Vector2d(std::min(bottom_left.x(), body.x()),
-                        std::min(bottom_left.y(), body.y()));
-      },
-      [](const Body &body) { return body.m_position; });
-  Vector2d top_right = std::transform_reduce(
-      std::execution::par_unseq, bodies.begin(), bodies.end(),
-      // // Vector2d(Eigen::Infinity, Eigen::Infinity), // does not work
-      // https://stackoverflow.com/a/39648441/15255146
-      Vector2d(std::numeric_limits<double>::lowest(),
-               std::numeric_limits<double>::lowest()),
-      [](const Vector2d &top_right, const Vector2d &body) {
-        return Vector2d(std::max(top_right.x(), body.x()),
-                        std::max(top_right.y(), body.y()));
-      },
-      [](const Body &body) { return body.m_position; });
-
-  return {bottom_left, top_right};
 }
 
 AlignedBox2d compute_square_bounding_box(const std::vector<Body> &bodies) {
