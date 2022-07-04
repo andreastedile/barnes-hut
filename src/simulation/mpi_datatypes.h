@@ -9,9 +9,11 @@ namespace bh::mpi {
 
 typedef struct Body final {
   Body() = default;
-  Body(double position_x, double position_y, double mass);
+  Body(double position_x, double position_y, double velocity_x, double velocity_y, double mass);
   double position_x;
   double position_y;
+  double velocity_x;
+  double velocity_y;
   double mass;
 } Body;
 

@@ -2,9 +2,9 @@
 
 namespace bh::mpi {
 
-Body::Body(double position_x, double position_y,
+Body::Body(double position_x, double position_y, double velocity_x, double velocity_y,
            double mass)
-    : position_x(position_x), position_y(position_y), mass(mass) {}
+    : position_x(position_x), position_y(position_y), velocity_x(velocity_x), velocity_y(velocity_y), mass(mass) {}
 
 Node::Fork::Fork(const int children[4], int n_nodes, const AggregateBody& aggregate_body)
     : children{children[bh::Node::NW], children[bh::Node::NE], children[bh::Node::SE], children[bh::Node::SW]},

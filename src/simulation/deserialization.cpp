@@ -49,7 +49,7 @@ std::unique_ptr<Node> deserialize_quadtree(const std::vector<mpi::Node> &nodes) 
 }
 
 Body deserialize(const mpi::Body &body) {
-  return {Vector2d{body.position_x, body.position_y}, body.mass};
+  return {Vector2d{body.position_x, body.position_y}, body.mass, Vector2d{body.velocity_x, body.velocity_y}};
 }
 
 std::vector<Body> deserialize(const std::vector<mpi::Body> &bodies) {

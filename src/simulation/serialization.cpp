@@ -50,7 +50,7 @@ std::vector<mpi::Node> serialize(const Node& node) {
 }
 
 mpi::Body serialize(const Body& body) {
-  return {body.m_position.x(), body.m_position.y(), body.m_mass};
+  return {body.m_position.x(), body.m_position.y(), body.m_velocity.x(), body.m_velocity.y(), body.m_mass};
 }
 
 std::vector<mpi::Body> serialize(const std::vector<Body>& bodies) {

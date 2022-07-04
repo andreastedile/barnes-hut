@@ -26,11 +26,11 @@ using Eigen::Vector2d;
 
 namespace bh {
 
-std::vector<Body> filter_bodies_by_subquadrant(const std::vector<Body>& bodies, const AlignedBox2d& bbox) {
+std::vector<Body> filter_bodies_by_subquadrant(const std::vector<Body>& bodies, const AlignedBox2d& bbox, AlignedBox2d total_bbox) {
   std::vector<Body> filtered;
-  std::copy_if(bodies.begin(), bodies.end(), std::back_inserter(filtered), [&bbox](const Body& body) {
-    return body.m_position.x() >= bbox.min().x() && body.m_position.x() < bbox.max().x() &&
-           body.m_position.y() >= bbox.min().y() && body.m_position.y() < bbox.max().y();
+  std::copy_if(bodies.begin(), bodies.end(), std::back_inserter(filtered), [&bbox, &total_bbox](const Body& body) {
+    return body.m_position.x() >= bbox.min().x() && ((body.m_position.x() < bbox.max().x() && bbox.max().x() < total_bbox.max().x()) || (body.m_position.x() <= bbox.max().x() && bbox.max().x() == total_bbox.max().x())) &&
+           body.m_position.y() >= bbox.min().y() && ((body.m_position.y() < bbox.max().y() && bbox.max().y() < total_bbox.max().y()) || (body.m_position.y() <= bbox.max().y() && bbox.max().y() == total_bbox.max().y()));
   });
   return filtered;
 }
@@ -83,7 +83,7 @@ std::pair<std::vector<mpi::Node>, std::vector<int>> gather_quadtree_branches(int
 
   // contains the number of bytes that are to be received from each process
   std::vector<int> recv_n_bytes(recv_n_nodes);
-  std::transform(recv_n_nodes.begin(), recv_n_nodes.end(), recv_n_bytes.begin(), [](const auto n_nodes) { return n_nodes * sizeof(mpi::Node); });
+  std::transform(recv_n_nodes.begin(), recv_n_nodes.end(), recv_n_bytes.begin(), [](const auto n_nodes) -> int { return n_nodes * sizeof(mpi::Node); });
 
   // entry i specifies the displacement (relative to recvbuf) at which to place the incoming data from process i
   std::vector<int> displ(n_procs);
@@ -105,7 +105,7 @@ std::vector<mpi::Body> gather_bodies(int n_procs, int proc_id,
 
   // entry i specifies the displacement (relative to recvbuf) at which to place the incoming data from process i
   std::vector<int> displ(n_procs);
-  std::partial_sum(recv_n_bytes.begin(), recv_n_bytes.end(), displ.begin() +1, std::plus<>());
+  std::partial_sum(recv_n_bytes.begin(), recv_n_bytes.end(), displ.begin() + 1, std::plus<>());
 
   std::vector<mpi::Body> branches(total_n_bodies);
   MPI_Allgatherv(&my_bodies[0], recv_n_bytes[proc_id], MPI_BYTE, &branches[0], &recv_n_bytes[0], &displ[0], MPI_BYTE, MPI_COMM_WORLD);
@@ -146,7 +146,7 @@ void MpiBarnesHutSimulator::step() {
     std::cout << "Filtering bodies...\n";
   }
 #endif
-  const auto filtered_bodies = filter_bodies_by_subquadrant(m_simulation_steps.back()->bodies(), m_bbox);
+  const auto filtered_bodies = filter_bodies_by_subquadrant(m_simulation_steps.back()->bodies(), m_bbox, m_simulation_steps.back()->bbox());
 
 #ifndef NDEBUG
   if (m_proc_id == 0) {
@@ -189,7 +189,7 @@ void MpiBarnesHutSimulator::step() {
   }
 #endif
   int my_n_bodies = m_recv_n_bodies[m_proc_id];
-  std::vector<Body> my_new_bodies(m_n_bodies);
+  std::vector<Body> my_new_bodies(my_n_bodies);
   int idx_from = std::accumulate(m_recv_n_bodies.begin(), m_recv_n_bodies.begin() + m_proc_id, 0);
   std::transform(std::execution::par_unseq,
                  m_simulation_steps.back()->bodies().begin() + idx_from,
