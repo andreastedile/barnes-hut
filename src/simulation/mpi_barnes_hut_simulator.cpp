@@ -78,7 +78,7 @@ std::pair<std::vector<mpi::Node>, std::vector<int>> gather_quadtree_branches(int
   // contains the number of nodes that are to be received from each process
   std::vector<int> recv_n_nodes(n_procs);
   auto my_n_nodes = static_cast<int>(my_branch.size());
-  MPI_Allgather(&my_n_nodes, 1, MPI_INT, &recv_n_nodes, 1, MPI_INT, MPI_COMM_WORLD);
+  MPI_Allgather(&my_n_nodes, 1, MPI_INT, &recv_n_nodes[0], 1, MPI_INT, MPI_COMM_WORLD);
   int total_n_nodes = std::accumulate(recv_n_nodes.begin(), recv_n_nodes.end(), 0, std::plus<>());
 
   // contains the number of bytes that are to be received from each process
@@ -87,7 +87,7 @@ std::pair<std::vector<mpi::Node>, std::vector<int>> gather_quadtree_branches(int
 
   // entry i specifies the displacement (relative to recvbuf) at which to place the incoming data from process i
   std::vector<int> displ(n_procs);
-  std::partial_sum(recv_n_bytes.begin(), recv_n_bytes.end(), displ.begin(), std::plus<>());
+  std::partial_sum(recv_n_bytes.begin(), recv_n_bytes.end(), displ.begin() + 1, std::plus<>());
 
   std::vector<mpi::Node> branches(total_n_nodes);
   MPI_Allgatherv(&my_branch[0], recv_n_bytes[proc_id], MPI_BYTE, &branches[0], &recv_n_bytes[0], &displ[0], MPI_BYTE, MPI_COMM_WORLD);
