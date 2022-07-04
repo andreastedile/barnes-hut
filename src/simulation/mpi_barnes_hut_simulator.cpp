@@ -105,7 +105,7 @@ std::vector<mpi::Body> gather_bodies(int n_procs, int proc_id,
 
   // entry i specifies the displacement (relative to recvbuf) at which to place the incoming data from process i
   std::vector<int> displ(n_procs);
-  std::partial_sum(recv_n_bytes.begin(), recv_n_bytes.end(), displ.begin(), std::plus<>());
+  std::partial_sum(recv_n_bytes.begin(), recv_n_bytes.end(), displ.begin() +1, std::plus<>());
 
   std::vector<mpi::Body> branches(total_n_bodies);
   MPI_Allgatherv(&my_bodies[0], recv_n_bytes[proc_id], MPI_BYTE, &branches[0], &recv_n_bytes[0], &displ[0], MPI_BYTE, MPI_COMM_WORLD);
