@@ -108,5 +108,9 @@ int main(int argc, char* argv[]) {
     simulator->save(*output);
   }
 
+  if (type == "mpi-barnes-hut") {
+    MPI_Finalize();
+  }
+
   return 0;
 }
