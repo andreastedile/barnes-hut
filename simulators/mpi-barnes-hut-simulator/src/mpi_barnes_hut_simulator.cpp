@@ -16,8 +16,6 @@
 
 namespace bh {
 
-std::vector<Body> filter_bodies_by_subquadrant(const std::vector<Body>& bodies, const Eigen::AlignedBox2d& outer_bbox, const Eigen::AlignedBox2d& bbox);
-
 MpiBarnesHutSimulator::MpiBarnesHutSimulator(double dt, double G, double theta, std::vector<Body> initial_bodies, int proc_id, int n_procs)
     : ISteppable(dt, {std::move(initial_bodies), compute_square_bounding_box(initial_bodies)}),
       IPhysics(G),

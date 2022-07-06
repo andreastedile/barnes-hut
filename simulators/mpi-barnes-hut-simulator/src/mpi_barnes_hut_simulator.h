@@ -22,6 +22,8 @@ class MpiBarnesHutSimulator final : public ISteppable<BarnesHutSimulationStep>, 
   BarnesHutSimulationStep step_impl(const BarnesHutSimulationStep& last_step) override;
 };
 
+std::vector<Body> filter_bodies_by_subquadrant(const std::vector<Body>& bodies, const Eigen::AlignedBox2d& outer_bbox, const Eigen::AlignedBox2d& own_bbox);
+
 Eigen::AlignedBox2d compute_bounding_box_for_processor(const Eigen::AlignedBox2d& outer_bbox, int proc_id, int n_procs);
 
 }  // namespace bh
