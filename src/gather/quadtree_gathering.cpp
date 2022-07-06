@@ -35,7 +35,7 @@ std::unique_ptr<Node> gather_quadtree(int proc_id, int n_procs, const Node& my_q
 
   MPI_Allgatherv(&my_serialized_quadtree[0], recv_n_bytes[proc_id], MPI_BYTE, &all_serialized_quadtrees[0], &recv_n_bytes[0], &displacements[0], MPI_BYTE, MPI_COMM_WORLD);
 
-  auto grid = deserialize_quadtrees(all_serialized_quadtrees, recv_n_nodes);
+  auto grid = deserialize_quadtrees(n_procs, all_serialized_quadtrees, recv_n_nodes);
 
   return reconstruct_quadtree(grid);
 }

@@ -48,9 +48,8 @@ std::unique_ptr<Node> deserialize_quadtree(const std::vector<mpi::Node> &nodes) 
   return deserialize_quadtree_impl(nodes, 0);
 }
 
-QuadtreeGrid deserialize_quadtrees(const std::vector<mpi::Node> &quadtrees, const std::vector<int> &n_nodes) {
-  const int N_SUBQUADRANTS = static_cast<int>(quadtrees.size());
-  const int N_ROWS = static_cast<int>(std::sqrt(N_SUBQUADRANTS));
+QuadtreeGrid deserialize_quadtrees(int n_procs, const std::vector<mpi::Node> &quadtrees, const std::vector<int> &n_nodes) {
+  const int N_ROWS = static_cast<int>(std::sqrt(n_procs));
   const int N_COLS = N_ROWS;
 
   QuadtreeGrid matrix(N_ROWS);
@@ -58,7 +57,7 @@ QuadtreeGrid deserialize_quadtrees(const std::vector<mpi::Node> &quadtrees, cons
     matrix[i].resize(N_COLS);
   }
 
-  std::vector<int> displacements(N_SUBQUADRANTS);
+  std::vector<int> displacements(n_procs);
   std::partial_sum(n_nodes.begin(), n_nodes.end(),
                    displacements.begin() + 1,  // first displacement will be 0
                    std::plus<>());
