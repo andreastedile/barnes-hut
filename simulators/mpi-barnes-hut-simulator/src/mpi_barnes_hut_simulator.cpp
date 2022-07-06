@@ -36,7 +36,7 @@ BarnesHutSimulationStep MpiBarnesHutSimulator::step_impl(const BarnesHutSimulati
   }
 #endif
   const auto filtered_bodies = filter_bodies_by_subquadrant(last_step.bodies(), last_step.bbox(), my_bbox);
-  
+
 #ifndef NDEBUG
   std::puts("Constructing quadtree...");
 #endif
@@ -60,13 +60,8 @@ BarnesHutSimulationStep MpiBarnesHutSimulator::step_impl(const BarnesHutSimulati
   const int n_remaining_bodies = total_n_bodies % n_procs;
   const int n_bodies_to_compute = (total_n_bodies / n_procs) + (proc_id < n_remaining_bodies);
 
-  int bodies_before_me = 0;
-  for (int i = 0; i < proc_id; i++) {
-    bodies_before_me += ((total_n_bodies / n_procs) + (i < n_remaining_bodies));
-  }
-  const int idx_from = bodies_before_me;
-
   std::vector<Body> my_new_bodies(n_bodies_to_compute);
+  const int idx_from = proc_id == 0 ? 0 : (proc_id - 1) * (total_n_bodies / n_procs) + std::min(proc_id - 1, n_remaining_bodies);
   std::transform(std::execution::par_unseq,
                  last_step.bodies().begin() + idx_from, last_step.bodies().begin() + idx_from + n_bodies_to_compute,
                  my_new_bodies.begin(),
