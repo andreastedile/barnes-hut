@@ -64,10 +64,11 @@ int main(int argc, char* argv[]) {
   for (int i = 0; i < app.get<int>("steps"); i++) {
     const auto& step = simulator.step();
 
-    if (output) {
+    if (output && proc_id == 0) {
       nlohmann::json j = step;
-      std::fstream o(*output + std::to_string(i));
+      std::ofstream o(output.value() + std::to_string(i) + ".json");
       o << j;
+      o.close();
     }
   }
 
