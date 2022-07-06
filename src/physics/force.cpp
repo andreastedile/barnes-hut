@@ -1,6 +1,10 @@
 #include <execution>  // par_unseq
 #include <numeric>    // accumulate, transform_reduce
 #include <variant>    // visit
+#ifdef DEBUG_COMPUTE_GRAVITATIONAL_FORCE
+#include <iostream>
+#endif
+#include <cmath>
 
 #include "../quadtree/node.h"
 
@@ -21,6 +25,13 @@ Eigen::Vector2d compute_gravitational_force(const Body& b1, const Body& b2, doub
     double angle = std::atan2(direction_v.y(), direction_v.x());
     double fx = std::cos(angle) * magnitude;
     double fy = std::sin(angle) * magnitude;
+#ifdef DEBUG_COMPUTE_GRAVITATIONAL_FORCE
+    std::cout << "distance: " << distance << '\n';
+    std::cout << "magnitude: " << magnitude << '\n';
+    std::cout << "angle: " << angle << '\n';
+    std::cout << "fx: " << fx << '\n';
+    std::cout << "fy: " << fy << '\n';
+#endif
     return {fx, fy};
   } else {
     return {0, 0};
