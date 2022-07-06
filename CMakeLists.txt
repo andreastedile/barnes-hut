@@ -14,7 +14,8 @@ find_package(Eigen3 3.3 REQUIRED NO_MODULE)
 # https://json.nlohmann.me/integration/cmake/
 find_package(nlohmann_json 3.10.5 REQUIRED)
 
-find_package(Catch2 REQUIRED)
+#https://github.com/catchorg/Catch2/blob/devel/docs/cmake-integration.md
+find_package(Catch2 3 REQUIRED)
 
 # https://github.com/oneapi-src/oneTBB/blob/master/cmake/README.md#tbbconfig---integration-of-binary-packages
 find_package(TBB REQUIRED)
@@ -29,5 +30,5 @@ if (iwyu_path)
 endif ()
 
 add_subdirectory(src)
-#add_subdirectory(tests)
+add_subdirectory(tests)
 add_subdirectory(simulators)
