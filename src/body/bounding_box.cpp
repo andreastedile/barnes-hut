@@ -53,7 +53,7 @@ Eigen::AlignedBox2d compute_square_bounding_box(const std::vector<Body> &bodies)
     min_bbox.max() += Vector2d(diff / 2, 0);
   } else if (min_bbox.min() == min_bbox.max()) {
     // bounding box degenerated to a point
-    min_bbox.min() += Vector2d(-0.5, -0.5);
+    min_bbox.min() -= Vector2d(0.5, 0.5);
     min_bbox.max() += Vector2d(0.5, 0.5);
   }
 
