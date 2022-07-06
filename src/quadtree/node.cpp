@@ -1,5 +1,7 @@
 #include "node.h"
 
+#include <string>
+
 // https://en.cppreference.com/w/cpp/utility/variant/visit
 template <class... Ts>
 struct overloaded : Ts... {
@@ -35,10 +37,13 @@ Node::Fork::Fork(std::array<std::unique_ptr<Node>, 4> children, int n_nodes, Agg
 
 Node::Node(const Eigen::Vector2d &bottom_left, const Eigen::Vector2d &top_right)
     : m_data(Leaf()), m_box(bottom_left, top_right) {
-  Eigen::Vector2d top_left(bottom_left.x(), top_right.y());
-  Eigen::Vector2d bottom_right(top_right.x(), bottom_left.y());
-  if ((top_left - bottom_left).norm() != (bottom_right - bottom_left).norm()) {
-    throw std::invalid_argument("Cannot create a non-square subquadrant");
+  if (m_box.sizes().x() != m_box.sizes().y()) {
+    // clang-format off
+    throw std::invalid_argument("Cannot create a non-square subquadrant. The following arguments were provided:\n"
+        "min: (" + std::to_string(bottom_left.x()) + ", " + std::to_string(bottom_left.y()) + "),\n"
+        "max: (" + std::to_string(top_right.x()) + ", " + std::to_string(top_right.y()) + "),\n"
+        "length: " + std::to_string(m_box.sizes().x()) + ", height: " + std::to_string(m_box.sizes().y()));
+    // clang-format on
   }
 }
 
