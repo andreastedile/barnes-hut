@@ -64,7 +64,12 @@ BarnesHutSimulationStep MpiBarnesHutSimulator::step_impl(const BarnesHutSimulati
   const int n_remaining_bodies = total_n_bodies % n_procs;
   const int n_bodies_to_compute = (total_n_bodies / n_procs) + (proc_id < n_remaining_bodies);
 
-  const int idx_from = (total_n_bodies / n_procs) + std::min(proc_id, n_remaining_bodies);
+  int bodies_before_me = 0;
+  for (int i = 0; i < proc_id; i++) {
+    bodies_before_me += ((total_n_bodies / n_procs) + (i < n_remaining_bodies));
+  }
+  const int idx_from = bodies_before_me;
+
   std::vector<Body> my_new_bodies(n_bodies_to_compute);
   std::transform(std::execution::par_unseq,
                  last_step.bodies().begin() + idx_from, last_step.bodies().begin() + idx_from + n_bodies_to_compute,
@@ -91,19 +96,23 @@ std::vector<Body> filter_bodies_by_subquadrant(const std::vector<Body>& bodies, 
     const bool body_at_right_of_own_bbox_left_side_inclusive = body.m_position.x() >= own_bbox.min().x();
 
     const bool body_at_left_of_own_bbox_right_side_exclusive = body.m_position.x() < own_bbox.max().x();
+    const bool body_at_left_of_own_bbox_right_side_inclusive = body.m_position.x() <= own_bbox.max().x();
 
     const bool body_above_of_own_bbox_bottom_side_inclusive = body.m_position.y() >= own_bbox.min().y();
 
     const bool body_below_of_own_bbox_top_side_exclusive = body.m_position.y() < own_bbox.max().y();
+    const bool body_below_of_own_bbox_top_side_inclusive = body.m_position.y() <= own_bbox.max().y();
 
     const bool own_bbox_top_side_lies_on_outer_bbox_top_side = own_bbox.max().y() == outer_bbox.max().y();
 
     const bool own_bbox_right_side_lies_on_outer_bbox_right_side = own_bbox.max().x() == outer_bbox.max().x();
 
     return body_at_right_of_own_bbox_left_side_inclusive &&
-           (body_at_left_of_own_bbox_right_side_exclusive || own_bbox_right_side_lies_on_outer_bbox_right_side) &&
+           ((body_at_left_of_own_bbox_right_side_exclusive && !own_bbox_right_side_lies_on_outer_bbox_right_side) ||
+            (body_at_left_of_own_bbox_right_side_inclusive && own_bbox_right_side_lies_on_outer_bbox_right_side)) &&
            body_above_of_own_bbox_bottom_side_inclusive &&
-           (body_below_of_own_bbox_top_side_exclusive || own_bbox_top_side_lies_on_outer_bbox_top_side);
+           ((body_below_of_own_bbox_top_side_exclusive && !own_bbox_top_side_lies_on_outer_bbox_top_side) ||
+            (body_below_of_own_bbox_top_side_inclusive && own_bbox_top_side_lies_on_outer_bbox_top_side));
   });
   return filtered;
 }
