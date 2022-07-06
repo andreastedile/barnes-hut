@@ -1,14 +1,16 @@
 #include <mpi.h>
+#include <tbb/task_scheduler_init.h>
 
 #include <argparse/argparse.hpp>
 #include <fstream>
+#include <iostream>
+#include <stdexcept>
 #include <string>
 #include <utility>
-#include <stdexcept>
 
 #include "loader.h"
-#include "src/mpi_barnes_hut_simulator.h"
 #include "power_of_four.h"
+#include "src/mpi_barnes_hut_simulator.h"
 
 int main(int argc, char* argv[]) {
   argparse::ArgumentParser app("Barnes–Hut simulation");
@@ -33,6 +35,9 @@ int main(int argc, char* argv[]) {
       .help("specify the barnes–hut theta");
   app.add_argument("-output")
       .help("specify the output filename");
+  app.add_argument("-threads")
+      .scan<'d', int>()
+      .help("specify the number of threads");
 
   try {
     app.parse_args(argc, argv);
@@ -41,7 +46,13 @@ int main(int argc, char* argv[]) {
     std::exit(1);
   }
 
+  if (auto threads = app.present<int>("threads")) {
+    std::cout << "Selected " << *threads << " threads\n";
+    tbb::task_scheduler_init init(*threads);
+  }
+
   MPI_Init(nullptr, nullptr);
+
 
   int proc_id, n_procs;
   MPI_Comm_rank(MPI_COMM_WORLD, &proc_id);
