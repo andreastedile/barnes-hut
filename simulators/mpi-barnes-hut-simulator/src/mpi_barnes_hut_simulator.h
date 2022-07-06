@@ -22,6 +22,8 @@ class MpiBarnesHutSimulator final : public ISteppable<BarnesHutSimulationStep>, 
   BarnesHutSimulationStep step_impl(const BarnesHutSimulationStep& last_step) override;
 };
 
+Eigen::AlignedBox2d compute_bounding_box_for_processor(const Eigen::AlignedBox2d& outer_bbox, int proc_id, int n_procs);
+
 }  // namespace bh
 
 #endif  // MPI_BARNES_HUT_SIMULATOR_H
