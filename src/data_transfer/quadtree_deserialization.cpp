@@ -44,8 +44,12 @@ std::unique_ptr<Node> deserialize_quadtree_impl(const std::vector<mpi::Node> &no
   }
 }
 
-std::unique_ptr<Node> deserialize_quadtree(const mpi::Node &node) {
-  return deserialize_quadtree_impl({node}, 0);
+std::unique_ptr<Node> deserialize_quadtree_node(const mpi::Node &quadtree_node) {
+  return deserialize_quadtree_impl({quadtree_node}, 0);
+}
+
+std::unique_ptr<Node> deserialize_quadtree(const std::vector<mpi::Node> &quadtree_nodes) {
+  return deserialize_quadtree_impl(quadtree_nodes, 0);
 }
 
 QuadtreeGrid deserialize_quadtrees(int n_procs, const std::vector<mpi::Node> &quadtrees, const std::vector<int> &n_nodes) {
@@ -67,7 +71,7 @@ QuadtreeGrid deserialize_quadtrees(int n_procs, const std::vector<mpi::Node> &qu
       const int idx_from = displacements[i * N_COLS + j];
       const int n_nodes_in_branch = n_nodes[i * N_COLS + j];
       const std::vector<mpi::Node> branch{quadtrees.begin() + idx_from, quadtrees.begin() + idx_from + n_nodes_in_branch};
-      matrix[i][j] = deserialize_quadtree_impl(branch, 0);
+      matrix[i][j] = deserialize_quadtree(branch);
     }
   }
 

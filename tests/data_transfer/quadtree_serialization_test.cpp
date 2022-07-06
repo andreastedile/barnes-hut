@@ -1,43 +1,32 @@
-#include <catch2/catch.hpp>
+#include "quadtree_serialization.h"
 
-#include "node.h"
-#include "serialization.h"
+#include <catch2/catch_test_macros.hpp>
 
-using namespace bh;
+SCENARIO("Serialize a quadtree with a single node") {
+  GIVEN("An empty quadtree") {
+    auto quadtree = bh::Node({0, 0}, {10, 10});
+    auto serialized = bh::serialize_quadtree(quadtree);
 
-TEST_CASE("serialize_quadtree an empty quadtree") {
-  Node quadtree({0, 0}, {10, 10});
-  auto serialized = serialize(quadtree);
-  REQUIRE(serialized.size() == 1);
-  const auto& node = serialized[0];
-  REQUIRE(node.bottom_left_x == 0);
-  REQUIRE(node.bottom_left_y == 0);
-  REQUIRE(node.top_right_x == 10);
-  REQUIRE(node.top_right_y == 10);
-  REQUIRE(node.type == bh::mpi::Node::LeafType);
-  REQUIRE_FALSE(node.data.leaf.has_value);
-}
+    REQUIRE(serialized.size() == 1);
+    REQUIRE(serialized[0].bottom_left_x == 0);
+    REQUIRE(serialized[0].bottom_left_y == 0);
+    REQUIRE(serialized[0].top_right_x == 10);
+    REQUIRE(serialized[0].top_right_y == 10);
+    REQUIRE(serialized[0].type == bh::mpi::Node::LeafType);
+    REQUIRE_FALSE(serialized[0].data.leaf.has_value);
 
-TEST_CASE("serialize_quadtree a quadtree with single node") {
-  Node quadtree({0, 0}, {10, 10});
-  quadtree.insert({{7.5, 7.5}, 0.25});
-  auto serialized = serialize(quadtree);
-  REQUIRE(serialized.size() == 1);
-  const auto& node = serialized[0];
-  REQUIRE(node.bottom_left_x == 0);
-  REQUIRE(node.bottom_left_y == 0);
-  REQUIRE(node.top_right_x == 10);
-  REQUIRE(node.top_right_y == 10);
-  REQUIRE(node.type == bh::mpi::Node::LeafType);
-  REQUIRE(node.data.leaf.has_value);
-  REQUIRE(node.data.leaf.body.position_x == 7.5);
-  REQUIRE(node.data.leaf.body.position_y == 7.5);
-  REQUIRE(node.data.leaf.body.mass == 0.25);
+    WHEN("A body is inserted") {
+      quadtree.insert({{7.5, 7.5}, 0.25});
+      serialized = bh::serialize_quadtree(quadtree);
+
+      REQUIRE(serialized[0].data.leaf.has_value);
+    }
+  }
 }
 
 // https://www.desmos.com/calculator/wpyi6tikb2?lang=it
-TEST_CASE("serialize_quadtree complex quadtree") {
-  Node quadtree({0, 0}, {10, 10});
+TEST_CASE("Serialize a complex quadtree") {
+  auto quadtree = bh::Node({0, 0}, {10, 10});
   quadtree.insert({{0, 0}, 0.25});
   quadtree.insert({{2, 2}, 0.25});
   quadtree.insert({{4, 4}, 0.25});
@@ -45,7 +34,8 @@ TEST_CASE("serialize_quadtree complex quadtree") {
   quadtree.insert({{8, 8}, 0.25});
   quadtree.insert({{10, 10}, 0.25});
 
-  auto serialized = serialize(quadtree);
+  const auto serialized = bh::serialize_quadtree(quadtree);
+
   REQUIRE(serialized.size() == 21);
 
   REQUIRE(serialized[0].type == bh::mpi::Node::ForkType);

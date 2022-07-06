@@ -13,7 +13,9 @@ using QuadtreeGrid = std::vector<std::vector<std::unique_ptr<Node>>>;
 
 QuadtreeGrid deserialize_quadtrees(int n_procs, const std::vector<mpi::Node> &quadtrees, const std::vector<int> &n_nodes);
 
-std::unique_ptr<Node> deserialize_quadtree(const mpi::Node &node);
+std::unique_ptr<Node> deserialize_quadtree_node(const mpi::Node &quadtree_node);
+
+std::unique_ptr<Node> deserialize_quadtree(const std::vector<mpi::Node> &quadtree_nodes);
 
 }  // namespace bh
 

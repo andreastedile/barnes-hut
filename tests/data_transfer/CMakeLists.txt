@@ -1,0 +1,9 @@
+add_executable(body-serialization body_serialization_test.cpp)
+add_executable(body-deserialization body_deserialization_test.cpp)
+add_executable(quadtree-serialization quadtree_serialization_test.cpp)
+add_executable(quadtree-deserialization quadtree_deserialization_test.cpp)
+
+target_link_libraries(body-serialization PRIVATE Catch2::Catch2WithMain data_transfer_lib)
+target_link_libraries(body-deserialization PRIVATE Catch2::Catch2WithMain data_transfer_lib)
+target_link_libraries(quadtree-serialization PRIVATE Catch2::Catch2WithMain data_transfer_lib)
+target_link_libraries(quadtree-deserialization PRIVATE Catch2::Catch2WithMain data_transfer_lib)
