@@ -1,5 +1,6 @@
 #include <argparse/argparse.hpp>
 #include <fstream>
+#include <iostream>
 #include <string>
 #include <utility>
 
@@ -49,6 +50,8 @@ int main(int argc, char* argv[]) {
   auto last_step = bh::BarnesHutSimulationStep(std::move(initial_bodies), bh::compute_square_bounding_box(initial_bodies));
 
   for (int i = 0; i < app.get<int>("steps"); i++) {
+    std::cout << "Step " << i + 1 << '\n';
+
     last_step = bh::step(last_step, dt, G, theta);
 
     if (output) {
@@ -58,6 +61,8 @@ int main(int argc, char* argv[]) {
       o.close();
     }
   }
+
+  std::cout << "Done. Exiting...\n";
 
   return 0;
 }

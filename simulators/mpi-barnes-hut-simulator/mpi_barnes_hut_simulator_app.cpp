@@ -5,6 +5,7 @@
 #include <stdexcept>
 #include <string>
 #include <utility>
+#include <iostream>
 
 #include "bounding_box.h"
 #include "loader.h"
@@ -62,6 +63,8 @@ int main(int argc, char* argv[]) {
   auto last_step = bh::BarnesHutSimulationStep(std::move(initial_bodies), bh::compute_square_bounding_box(initial_bodies));
 
   for (int i = 0; i < app.get<int>("steps"); i++) {
+    std::cout << "Step " << i + 1 << '\n';
+
     last_step = bh::step(last_step, dt, G, theta, proc_id, n_procs);
 
     if (output && proc_id == 0) {
@@ -73,6 +76,8 @@ int main(int argc, char* argv[]) {
   }
 
   MPI_Finalize();
+
+  std::cout << "Done. Exiting...\n";
 
   return 0;
 }
