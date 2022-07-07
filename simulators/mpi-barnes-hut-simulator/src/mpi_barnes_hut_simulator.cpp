@@ -13,6 +13,7 @@
 #include <execution>  // par_unseq
 #include <iterator>   // back_inserter
 #include <utility>    // move
+#include <iostream>
 
 namespace bh {
 
@@ -61,7 +62,7 @@ BarnesHutSimulationStep MpiBarnesHutSimulator::step_impl(const BarnesHutSimulati
   const int n_bodies_to_compute = (total_n_bodies / n_procs) + (proc_id < n_remaining_bodies);
 
   std::vector<Body> my_new_bodies(n_bodies_to_compute);
-  const int idx_from = proc_id == 0 ? 0 : (proc_id - 1) * (total_n_bodies / n_procs) + std::min(proc_id - 1, n_remaining_bodies);
+  const int idx_from = (proc_id) * (total_n_bodies / n_procs) + std::min(proc_id, n_remaining_bodies);
   std::transform(std::execution::par_unseq,
                  last_step.bodies().begin() + idx_from, last_step.bodies().begin() + idx_from + n_bodies_to_compute,
                  my_new_bodies.begin(),
