@@ -5,16 +5,16 @@
 #include "bodies_gathering.h"
 #include "body_update.h"   // update_body
 #include "bounding_box.h"  // compute_square_bounding_box
-#include "quadtree_gathering.h"
 #include "quadtree.h"
+#include "quadtree_gathering.h"
 #ifndef NDEBUG
 #include <cstdlib>  // puts
 #endif
 #include <algorithm>  // transform
 #include <execution>  // par_unseq
-#include <iterator>   // back_inserter
-#include <utility>    // move
 #include <iostream>
+#include <iterator>  // back_inserter
+#include <utility>   // move
 
 namespace bh {
 
@@ -83,23 +83,19 @@ std::vector<Body> filter_bodies_by_subquadrant(const std::vector<Body>& bodies, 
     const bool body_at_right_of_own_bbox_left_side_inclusive = body.m_position.x() >= own_bbox.min().x();
 
     const bool body_at_left_of_own_bbox_right_side_exclusive = body.m_position.x() < own_bbox.max().x();
-    const bool body_at_left_of_own_bbox_right_side_inclusive = body.m_position.x() <= own_bbox.max().x();
 
     const bool body_above_of_own_bbox_bottom_side_inclusive = body.m_position.y() >= own_bbox.min().y();
 
     const bool body_below_of_own_bbox_top_side_exclusive = body.m_position.y() < own_bbox.max().y();
-    const bool body_below_of_own_bbox_top_side_inclusive = body.m_position.y() <= own_bbox.max().y();
 
     const bool own_bbox_top_side_lies_on_outer_bbox_top_side = own_bbox.max().y() == outer_bbox.max().y();
 
     const bool own_bbox_right_side_lies_on_outer_bbox_right_side = own_bbox.max().x() == outer_bbox.max().x();
 
     return body_at_right_of_own_bbox_left_side_inclusive &&
-           ((body_at_left_of_own_bbox_right_side_exclusive && !own_bbox_right_side_lies_on_outer_bbox_right_side) ||
-            (body_at_left_of_own_bbox_right_side_inclusive && own_bbox_right_side_lies_on_outer_bbox_right_side)) &&
+           (body_at_left_of_own_bbox_right_side_exclusive || own_bbox_right_side_lies_on_outer_bbox_right_side) &&
            body_above_of_own_bbox_bottom_side_inclusive &&
-           ((body_below_of_own_bbox_top_side_exclusive && !own_bbox_top_side_lies_on_outer_bbox_top_side) ||
-            (body_below_of_own_bbox_top_side_inclusive && own_bbox_top_side_lies_on_outer_bbox_top_side));
+           (body_below_of_own_bbox_top_side_exclusive || own_bbox_top_side_lies_on_outer_bbox_top_side);
   });
   return filtered;
 }
