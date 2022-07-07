@@ -9,23 +9,19 @@ include(FetchContent)
 
 FetchContent_Declare(argparse
         GIT_REPOSITORY https://github.com/p-ranav/argparse.git
-        GIT_TAG v2.6
-        FIND_PACKAGE_ARGS)
+        GIT_TAG v2.6)
 
 FetchContent_Declare(Eigen3
-        GIT_REPOSITORY https://gitlab.com/libeigen/eigen.git
-        GIT_TAG 3.4.0
-        FIND_PACKAGE_ARGS)
+        URL https://gitlab.com/libeigen/eigen/-/archive/3.4.0/eigen-3.4.0.tar.gz)
 
+# https://json.nlohmann.me/integration/cmake/#fetchcontent
 FetchContent_Declare(nlohmann_json
-        GIT_REPOSITORY https://github.com/nlohmann/json.git
-        GIT_TAG v3.10.5
-        FIND_PACKAGE_ARGS)
+        URL https://github.com/nlohmann/json/releases/download/v3.10.5/json.tar.xz)
 
+# https://github.com/catchorg/Catch2/blob/devel/docs/cmake-integration.md#cmake-targets
 FetchContent_Declare(Catch2
         GIT_REPOSITORY https://github.com/catchorg/Catch2.git
-        GIT_TAG v3.0.1
-        FIND_PACKAGE_ARGS)
+        GIT_TAG v3.0.1)
 
 FetchContent_MakeAvailable(argparse)
 FetchContent_MakeAvailable(Eigen3)
