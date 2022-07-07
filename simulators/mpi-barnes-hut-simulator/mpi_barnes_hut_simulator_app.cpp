@@ -59,7 +59,7 @@ int main(int argc, char* argv[]) {
 
   auto initial_bodies = bh::load_bodies(app.get("input"));
 
-  auto last_step = bh::BarnesHutSimulationStep{std::move(initial_bodies), bh::compute_square_bounding_box(initial_bodies)};
+  auto last_step = bh::BarnesHutSimulationStep(std::move(initial_bodies), bh::compute_square_bounding_box(initial_bodies));
 
   for (int i = 0; i < app.get<int>("steps"); i++) {
     last_step = bh::step(last_step, dt, G, theta, proc_id, n_procs);
