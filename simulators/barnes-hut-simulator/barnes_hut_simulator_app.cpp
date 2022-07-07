@@ -1,8 +1,5 @@
-#include <tbb/task_scheduler_init.h>
-
 #include <argparse/argparse.hpp>
 #include <fstream>
-#include <iostream>
 #include <string>
 #include <utility>
 
@@ -32,20 +29,12 @@ int main(int argc, char* argv[]) {
       .help("specify the barnes–hut theta");
   app.add_argument("-output")
       .help("specify the output filename");
-  app.add_argument("-threads")
-      .scan<'d', int>()
-      .help("specify the number of threads");
 
   try {
     app.parse_args(argc, argv);
   } catch (const std::runtime_error& err) {
     std::cerr << app;
     std::exit(1);
-  }
-
-  if (auto threads = app.present<int>("threads")) {
-    std::cout << "Selected " << *threads << " threads\n";
-    tbb::task_scheduler_init init(*threads);
   }
 
   auto initial_bodies = bh::load_bodies(app.get("input"));
