@@ -5,7 +5,6 @@ add_library(mpi_barnes_hut_simulator_lib
 # If in the following lines I use PRIVATE (which I thought would be sufficient),
 # mpi_barnes_hut_simulator.h does not find the #include inside.
 # Using PUBLIC fixes the problem. Why?
-target_link_libraries(mpi_barnes_hut_simulator_lib PUBLIC interfaces_lib)
 target_link_libraries(mpi_barnes_hut_simulator_lib PUBLIC body_lib)
 target_link_libraries(mpi_barnes_hut_simulator_lib PUBLIC quadtree_lib)
 target_link_libraries(mpi_barnes_hut_simulator_lib PUBLIC physics_lib)

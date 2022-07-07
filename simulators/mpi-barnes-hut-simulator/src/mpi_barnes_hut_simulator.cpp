@@ -6,6 +6,7 @@
 #include "body_update.h"   // update_body
 #include "bounding_box.h"  // compute_square_bounding_box
 #include "quadtree_gathering.h"
+#include "quadtree.h"
 #ifndef NDEBUG
 #include <cstdlib>  // puts
 #endif
@@ -17,13 +18,7 @@
 
 namespace bh {
 
-MpiBarnesHutSimulator::MpiBarnesHutSimulator(double dt, double G, double theta, std::vector<Body> initial_bodies, int proc_id, int n_procs)
-    : ISteppable(dt, BarnesHutSimulationStep(std::move(initial_bodies), compute_square_bounding_box(initial_bodies))),
-      IPhysics(G),
-      IBarnesHut(theta),
-      ICommunication(proc_id, n_procs) {}
-
-BarnesHutSimulationStep MpiBarnesHutSimulator::step_impl(const BarnesHutSimulationStep& last_step) {
+BarnesHutSimulationStep step(const BarnesHutSimulationStep& last_step, double dt, double G, double theta, int proc_id, int n_procs) {
 #ifndef NDEBUG
   if (proc_id == 0) {
     std::puts("Computing my bounding box...");

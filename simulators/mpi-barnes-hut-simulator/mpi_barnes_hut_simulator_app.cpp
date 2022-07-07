@@ -2,13 +2,14 @@
 
 #include <argparse/argparse.hpp>
 #include <fstream>
+#include <stdexcept>
 #include <string>
 #include <utility>
-#include <stdexcept>
 
+#include "bounding_box.h"
 #include "loader.h"
-#include "src/mpi_barnes_hut_simulator.h"
 #include "power_of_four.h"
+#include "src/mpi_barnes_hut_simulator.h"
 
 int main(int argc, char* argv[]) {
   argparse::ArgumentParser app("Barnes–Hut simulation");
@@ -41,6 +42,11 @@ int main(int argc, char* argv[]) {
     std::exit(1);
   }
 
+  const auto dt = app.get<double>("dt");
+  const auto G = app.get<double>("-G");
+  const auto theta = app.get<double>("-theta");
+  const auto output = app.present("output");
+
   MPI_Init(nullptr, nullptr);
 
   int proc_id, n_procs;
@@ -53,19 +59,13 @@ int main(int argc, char* argv[]) {
 
   auto initial_bodies = bh::load_bodies(app.get("input"));
 
-  bh::MpiBarnesHutSimulator simulator(app.get<double>("dt"),
-                                      app.get<double>("-G"),
-                                      app.get<double>("-theta"),
-                                      std::move(initial_bodies),
-                                      proc_id, n_procs);
-
-  auto output = app.present("output");
+  auto last_step = bh::BarnesHutSimulationStep{std::move(initial_bodies), bh::compute_square_bounding_box(initial_bodies)};
 
   for (int i = 0; i < app.get<int>("steps"); i++) {
-    const auto& step = simulator.step();
+    last_step = bh::step(last_step, dt, G, theta, proc_id, n_procs);
 
     if (output && proc_id == 0) {
-      nlohmann::json j = step;
+      nlohmann::json j = last_step;
       std::ofstream o(output.value() + std::to_string(i) + ".json");
       o << j;
       o.close();

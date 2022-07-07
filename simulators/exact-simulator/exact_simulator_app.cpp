@@ -5,6 +5,7 @@
 
 #include "loader.h"
 #include "src/exact_simulator.h"
+#include "bounding_box.h"
 
 int main(int argc, char* argv[]) {
   argparse::ArgumentParser app("Barnes–Hut simulation");
@@ -33,19 +34,19 @@ int main(int argc, char* argv[]) {
     std::exit(1);
   }
 
+  const auto dt = app.get<double>("dt");
+  const auto G = app.get<double>("-G");
+  const auto output = app.present("output");
+
   auto initial_bodies = bh::load_bodies(app.get("input"));
 
-  bh::ExactSimulator simulator(app.get<double>("dt"),
-                           app.get<double>("-G"),
-                           std::move(initial_bodies));
-
-  auto output = app.present("output");
+  auto last_step = bh::SimulationStep{std::move(initial_bodies), bh::compute_square_bounding_box(initial_bodies)};
 
   for (int i = 0; i < app.get<int>("steps"); i++) {
-    const auto& step = simulator.step();
+    last_step = bh::step(last_step, dt, G);
 
     if (output) {
-      nlohmann::json j = step;
+      nlohmann::json j = last_step;
       std::fstream o(*output + std::to_string(i));
       o << j;
     }

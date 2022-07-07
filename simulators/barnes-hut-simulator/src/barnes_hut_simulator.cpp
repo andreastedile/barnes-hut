@@ -13,12 +13,7 @@
 
 namespace bh {
 
-BarnesHutSimulator::BarnesHutSimulator(double dt, double G, double theta, std::vector<Body> initial_bodies)
-    : ISteppable(dt, BarnesHutSimulationStep(std::move(initial_bodies), compute_square_bounding_box(initial_bodies))),
-      IPhysics(G),
-      IBarnesHut(theta) {}
-
-BarnesHutSimulationStep BarnesHutSimulator::step_impl(const BarnesHutSimulationStep& last_step) {
+BarnesHutSimulationStep step(const BarnesHutSimulationStep& last_step, double dt, double G, double theta) {
 #ifndef NDEBUG
   std::puts("Constructing quadtree...");
 #endif

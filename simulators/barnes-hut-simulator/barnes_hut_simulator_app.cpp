@@ -3,6 +3,8 @@
 #include <string>
 #include <utility>
 
+#include "barnes_hut_simulation_step.h"
+#include "bounding_box.h"
 #include "loader.h"
 #include "src/barnes_hut_simulator.h"
 
@@ -37,20 +39,20 @@ int main(int argc, char* argv[]) {
     std::exit(1);
   }
 
+  const auto dt = app.get<double>("dt");
+  const auto G = app.get<double>("-G");
+  const auto theta = app.get<double>("-theta");
+  const auto output = app.present("output");
+
   auto initial_bodies = bh::load_bodies(app.get("input"));
 
-  bh::BarnesHutSimulator simulator(app.get<double>("dt"),
-                                   app.get<double>("-G"),
-                                   app.get<double>("-theta"),
-                                   std::move(initial_bodies));
-
-  auto output = app.present("output");
+  auto last_step = bh::BarnesHutSimulationStep{std::move(initial_bodies), bh::compute_square_bounding_box(initial_bodies)};
 
   for (int i = 0; i < app.get<int>("steps"); i++) {
-    const auto& step = simulator.step();
+    last_step = bh::step(last_step, dt, G, theta);
 
     if (output) {
-      nlohmann::json j = step;
+      nlohmann::json j = last_step;
       std::fstream o(*output + std::to_string(i));
       o << j;
     }
