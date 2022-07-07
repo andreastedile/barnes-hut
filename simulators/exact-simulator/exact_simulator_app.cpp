@@ -47,8 +47,9 @@ int main(int argc, char* argv[]) {
 
     if (output) {
       nlohmann::json j = last_step;
-      std::fstream o(*output + std::to_string(i));
+      std::ofstream o(output.value() + std::to_string(i) + ".json");
       o << j;
+      o.close();
     }
   }
 
