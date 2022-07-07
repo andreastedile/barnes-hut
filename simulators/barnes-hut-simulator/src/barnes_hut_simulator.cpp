@@ -15,9 +15,14 @@ namespace bh {
 
 BarnesHutSimulationStep step(const BarnesHutSimulationStep& last_step, double dt, double G, double theta) {
 #ifndef NDEBUG
+  std::puts("Computing bounding box...");
+#endif
+  auto bbox = compute_square_bounding_box(last_step.bodies());
+
+#ifndef NDEBUG
   std::puts("Constructing quadtree...");
 #endif
-  auto quadtree = construct_quadtree(last_step.bodies());
+  auto quadtree = construct_quadtree(last_step.bodies(), bbox);
 
 #ifndef NDEBUG
   std::puts("Computing new bodies...");

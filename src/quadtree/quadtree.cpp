@@ -9,7 +9,7 @@
 
 namespace bh {
 
-std::unique_ptr<Node> construct_quadtree(const Eigen::AlignedBox2d& bbox, const std::vector<Body>& bodies) {
+std::unique_ptr<Node> construct_quadtree(const std::vector<Body>& bodies, const Eigen::AlignedBox2d& bbox) {
   auto quadtree = std::make_unique<Node>(bbox.min(), bbox.max());
   std::for_each(bodies.begin(), bodies.end(), [&quadtree](const Body& body) { quadtree->insert(body); });
   return quadtree;
@@ -17,7 +17,7 @@ std::unique_ptr<Node> construct_quadtree(const Eigen::AlignedBox2d& bbox, const 
 
 std::unique_ptr<Node> construct_quadtree(const std::vector<Body>& bodies) {
   auto bbox = compute_square_bounding_box(bodies);
-  return construct_quadtree(bbox, bodies);
+  return construct_quadtree(bodies, bbox);
 }
 
 std::unique_ptr<Node> merge_quadtrees(std::unique_ptr<Node> nw, std::unique_ptr<Node> ne, std::unique_ptr<Node> se, std::unique_ptr<Node> sw) {

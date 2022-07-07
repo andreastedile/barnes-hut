@@ -12,9 +12,7 @@ namespace bh {
 
 using QuadtreeGrid = std::vector<std::vector<std::unique_ptr<Node>>>;
 
-std::unique_ptr<Node> construct_quadtree(const Eigen::AlignedBox2d& bbox, const std::vector<Body>& bodies);
-
-std::unique_ptr<Node> construct_quadtree(const std::vector<Body>& bodies);
+std::unique_ptr<Node> construct_quadtree(const std::vector<Body>& bodies, const Eigen::AlignedBox2d& bbox);
 
 std::unique_ptr<Node> merge_quadtrees(std::unique_ptr<Node> nw, std::unique_ptr<Node> ne, std::unique_ptr<Node> se, std::unique_ptr<Node> sw);
 

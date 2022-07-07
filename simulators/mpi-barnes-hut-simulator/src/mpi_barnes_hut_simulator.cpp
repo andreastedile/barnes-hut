@@ -36,7 +36,7 @@ BarnesHutSimulationStep step(const BarnesHutSimulationStep& last_step, double dt
 #ifndef NDEBUG
   std::puts("Constructing quadtree...");
 #endif
-  auto my_quadtree = construct_quadtree(my_bbox, filtered_bodies);
+  auto my_quadtree = construct_quadtree(filtered_bodies, my_bbox);
 
 #ifndef NDEBUG
   std::puts("Gathering quadtree...");
