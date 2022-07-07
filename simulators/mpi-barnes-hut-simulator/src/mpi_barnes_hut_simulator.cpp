@@ -18,7 +18,7 @@
 namespace bh {
 
 MpiBarnesHutSimulator::MpiBarnesHutSimulator(double dt, double G, double theta, std::vector<Body> initial_bodies, int proc_id, int n_procs)
-    : ISteppable(dt, {std::move(initial_bodies), compute_square_bounding_box(initial_bodies)}),
+    : ISteppable(dt, BarnesHutSimulationStep(std::move(initial_bodies), compute_square_bounding_box(initial_bodies))),
       IPhysics(G),
       IBarnesHut(theta),
       ICommunication(proc_id, n_procs) {}
