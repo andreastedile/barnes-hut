@@ -5,29 +5,36 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-# https://github.com/p-ranav/argparse
-find_package(argparse 2.5.0 REQUIRED)
+include(FetchContent)
 
-# https://eigen.tuxfamily.org/dox/TopicCMakeGuide.html
-find_package(Eigen3 3.3 REQUIRED NO_MODULE)
+FetchContent_Declare(argparse
+        GIT_REPOSITORY https://github.com/p-ranav/argparse.git
+        GIT_TAG v2.6
+        FIND_PACKAGE_ARGS)
 
-# https://json.nlohmann.me/integration/cmake/
-find_package(nlohmann_json 3.10.5 REQUIRED)
+FetchContent_Declare(Eigen3
+        GIT_REPOSITORY https://gitlab.com/libeigen/eigen.git
+        GIT_TAG 3.4.0
+        FIND_PACKAGE_ARGS)
 
-#https://github.com/catchorg/Catch2/blob/devel/docs/cmake-integration.md
-find_package(Catch2 3 REQUIRED)
+FetchContent_Declare(nlohmann_json
+        GIT_REPOSITORY https://github.com/nlohmann/json.git
+        GIT_TAG v3.10.5
+        FIND_PACKAGE_ARGS)
 
-# https://github.com/oneapi-src/oneTBB/blob/master/cmake/README.md#tbbconfig---integration-of-binary-packages
+FetchContent_Declare(Catch2
+        GIT_REPOSITORY https://github.com/catchorg/Catch2.git
+        GIT_TAG v3.0.1
+        FIND_PACKAGE_ARGS)
+
+FetchContent_MakeAvailable(argparse)
+FetchContent_MakeAvailable(Eigen3)
+FetchContent_MakeAvailable(nlohmann_json)
+FetchContent_MakeAvailable(Catch2)
+
 find_package(TBB REQUIRED)
-
 find_package(MPI REQUIRED)
 
-# https://github.com/include-what-you-use/include-what-you-use
-find_program(iwyu_path NAMES include-what-you-use iwyu)
-if (iwyu_path)
-    message("Found iwyu")
-    set(CMAKE_CXX_INCLUDE_WHAT_YOU_USE ${iwyu_path})
-endif ()
 
 add_subdirectory(src)
 add_subdirectory(tests)
