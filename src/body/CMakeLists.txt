@@ -7,7 +7,11 @@ add_library(body_lib
 
 target_link_libraries(body_lib PUBLIC Eigen3::Eigen)
 target_link_libraries(body_lib PUBLIC nlohmann_json::nlohmann_json)
-target_link_libraries(body_lib PRIVATE TBB::tbb)
+if (WITH_TBB)
+    target_link_libraries(body_lib PRIVATE TBB::tbb)
+else ()
+    target_link_libraries(body_lib PRIVATE OpenMP::OpenMP_CXX)
+endif ()
 
 if (DEBUG_CONSTRUCTOR_AND_ASSIGNMENT_OPERATORS)
     target_compile_definitions(body_lib PUBLIC DEBUG_CONSTRUCTOR_AND_ASSIGNMENT_OPERATORS)

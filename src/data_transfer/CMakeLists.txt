@@ -13,6 +13,10 @@ add_library(data_transfer_lib
 target_link_libraries(data_transfer_lib PUBLIC body_lib)
 target_link_libraries(data_transfer_lib PUBLIC quadtree_lib)
 target_link_libraries(data_transfer_lib PRIVATE Eigen3::Eigen)
-target_link_libraries(data_transfer_lib PRIVATE TBB::tbb)
+if (WITH_TBB)
+    target_link_libraries(data_transfer_lib PRIVATE TBB::tbb)
+else ()
+    target_link_libraries(data_transfer_lib PRIVATE OpenMP::OpenMP_CXX)
+endif ()
 
 target_include_directories(data_transfer_lib INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>)

@@ -7,9 +7,12 @@
 #ifndef NDEBUG
 #include <cstdlib>  // puts
 #endif
+#include <omp.h>
+#ifdef WITH_TBB
 #include <algorithm>  // transform
 #include <execution>  // par_unseq
-#include <utility>    // move
+#endif
+#include <utility>  // move
 
 namespace bh {
 
@@ -28,12 +31,19 @@ BarnesHutSimulationStep step(const BarnesHutSimulationStep& last_step, double dt
   std::puts("Computing new bodies...");
 #endif
   std::vector<Body> new_bodies{last_step.bodies().size()};
+#ifdef WITH_TBB
   std::transform(std::execution::par_unseq,
                  last_step.bodies().begin(), last_step.bodies().end(),
                  new_bodies.begin(),
                  [&](const Body& body) {
                    return update_body(body, *quadtree, dt, G, theta);
                  });
+#else
+#pragma omp parallel for
+  for (size_t i = 0; i < last_step.bodies().size(); i++) {
+    new_bodies[i] = update_body(last_step.bodies()[i], *quadtree, dt, G, theta);
+  }
+#endif
 
 #ifndef NDEBUG
   std::puts("Computing new bounding box...");

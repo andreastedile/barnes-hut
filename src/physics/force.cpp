@@ -1,6 +1,18 @@
+#include "force.h"
+
+#ifdef WITH_TBB
 #include <execution>  // par_unseq
-#include <numeric>    // accumulate, transform_reduce
-#include <variant>    // visit
+#else
+// https://passlab.github.io/Examples/contents/Examples_udr.html
+// https://www.openmp.org/spec-html/5.0/openmpsu107.html
+// clang-format off
+#pragma omp declare reduction(+ : Eigen::Vector2d : \
+                              omp_out += omp_in) \
+        initializer(omp_priv = {0, 0})
+// clang-format on
+#endif
+#include <numeric>  // accumulate, transform_reduce
+#include <variant>  // visit
 #ifdef DEBUG_COMPUTE_GRAVITATIONAL_FORCE
 #include <iostream>
 #endif
@@ -68,6 +80,7 @@ Eigen::Vector2d compute_approximate_net_force_on_body(const Node& node, const Bo
 
 Eigen::Vector2d compute_exact_net_force_on_body(const std::vector<Body>& bodies, const Body& body,
                                                 double G) {
+#ifdef WITH_TBB
   return std::transform_reduce(
       std::execution::par_unseq, bodies.begin(), bodies.end(), Eigen::Vector2d{0, 0},
       [](const Eigen::Vector2d& total, const Eigen::Vector2d& curr) {
@@ -76,6 +89,18 @@ Eigen::Vector2d compute_exact_net_force_on_body(const std::vector<Body>& bodies,
       [&](const Body& curr) {
         return compute_gravitational_force(curr, body, G);
       });
+#else
+  Eigen::Vector2d net_force{0, 0};
+
+// clang-format off
+#pragma omp parallel for reduction(+ : net_force)
+    for (const auto &curr : bodies) {
+      net_force += compute_gravitational_force(curr, body, G);
+    }
+// clang-format off
+
+    return net_force;
+#endif
 }
 
 }  // namespace bh

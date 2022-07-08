@@ -10,8 +10,10 @@
 #ifndef NDEBUG
 #include <cstdlib>  // puts
 #endif
+#ifdef WITH_TBB
 #include <algorithm>  // transform
 #include <execution>  // par_unseq
+#endif
 #include <iostream>
 #include <iterator>  // back_inserter
 #include <utility>   // move
@@ -58,12 +60,19 @@ BarnesHutSimulationStep step(const BarnesHutSimulationStep& last_step, double dt
 
   std::vector<Body> my_new_bodies(n_bodies_to_compute);
   const int idx_from = (proc_id) * (total_n_bodies / n_procs) + std::min(proc_id, n_remaining_bodies);
+#ifdef WITH_TBB
   std::transform(std::execution::par_unseq,
                  last_step.bodies().begin() + idx_from, last_step.bodies().begin() + idx_from + n_bodies_to_compute,
                  my_new_bodies.begin(),
                  [&](const Body& body) {
                    return update_body(body, *complete_quadtree, dt, G, theta);
                  });
+#else
+#pragma omp parallel for
+  for (size_t i = 0; i < last_step.bodies().size(); i++) {
+    update_body(last_step.bodies()[i], last_step.bodies(), dt, G);
+  }
+#endif
 
   auto all_bodies = gather_bodies(proc_id, n_procs, total_n_bodies, my_new_bodies);
 

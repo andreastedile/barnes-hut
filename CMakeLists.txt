@@ -28,9 +28,15 @@ FetchContent_MakeAvailable(Eigen3)
 FetchContent_MakeAvailable(nlohmann_json)
 FetchContent_MakeAvailable(Catch2)
 
-find_package(TBB REQUIRED)
-find_package(MPI REQUIRED)
+if (WITH_TBB)
+    # https://github.com/oneapi-src/oneTBB/blob/master/cmake/README.md#tbbconfig---integration-of-binary-packages
+    find_package(TBB REQUIRED)
+    add_compile_definitions(WITH_TBB)
+else ()
+    find_package(OpenMP REQUIRED)
+endif ()
 
+find_package(MPI REQUIRED)
 
 add_subdirectory(src)
 add_subdirectory(tests)
