@@ -8,3 +8,4 @@ add_library(exact_simulator_lib
 target_link_libraries(exact_simulator_lib PUBLIC body_lib)
 target_link_libraries(exact_simulator_lib PUBLIC physics_lib)
 target_link_libraries(exact_simulator_lib PUBLIC simulation_step_lib)
+target_link_libraries(exact-simulator_lib PRIVATE TBB::tbb)

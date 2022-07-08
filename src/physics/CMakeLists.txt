@@ -6,6 +6,7 @@ add_library(physics_lib
 
 target_link_libraries(physics_lib PUBLIC body_lib)
 target_link_libraries(physics_lib PUBLIC quadtree_lib)
+target_link_libraries(physics_lib PRIVATE TBB::tbb)
 
 if (DEBUG_COMPUTE_GRAVITATIONAL_FORCE)
     target_compile_definitions(physics_lib PUBLIC DEBUG_COMPUTE_GRAVITATIONAL_FORCE)

@@ -11,5 +11,6 @@ target_link_libraries(mpi_barnes_hut_simulator_lib PUBLIC physics_lib)
 target_link_libraries(mpi_barnes_hut_simulator_lib PUBLIC simulation_step_lib)
 target_link_libraries(mpi_barnes_hut_simulator_lib PUBLIC data_transfer_lib)
 target_link_libraries(mpi_barnes_hut_simulator_lib PUBLIC gather_lib)
+target_link_libraries(mpi_barnes_hut_simulator_lib PRIVATE TBB::tbb)
 
 target_include_directories(mpi_barnes_hut_simulator_lib INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>)
