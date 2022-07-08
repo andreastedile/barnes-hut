@@ -1,7 +1,7 @@
 #ifndef MPI_BARNES_HUT_SIMULATOR_H
 #define MPI_BARNES_HUT_SIMULATOR_H
 
-#include <eigen3/Eigen/Geometry>  // AlignedBox2d
+#include <Eigen/Geometry>  // AlignedBox2d
 #include <vector>
 
 #include "barnes_hut_simulation_step.h"

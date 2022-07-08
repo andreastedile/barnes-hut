@@ -3,7 +3,7 @@
 
 #include <memory>
 #include <vector>
-#include <eigen3/Eigen/Geometry>
+#include <Eigen/Geometry>
 
 #include "body.h"
 #include "node.h"

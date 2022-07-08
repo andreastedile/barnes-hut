@@ -1,6 +1,6 @@
 #include "body_update.h"
 
-#include <eigen3/Eigen/Eigen>
+#include <Eigen/Eigen>
 
 #include "force.h"
 

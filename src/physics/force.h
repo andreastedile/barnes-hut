@@ -1,7 +1,7 @@
 #ifndef BARNES_HUT_FORCE_H
 #define BARNES_HUT_FORCE_H
 
-#include <eigen3/Eigen/Eigen>
+#include <Eigen/Eigen>
 
 #include "body.h"
 #include "node.h"

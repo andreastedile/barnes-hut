@@ -1,7 +1,7 @@
 #include "quadtree_deserialization.h"
 
 #include <array>
-#include <eigen3/Eigen/Eigen>
+#include <Eigen/Eigen>
 #include <functional>
 #include <memory>
 #include <stdexcept>  // runtime_error

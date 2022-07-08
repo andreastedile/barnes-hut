@@ -1,8 +1,8 @@
 #ifndef BARNES_HUT_EIGEN_JSON_H
 #define BARNES_HUT_EIGEN_JSON_H
 
-#include <eigen3/Eigen/Eigen>
-#include <eigen3/Eigen/Geometry>
+#include <Eigen/Eigen>
+#include <Eigen/Geometry>
 #include <nlohmann/json.hpp>
 
 namespace nlohmann {

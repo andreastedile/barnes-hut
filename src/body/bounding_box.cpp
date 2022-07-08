@@ -1,6 +1,6 @@
 #include "bounding_box.h"
 
-#include <eigen3/Eigen/Eigen>
+#include <Eigen/Eigen>
 #include <execution>  // par_unseq
 #include <numeric>    // transform_reduce
 

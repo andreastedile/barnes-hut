@@ -1,7 +1,7 @@
 #ifndef BARNES_HUT_BOUNDING_BOX_H
 #define BARNES_HUT_BOUNDING_BOX_H
 
-#include <eigen3/Eigen/Geometry>
+#include <Eigen/Geometry>
 #include <vector>
 
 #include "body.h"

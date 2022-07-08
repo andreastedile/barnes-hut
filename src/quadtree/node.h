@@ -2,8 +2,8 @@
 #define BARNES_HUT_NODE_H
 
 #include <array>
-#include <eigen3/Eigen/Eigen>
-#include <eigen3/Eigen/Geometry>
+#include <Eigen/Eigen>
+#include <Eigen/Geometry>
 #include <memory>  // unique_ptr
 #include <nlohmann/json.hpp>
 #include <optional>  // Leaf's m_body

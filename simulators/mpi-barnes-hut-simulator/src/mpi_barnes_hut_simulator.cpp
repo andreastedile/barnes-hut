@@ -1,6 +1,6 @@
 #include "mpi_barnes_hut_simulator.h"
 
-#include <eigen3/Eigen/Eigen>
+#include <Eigen/Eigen>
 
 #include "bodies_gathering.h"
 #include "body_update.h"   // update_body

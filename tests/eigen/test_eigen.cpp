@@ -1,5 +1,5 @@
 #include <catch2/catch_test_macros.hpp>
-#include <eigen3/Eigen/Geometry>
+#include <Eigen/Geometry>
 #include <limits>
 
 SCENARIO("eigen aligned box") {

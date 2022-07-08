@@ -1,7 +1,7 @@
 #ifndef BARNES_HUT_SIMULATION_STEP_H
 #define BARNES_HUT_SIMULATION_STEP_H
 
-#include <eigen3/Eigen/Geometry>  // AlignedBox2d
+#include <Eigen/Geometry>  // AlignedBox2d
 #include <nlohmann/json.hpp>
 #include <vector>
 

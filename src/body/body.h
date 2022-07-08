@@ -1,7 +1,7 @@
 #ifndef BARNES_HUT_BODY_H
 #define BARNES_HUT_BODY_H
 
-#include <eigen3/Eigen/Eigen>
+#include <Eigen/Eigen>
 #include <istream>  // istream
 #include <nlohmann/json.hpp>
 #include <vector>

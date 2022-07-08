@@ -1,7 +1,7 @@
 #include "loader.h"
 
 #include <algorithm>           // copy_n
-#include <eigen3/Eigen/Eigen>  // Vector2d
+#include <Eigen/Eigen>  // Vector2d
 #include <fstream>             // ifstream
 #include <iostream>            // cout
 #include <iterator>            // istream_iterator, back_inserter
