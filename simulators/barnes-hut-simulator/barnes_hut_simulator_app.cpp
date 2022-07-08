@@ -18,6 +18,10 @@ int main(int argc, char* argv[]) {
       .scan<'d', int>()
       .required()
       .help("specify the number of simulation steps");
+  app.add_argument("sampling_rate")
+          .scan<'d', int>()
+          .required()
+          .help("specify the number sampling rate");
   app.add_argument("dt")
       .scan<'g', double>()
       .required()
@@ -44,17 +48,19 @@ int main(int argc, char* argv[]) {
   const auto G = app.get<double>("-G");
   const auto theta = app.get<double>("-theta");
   const auto output = app.present("output");
+  const auto steps = app.get<int>("steps");
+  const auto sampling_rate = app.get<int>("sampling_rate");
 
   auto initial_bodies = bh::load_bodies(app.get("input"));
 
   auto last_step = bh::BarnesHutSimulationStep(std::move(initial_bodies), bh::compute_square_bounding_box(initial_bodies));
 
-  for (int i = 0; i < app.get<int>("steps"); i++) {
+  for (int i = 0; i < steps; i++) {
     std::cout << "Step " << i + 1 << '\n';
 
     last_step = bh::step(last_step, dt, G, theta);
 
-    if (output) {
+    if (output && i % sampling_rate == 0) {
       nlohmann::json j = last_step;
       std::ofstream o(output.value() + std::to_string(i) + ".json");
       o << j;
