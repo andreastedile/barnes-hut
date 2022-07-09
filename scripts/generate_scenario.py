@@ -27,6 +27,10 @@ def parse_scenario_parameters() -> (Position, Position, int):
                         help="Bottom-left coordinates of the bounding box", metavar="\b", dest="sw")
     parser.add_argument("-p", "--n-bodies", type=int, required=True,
                         help="Number of bodies to add inside the bounding box", metavar="\b", dest="p")
+    parser.add_argument("-min-m", "--min-mass", type=int, required=True,
+                        help="minimum mass body", metavar="\b", dest="min_m")
+    parser.add_argument("-max-m", "--max-mass", type=int, required=True,
+                        help="maximum mass body", metavar="\b", dest="max_m")
 
     args = parser.parse_args()
 
@@ -51,16 +55,16 @@ def parse_scenario_parameters() -> (Position, Position, int):
 
     bottom_left, top_right = Position(sw_x, sw_y), Position(ne_x, ne_y)
 
-    return bottom_left, top_right, args.p
+    return bottom_left, top_right, args.p, args.min_m, args.max_m
 
 
-def generate_bodies(bottom_left: Position, top_right: Position, n_bodies: int) -> [
+def generate_bodies(bottom_left: Position, top_right: Position, n_bodies: int, min_m: int, max_m: int) -> [
     (float, float, float, float, float)]:
     bodies = []
     for _ in range(n_bodies):
         position = Position(random.uniform(bottom_left.x, top_right.x),
                             random.uniform(bottom_left.y, top_right.y))
-        mass = 0.25
+        mass = random.uniform(min_m, max_m)
         velocity = Velocity(0, 0)
 
         body = Body(position, mass, velocity)
@@ -76,8 +80,8 @@ def write_bodies_to_file(bodies: list[Body]):
 
 
 def main():
-    bottom_left, top_right, n_bodies = parse_scenario_parameters()
-    bodies = generate_bodies(bottom_left, top_right, n_bodies)
+    bottom_left, top_right, n_bodies, min_m, max_m = parse_scenario_parameters()
+    bodies = generate_bodies(bottom_left, top_right, n_bodies, min_m, max_m)
     write_bodies_to_file(bodies)
 
 
