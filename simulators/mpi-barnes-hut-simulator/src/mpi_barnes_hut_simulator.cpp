@@ -1,5 +1,7 @@
 #include "mpi_barnes_hut_simulator.h"
 
+#include <spdlog/spdlog.h>
+
 #include <Eigen/Eigen>
 
 #include "bodies_gathering.h"
@@ -7,47 +9,38 @@
 #include "bounding_box.h"  // compute_square_bounding_box
 #include "quadtree.h"
 #include "quadtree_gathering.h"
-#ifndef NDEBUG
-#include <cstdlib>  // puts
-#endif
 #ifdef WITH_TBB
 #include <algorithm>  // transform
 #include <execution>  // par_unseq
 #endif
-#include <iostream>
 #include <iterator>  // back_inserter
 #include <utility>   // move
 
 namespace bh {
 
 BarnesHutSimulationStep step(const BarnesHutSimulationStep& last_step, double dt, double G, double theta, int proc_id, int n_procs) {
-#ifndef NDEBUG
-  if (proc_id == 0) {
-    std::puts("Computing my bounding box...");
-  }
-#endif
+  spdlog::info("Computing bounding box for processor...");
+
   auto my_bbox = compute_bounding_box_for_processor(last_step.bbox(), proc_id, n_procs);
 
-#ifndef NDEBUG
-  if (proc_id == 0) {
-    std::puts("Filtering bodies...");
-  }
-#endif
+  spdlog::info("Filtering bodies...");
+
   const auto filtered_bodies = filter_bodies_by_subquadrant(last_step.bodies(), last_step.bbox(), my_bbox);
 
-#ifndef NDEBUG
-  std::puts("Constructing quadtree...");
-#endif
+  spdlog::info("Constructing quadtree...");
+
   auto my_quadtree = construct_quadtree(filtered_bodies, my_bbox);
 
-#ifndef NDEBUG
-  std::puts("Gathering quadtree...");
-#endif
+  spdlog::info("Gathering complete quadtree...");
+
   auto complete_quadtree = gather_quadtree(proc_id, n_procs, *my_quadtree);
 
-#ifndef NDEBUG
-  std::puts("Computing new bodies...");
+#ifdef WITH_TBB
+  spdlog::info("Computing my new bodies (TBB)...");
+#else
+  spdlog::info("Computing new bodies (OpenMP)...");
 #endif
+
   // If the number of processors does not evenly divide the number of bodies,
   // the processors are assigned different number of bodies to compute.
   // For example, with 6 bodies and 4 processors, the first 2 processors are assigned 2 bodies each,
@@ -74,13 +67,12 @@ BarnesHutSimulationStep step(const BarnesHutSimulationStep& last_step, double dt
   }
 #endif
 
+  spdlog::info("Gathering all bodies...");
+
   auto all_bodies = gather_bodies(proc_id, n_procs, total_n_bodies, my_new_bodies);
 
-#ifndef NDEBUG
-  if (proc_id == 0) {
-    std::puts("Computing complete bounding box...");
-  }
-#endif
+  spdlog::info("Computing complete bounding box...");
+
   const auto complete_bbox = compute_square_bounding_box(all_bodies);
 
   return {std::move(all_bodies), complete_bbox, std::move(complete_quadtree)};

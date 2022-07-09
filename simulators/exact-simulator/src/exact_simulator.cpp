@@ -1,11 +1,10 @@
 #include "exact_simulator.h"
 
+#include <spdlog/spdlog.h>
+
 #include "body_update.h"   // update_body
 #include "bounding_box.h"  // compute_square_bounding_box
 
-#ifndef NDEBUG
-#include <cstdlib>  // puts
-#endif
 #ifdef WITH_TBB
 #include <algorithm>  // transform
 #include <execution>  // par_unseq
@@ -15,9 +14,12 @@
 namespace bh {
 
 SimulationStep step(const SimulationStep& last_step, double dt, double G) {
-#ifndef NDEBUG
-  std::puts("Computing new bodies...");
+#ifdef WITH_TBB
+  spdlog::info("Computing new bodies (TBB)...");
+#else
+  spdlog::info("Computing new bodies (OpenMP)...");
 #endif
+
   std::vector<Body> new_bodies{last_step.bodies().size()};
 #ifdef WITH_TBB
   std::transform(std::execution::par_unseq,
@@ -33,9 +35,8 @@ SimulationStep step(const SimulationStep& last_step, double dt, double G) {
   }
 #endif
 
-#ifndef NDEBUG
-  std::puts("Computing new bounding box...");
-#endif
+  spdlog::info("Computing new bounding box...");
+
   auto new_bbox = compute_square_bounding_box(new_bodies);
 
   return {std::move(new_bodies), new_bbox};

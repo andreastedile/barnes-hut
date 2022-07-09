@@ -18,6 +18,10 @@ FetchContent_Declare(Eigen3
 FetchContent_Declare(nlohmann_json
         URL https://github.com/nlohmann/json/releases/download/v3.10.5/json.tar.xz)
 
+FetchContent_Declare(spdlog
+        GIT_REPOSITORY https://github.com/gabime/spdlog.git
+        GIT_TAG v1.10.0)
+
 # https://github.com/catchorg/Catch2/blob/devel/docs/cmake-integration.md#cmake-targets
 FetchContent_Declare(Catch2
         GIT_REPOSITORY https://github.com/catchorg/Catch2.git
@@ -26,6 +30,7 @@ FetchContent_Declare(Catch2
 FetchContent_MakeAvailable(argparse)
 FetchContent_MakeAvailable(Eigen3)
 FetchContent_MakeAvailable(nlohmann_json)
+FetchContent_MakeAvailable(spdlog)
 FetchContent_MakeAvailable(Catch2)
 
 if (WITH_TBB)

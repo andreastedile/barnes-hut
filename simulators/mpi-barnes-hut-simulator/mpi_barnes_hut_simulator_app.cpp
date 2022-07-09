@@ -1,10 +1,10 @@
 #include <mpi.h>
 
 #include <argparse/argparse.hpp>
-#include <iostream>
 #include <stdexcept>
 #include <string>
 #include <utility>
+#include <spdlog/spdlog.h>
 
 #include "bounding_box.h"
 #include "loader.h"
@@ -67,8 +67,10 @@ int main(int argc, char* argv[]) {
     bh::write_to_file(last_step, "step0.json");
   }
 
+  spdlog::set_pattern("[%H:%M:%S:%f] [proc %P] %v");
+
   for (int i = 0; i < app.get<int>("steps"); i++) {
-    std::cout << "Step " << i + 1 << '\n';
+    spdlog::info("Step {}", i + 1);
 
     last_step = bh::step(last_step, dt, G, theta, proc_id, n_procs);
 
@@ -79,7 +81,7 @@ int main(int argc, char* argv[]) {
 
   MPI_Finalize();
 
-  std::cout << "Done. Exiting...\n";
+  spdlog::info("Done. Exiting...");
 
   return 0;
 }

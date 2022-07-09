@@ -1,11 +1,12 @@
+#include <spdlog/spdlog.h>
+
 #include <argparse/argparse.hpp>
-#include <iostream>
 #include <string>
 #include <utility>
 
 #include "bounding_box.h"
-#include "persistence.h"
 #include "loader.h"
+#include "persistence.h"
 #include "src/exact_simulator.h"
 
 int main(int argc, char* argv[]) {
@@ -48,8 +49,10 @@ int main(int argc, char* argv[]) {
     bh::write_to_file(last_step, "step0.json");
   }
 
+  spdlog::set_pattern("[%H:%M:%S:%f] %v");
+
   for (int i = 0; i < app.get<int>("steps"); i++) {
-    std::cout << "Step " << i + 1 << '\n';
+    spdlog::info("Step {}", i + 1);
 
     last_step = bh::step(last_step, dt, G);
 
@@ -58,7 +61,7 @@ int main(int argc, char* argv[]) {
     }
   }
 
-  std::cout << "Done. Exiting...\n";
+  spdlog::info("Done. Exiting...");
 
   return 0;
 }

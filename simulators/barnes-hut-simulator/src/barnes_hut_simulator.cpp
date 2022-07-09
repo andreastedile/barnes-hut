@@ -1,13 +1,11 @@
 #include "barnes_hut_simulator.h"
 
+#include <spdlog/spdlog.h>
+
 #include "body_update.h"   // update_body
 #include "bounding_box.h"  // compute_square_bounding_box
 #include "quadtree.h"      // construct_quadtree
 
-#ifndef NDEBUG
-#include <cstdlib>  // puts
-#endif
-#include <omp.h>
 #ifdef WITH_TBB
 #include <algorithm>  // transform
 #include <execution>  // par_unseq
@@ -17,14 +15,16 @@
 namespace bh {
 
 BarnesHutSimulationStep step(const BarnesHutSimulationStep& last_step, double dt, double G, double theta) {
-#ifndef NDEBUG
-  std::puts("Constructing quadtree...");
-#endif
-  auto quadtree = construct_quadtree(last_step.bodies(), bbox);
+  spdlog::info("Constructing quadtree...");
 
-#ifndef NDEBUG
-  std::puts("Computing new bodies...");
+  auto quadtree = construct_quadtree(last_step.bodies(), last_step.bbox());
+
+#ifdef WITH_TBB
+  spdlog::info("Computing new bodies (TBB)...");
+#else
+  spdlog::info("Computing new bodies (OpenMP)...");
 #endif
+
   std::vector<Body> new_bodies{last_step.bodies().size()};
 #ifdef WITH_TBB
   std::transform(std::execution::par_unseq,
@@ -40,9 +40,8 @@ BarnesHutSimulationStep step(const BarnesHutSimulationStep& last_step, double dt
   }
 #endif
 
-#ifndef NDEBUG
-  std::puts("Computing new bounding box...");
-#endif
+  spdlog::info("Computing new bounding box...");
+
   auto new_bbox = compute_square_bounding_box(new_bodies);
 
   return {std::move(new_bodies), new_bbox, std::move(quadtree)};
