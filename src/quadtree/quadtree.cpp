@@ -1,10 +1,11 @@
 #include "quadtree.h"
-#include "bounding_box.h"
 
 #include <algorithm>  // transform, count_if
 #include <array>
-#include <utility>    // move
-#include <variant>    // holds_alternative
+#include <utility>  // move
+#include <variant>  // holds_alternative
+
+#include "bounding_box.h"
 
 namespace bh {
 
@@ -79,8 +80,8 @@ std::unique_ptr<Node> reconstruct_quadtree(QuadtreeGrid& matrix) {
 
   for (int i = 0; i < N_ROWS; i += 2) {
     for (int j = 0; j < N_COLS; j += 2) {
-      const int N = i + 1;
-      const int S = i;
+      const int N = i;
+      const int S = i + 1;
       const int W = j;
       const int E = j + 1;
       auto new_node = merge_quadtrees(std::move(matrix[N][W]), std::move(matrix[N][E]), std::move(matrix[S][E]), std::move(matrix[S][W]));

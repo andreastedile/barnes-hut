@@ -116,8 +116,8 @@ Eigen::AlignedBox2d compute_bounding_box_for_processor(const Eigen::AlignedBox2d
   double min_x = outer_bbox.min().x() + (proc_id % N_COLS) * (outer_bbox.sizes().x() / N_COLS);
   double max_x = min_x + (outer_bbox.sizes().x() / N_COLS);
 
-  double min_y = outer_bbox.min().y() + std::floor(proc_id / N_ROWS) * (outer_bbox.sizes().y() / N_ROWS);
-  double max_y = min_y + (outer_bbox.sizes().y() / N_ROWS);
+  double max_y = outer_bbox.max().y() - std::floor(proc_id / N_ROWS) * (outer_bbox.sizes().y() / N_ROWS);
+  double min_y = max_y - (outer_bbox.sizes().y() / N_ROWS);
 
   return {Eigen::Vector2d{min_x, min_y}, Eigen::Vector2d{max_x, max_y}};
 }
