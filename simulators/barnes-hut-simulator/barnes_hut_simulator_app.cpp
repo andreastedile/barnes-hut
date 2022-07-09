@@ -42,12 +42,14 @@ int main(int argc, char* argv[]) {
     std::exit(1);
   }
 
+  const auto input = app.get("input");
+  const auto steps = app.get<int>("steps");
   const auto dt = app.get<double>("dt");
   const auto G = app.get<double>("-G");
   const auto theta = app.get<double>("-theta");
   const auto no_output = app.get<bool>("--no-output");
 
-  auto initial_bodies = bh::load_bodies(app.get("input"));
+  auto initial_bodies = bh::load_bodies(input);
 
   auto last_step = bh::BarnesHutSimulationStep(std::move(initial_bodies), bh::compute_square_bounding_box(initial_bodies));
   if (!no_output) {
@@ -56,13 +58,13 @@ int main(int argc, char* argv[]) {
 
   spdlog::set_pattern("[%H:%M:%S:%f] %v");
 
-  for (int i = 0; i < app.get<int>("steps"); i++) {
-    spdlog::info("Step {}", i + 1);
+  for (int i = 1; i <= steps; i++) {
+    spdlog::info("Step {}", i);
 
     last_step = bh::step(last_step, dt, G, theta);
 
     if (!no_output) {
-      bh::write_to_file(last_step, "step" + std::to_string(i + 1) + ".json");
+      bh::write_to_file(last_step, "step" + std::to_string(i) + ".json");
     }
   }
 
