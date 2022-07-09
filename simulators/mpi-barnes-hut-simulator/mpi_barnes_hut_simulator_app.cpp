@@ -1,7 +1,6 @@
 #include <mpi.h>
 
 #include <argparse/argparse.hpp>
-#include <fstream>
 #include <iostream>
 #include <stdexcept>
 #include <string>
@@ -9,6 +8,7 @@
 
 #include "bounding_box.h"
 #include "loader.h"
+#include "persistence.h"
 #include "power_of_four.h"
 #include "src/mpi_barnes_hut_simulator.h"
 
@@ -63,11 +63,8 @@ int main(int argc, char* argv[]) {
   auto initial_bodies = bh::load_bodies(app.get("input"));
 
   auto last_step = bh::BarnesHutSimulationStep(std::move(initial_bodies), bh::compute_square_bounding_box(initial_bodies));
-  if (!no_output && proc_id == 0) {
-    nlohmann::json j = last_step;
-    std::ofstream o("step0.json");
-    o << j;
-    o.close();
+  if (!no_output) {
+    bh::write_to_file(last_step, "step0.json");
   }
 
   for (int i = 0; i < app.get<int>("steps"); i++) {
@@ -76,10 +73,7 @@ int main(int argc, char* argv[]) {
     last_step = bh::step(last_step, dt, G, theta, proc_id, n_procs);
 
     if (!no_output && proc_id == 0) {
-      nlohmann::json j = last_step;
-      std::ofstream o("step" + std::to_string(i + 1) + ".json");
-      o << j;
-      o.close();
+      bh::write_to_file(last_step, "step" + std::to_string(i + 1) + ".json");
     }
   }
 

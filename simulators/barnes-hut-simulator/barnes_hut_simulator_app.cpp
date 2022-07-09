@@ -1,5 +1,4 @@
 #include <argparse/argparse.hpp>
-#include <fstream>
 #include <iostream>
 #include <string>
 #include <utility>
@@ -7,6 +6,7 @@
 #include "barnes_hut_simulation_step.h"
 #include "bounding_box.h"
 #include "loader.h"
+#include "persistence.h"
 #include "src/barnes_hut_simulator.h"
 
 int main(int argc, char* argv[]) {
@@ -51,10 +51,7 @@ int main(int argc, char* argv[]) {
 
   auto last_step = bh::BarnesHutSimulationStep(std::move(initial_bodies), bh::compute_square_bounding_box(initial_bodies));
   if (!no_output) {
-    nlohmann::json j = last_step;
-    std::ofstream o("step0.json");
-    o << j;
-    o.close();
+    bh::write_to_file(last_step, "step0.json");
   }
 
   for (int i = 0; i < app.get<int>("steps"); i++) {
@@ -63,10 +60,7 @@ int main(int argc, char* argv[]) {
     last_step = bh::step(last_step, dt, G, theta);
 
     if (!no_output) {
-      nlohmann::json j = last_step;
-      std::ofstream o("step" + std::to_string(i + 1) + ".json");
-      o << j;
-      o.close();
+      bh::write_to_file(last_step, "step" + std::to_string(i + 1) + ".json");
     }
   }
 
