@@ -16,5 +16,6 @@ if (WITH_TBB)
 else ()
     target_link_libraries(mpi_barnes_hut_simulator_lib PRIVATE OpenMP::OpenMP_CXX)
 endif ()
+target_link_libraries(mpi_barnes_hut_simulator_lib PRIVATE spdlog::spdlog)
 
 target_include_directories(mpi_barnes_hut_simulator_lib INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>)
