@@ -2,10 +2,10 @@
 
 #include <argparse/argparse.hpp>
 #include <fstream>
+#include <iostream>
 #include <stdexcept>
 #include <string>
 #include <utility>
-#include <iostream>
 
 #include "bounding_box.h"
 #include "loader.h"
@@ -33,8 +33,10 @@ int main(int argc, char* argv[]) {
       .scan<'g', double>()
       .default_value(0.5)
       .help("specify the barnes–hut theta");
-  app.add_argument("-output")
-      .help("specify the output filename");
+  app.add_argument("--no-output")
+      .default_value(false)
+      .implicit_value(true)
+      .help("disables   saving the simulation steps file");
 
   try {
     app.parse_args(argc, argv);
@@ -46,7 +48,7 @@ int main(int argc, char* argv[]) {
   const auto dt = app.get<double>("dt");
   const auto G = app.get<double>("-G");
   const auto theta = app.get<double>("-theta");
-  const auto output = app.present("output");
+  const auto no_output = app.get<bool>("--no-output");
 
   MPI_Init(nullptr, nullptr);
 
@@ -61,15 +63,21 @@ int main(int argc, char* argv[]) {
   auto initial_bodies = bh::load_bodies(app.get("input"));
 
   auto last_step = bh::BarnesHutSimulationStep(std::move(initial_bodies), bh::compute_square_bounding_box(initial_bodies));
+  if (!no_output && proc_id == 0) {
+    nlohmann::json j = last_step;
+    std::ofstream o("step0.json");
+    o << j;
+    o.close();
+  }
 
   for (int i = 0; i < app.get<int>("steps"); i++) {
     std::cout << "Step " << i + 1 << '\n';
 
     last_step = bh::step(last_step, dt, G, theta, proc_id, n_procs);
 
-    if (output && proc_id == 0) {
+    if (!no_output && proc_id == 0) {
       nlohmann::json j = last_step;
-      std::ofstream o(output.value() + std::to_string(i) + ".json");
+      std::ofstream o("step" + std::to_string(i + 1) + ".json");
       o << j;
       o.close();
     }

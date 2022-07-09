@@ -1,12 +1,12 @@
 #include <argparse/argparse.hpp>
 #include <fstream>
+#include <iostream>
 #include <string>
 #include <utility>
-#include <iostream>
 
+#include "bounding_box.h"
 #include "loader.h"
 #include "src/exact_simulator.h"
-#include "bounding_box.h"
 
 int main(int argc, char* argv[]) {
   argparse::ArgumentParser app("Barnes–Hut simulation");
@@ -25,8 +25,10 @@ int main(int argc, char* argv[]) {
       .scan<'g', double>()
       .default_value(0.000000000066743)
       .help("specify the simulation dt");
-  app.add_argument("-output")
-      .help("specify the output filename");
+  app.add_argument("--no-output")
+      .default_value(false)
+      .implicit_value(true)
+      .help("disables   saving the simulation steps file");
 
   try {
     app.parse_args(argc, argv);
@@ -37,20 +39,26 @@ int main(int argc, char* argv[]) {
 
   const auto dt = app.get<double>("dt");
   const auto G = app.get<double>("-G");
-  const auto output = app.present("output");
+  const auto no_output = app.get<bool>("--no-output");
 
   auto initial_bodies = bh::load_bodies(app.get("input"));
 
   auto last_step = bh::SimulationStep(std::move(initial_bodies), bh::compute_square_bounding_box(initial_bodies));
+  if (!no_output) {
+    nlohmann::json j = last_step;
+    std::ofstream o("step0.json");
+    o << j;
+    o.close();
+  }
 
   for (int i = 0; i < app.get<int>("steps"); i++) {
     std::cout << "Step " << i + 1 << '\n';
 
     last_step = bh::step(last_step, dt, G);
 
-    if (output) {
+    if (!no_output) {
       nlohmann::json j = last_step;
-      std::ofstream o(output.value() + std::to_string(i) + ".json");
+      std::ofstream o("step" + std::to_string(i + 1) + ".json");
       o << j;
       o.close();
     }
