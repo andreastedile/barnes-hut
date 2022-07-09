@@ -22,7 +22,7 @@ std::vector<Body> deserialize_bodies(const std::vector<mpi::Body> &bodies) {
                    return deserialize_body(body);
                  });
 #else
-#pragma omp parallel for
+#pragma omp parallel for default(none) shared(bodies, deserialized)
   for (size_t i = 0; i < bodies.size(); i++) {
     deserialized[i] = deserialize_body(bodies[i]);
   }

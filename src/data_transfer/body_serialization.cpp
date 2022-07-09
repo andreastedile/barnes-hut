@@ -21,7 +21,7 @@ std::vector<mpi::Body> serialize_bodies(const std::vector<Body>& bodies) {
                    return serialize_body(body);
                  });
 #else
-#pragma omp parallel for
+#pragma omp parallel for default(none) shared(bodies, serialized)
   for (size_t i = 0; i < bodies.size(); i++) {
     serialized[i] = serialize_body(bodies[i]);
   }

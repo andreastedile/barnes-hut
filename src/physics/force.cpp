@@ -91,7 +91,7 @@ Eigen::Vector2d compute_exact_net_force_on_body(const std::vector<Body>& bodies,
   Eigen::Vector2d net_force{0, 0};
 
 // clang-format off
-#pragma omp parallel for reduction(+ : net_force)
+#pragma omp parallel for default(none) shared(bodies, body, G) reduction(+ : net_force)
     for (const auto &curr : bodies) {
       net_force += compute_gravitational_force(curr, body, G);
     }

@@ -57,7 +57,7 @@ Eigen::AlignedBox2d compute_minimum_bounding_box(const std::vector<Body> &bodies
     Eigen::Vector2d top_right{std::numeric_limits<double>::lowest(), std::numeric_limits<double>::lowest()};
 
 // clang-format off
-#pragma omp parallel for reduction(min : bottom_left) reduction(max : top_right)
+#pragma omp parallel for default(none) shared(bodies) reduction(min : bottom_left) reduction(max : top_right)
     for (const auto &body : bodies) {
       if (body.m_position.x() < bottom_left.x()) bottom_left.x() = body.m_position.x();
       if (body.m_position.y() < bottom_left.y()) bottom_left.y() = body.m_position.y();
