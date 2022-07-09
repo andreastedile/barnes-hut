@@ -68,7 +68,7 @@ BarnesHutSimulationStep step(const BarnesHutSimulationStep& last_step, double dt
                    return update_body(body, *complete_quadtree, dt, G, theta);
                  });
 #else
-#pragma omp parallel for
+#pragma omp parallel for default(none) shared(n_bodies_to_compute, my_new_bodies, last_step, idx_from, dt, G)
   for (int i = 0; i < n_bodies_to_compute; i++) {
     my_new_bodies[i] = update_body(last_step.bodies()[i + idx_from], last_step.bodies(), dt, G);
   }
