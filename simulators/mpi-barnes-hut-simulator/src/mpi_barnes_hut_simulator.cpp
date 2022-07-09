@@ -69,8 +69,8 @@ BarnesHutSimulationStep step(const BarnesHutSimulationStep& last_step, double dt
                  });
 #else
 #pragma omp parallel for
-  for (size_t i = 0; i < last_step.bodies().size(); i++) {
-    update_body(last_step.bodies()[i], last_step.bodies(), dt, G);
+  for (int i = 0; i < n_bodies_to_compute; i++) {
+    my_new_bodies[i] = update_body(last_step.bodies()[i + idx_from], last_step.bodies(), dt, G);
   }
 #endif
 

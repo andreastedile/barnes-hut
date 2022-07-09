@@ -29,7 +29,7 @@ SimulationStep step(const SimulationStep& last_step, double dt, double G) {
 #else
 #pragma omp parallel for
   for (size_t i = 0; i < last_step.bodies().size(); i++) {
-    update_body(last_step.bodies()[i], last_step.bodies(), dt, G);
+    new_bodies[i] = update_body(last_step.bodies()[i], last_step.bodies(), dt, G);
   }
 #endif
 
