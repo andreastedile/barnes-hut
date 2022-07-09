@@ -3,7 +3,6 @@
 
 #include <algorithm>  // transform, count_if
 #include <array>
-#include <execution>  // par_unseq
 #include <utility>    // move
 #include <variant>    // holds_alternative
 
