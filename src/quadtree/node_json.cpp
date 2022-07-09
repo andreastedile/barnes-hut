@@ -5,10 +5,10 @@
 namespace bh {
 
 void to_json(nlohmann::json &j, const Node::Fork &fork) {
-  j = {{"nw", *fork.m_children[Node::NW]},
-       {"ne", *fork.m_children[Node::NE]},
-       {"se", *fork.m_children[Node::SE]},
-       {"sw", *fork.m_children[Node::SW]}};
+  j = {{"nw", *fork.m_nw},
+       {"ne", *fork.m_ne},
+       {"se", *fork.m_se},
+       {"sw", *fork.m_sw}};
 }
 
 void to_json(nlohmann::json &j, const Node::Leaf &leaf) {

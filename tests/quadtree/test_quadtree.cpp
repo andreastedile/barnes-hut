@@ -50,7 +50,7 @@ SCENARIO("Construct a simple quadtree") {
           const auto& lv0_data = std::get<bh::Node::Fork>(lv0.data());
 
           THEN("The lv1-NW becomes a leaf containing the blue body") {
-            const auto& lv1_nw = *lv0_data.m_children[bh::Node::NW];
+            const auto& lv1_nw = *lv0_data.m_nw;
 
             REQUIRE(lv1_nw.bbox().min() == Eigen::Vector2d{0, 5});
             REQUIRE(lv1_nw.bbox().max() == Eigen::Vector2d{5, 10});
@@ -61,7 +61,7 @@ SCENARIO("Construct a simple quadtree") {
             const auto& lv1_nw_data = std::get<bh::Node::Fork>(lv1_nw.data());
 
             THEN("The lv2-NE becomes a leaf containing the blue body") {
-              const auto& lv2_nw = *lv1_nw_data.m_children[bh::Node::NW];
+              const auto& lv2_nw = *lv1_nw_data.m_nw;
 
               REQUIRE(lv2_nw.bbox().min() == Eigen::Vector2d{0, 7.5});
               REQUIRE(lv2_nw.bbox().max() == Eigen::Vector2d{2.5, 10});
@@ -74,7 +74,7 @@ SCENARIO("Construct a simple quadtree") {
             }
 
             THEN("The lv2-NE becomes a leaf containing the green body") {
-              const auto& lv2_ne = *lv1_nw_data.m_children[bh::Node::NE];
+              const auto& lv2_ne = *lv1_nw_data.m_ne;
 
               REQUIRE(lv2_ne.bbox().min() == Eigen::Vector2d{2.5, 7.5});
               REQUIRE(lv2_ne.bbox().max() == Eigen::Vector2d{5, 10});
@@ -87,7 +87,7 @@ SCENARIO("Construct a simple quadtree") {
             }
 
             THEN("The lv2-SE becomes an empty leaf") {
-              const auto& lv2_se = *lv1_nw_data.m_children[bh::Node::SE];
+              const auto& lv2_se = *lv1_nw_data.m_se;
 
               REQUIRE(lv2_se.bbox().min() == Eigen::Vector2d{2.5, 5});
               REQUIRE(lv2_se.bbox().max() == Eigen::Vector2d{5, 7.5});
@@ -97,7 +97,7 @@ SCENARIO("Construct a simple quadtree") {
             }
 
             THEN("The lv2-SW becomes an empty leaf") {
-              const auto& lv2_sw = *lv1_nw_data.m_children[bh::Node::SW];
+              const auto& lv2_sw = *lv1_nw_data.m_sw;
 
               REQUIRE(lv2_sw.bbox().min() == Eigen::Vector2d{0, 5});
               REQUIRE(lv2_sw.bbox().max() == Eigen::Vector2d{2.5, 7.5});
@@ -108,7 +108,7 @@ SCENARIO("Construct a simple quadtree") {
           }
 
           THEN("The lv1-NE becomes an empty leaf") {
-            const auto& lv1_ne = *std::get<bh::Node::Fork>(lv0.data()).m_children[bh::Node::NE];
+            const auto& lv1_ne = *std::get<bh::Node::Fork>(lv0.data()).m_ne;
 
             REQUIRE(lv1_ne.bbox().min() == Eigen::Vector2d{5, 5});
             REQUIRE(lv1_ne.bbox().max() == Eigen::Vector2d{10, 10});
@@ -118,7 +118,7 @@ SCENARIO("Construct a simple quadtree") {
           }
 
           THEN("The lv1-SE node becomes an empty leaf") {
-            const auto& lv1_se = *std::get<bh::Node::Fork>(lv0.data()).m_children[bh::Node::SE];
+            const auto& lv1_se = *std::get<bh::Node::Fork>(lv0.data()).m_se;
 
             REQUIRE(lv1_se.bbox().min() == Eigen::Vector2d{5, 0});
             REQUIRE(lv1_se.bbox().max() == Eigen::Vector2d{10, 5});
@@ -128,7 +128,7 @@ SCENARIO("Construct a simple quadtree") {
           }
 
           THEN("The lv1-SW node becomes an empty leaf") {
-            const auto& lv1_sw = *std::get<bh::Node::Fork>(lv0.data()).m_children[bh::Node::SW];
+            const auto& lv1_sw = *std::get<bh::Node::Fork>(lv0.data()).m_sw;
 
             REQUIRE(lv1_sw.bbox().min() == Eigen::Vector2d{0, 0});
             REQUIRE(lv1_sw.bbox().max() == Eigen::Vector2d{5, 5});
@@ -210,7 +210,7 @@ SCENARIO("Merge four quadtree nodes, two with a single body, in a single quadtre
     const auto& merged_data = std::get<bh::Node::Fork>(merged->data());
 
     THEN("The NW quadtree node, which contained a body, still contains a body in the merged quadtree") {
-      const auto& lv1_nw = *merged_data.m_children[bh::Node::NW];
+      const auto& lv1_nw = *merged_data.m_nw;
       const auto& lv1_nw_data = std::get<bh::Node::Leaf>(lv1_nw.data());
       REQUIRE(lv1_nw_data.m_body);
       REQUIRE(lv1_nw_data.m_body->m_position == b1.m_position);
@@ -218,7 +218,7 @@ SCENARIO("Merge four quadtree nodes, two with a single body, in a single quadtre
     }
 
     THEN("The NE quadtree node, which contained a body, still contains a body in the merged quadtree") {
-      const auto& lv1_ne = *merged_data.m_children[bh::Node::NE];
+      const auto& lv1_ne = *merged_data.m_ne;
       const auto& lv1_ne_data = std::get<bh::Node::Leaf>(lv1_ne.data());
       REQUIRE(lv1_ne_data.m_body);
       REQUIRE(lv1_ne_data.m_body->m_position == b2.m_position);
@@ -318,7 +318,7 @@ TEST_CASE("Reconstruct 8x8 quadtree grid") {
   const auto& lv0_data = std::get<bh::Node::Fork>(lv0->data());
 
   SECTION("lv1-NW") {
-    const auto& lv1_nw = *lv0_data.m_children[bh::Node::NW];
+    const auto& lv1_nw = *lv0_data.m_nw;
     REQUIRE(lv1_nw.bbox().min() == Eigen::Vector2d{0, 4});
     REQUIRE(lv1_nw.bbox().max() == Eigen::Vector2d{4, 8});
     REQUIRE(lv1_nw.n_nodes() == 1);
@@ -327,7 +327,7 @@ TEST_CASE("Reconstruct 8x8 quadtree grid") {
   }
 
   SECTION("lv1-NE") {
-    const auto& lv1_ne = *lv0_data.m_children[bh::Node::NE];
+    const auto& lv1_ne = *lv0_data.m_ne;
     REQUIRE(lv1_ne.bbox().min() == Eigen::Vector2d{4, 4});
     REQUIRE(lv1_ne.bbox().max() == Eigen::Vector2d{8, 8});
     REQUIRE(lv1_ne.n_nodes() == 9);
@@ -337,7 +337,7 @@ TEST_CASE("Reconstruct 8x8 quadtree grid") {
     const auto& lv1_ne_data = std::get<bh::Node::Fork>(lv1_ne.data());
 
     SECTION("lv2-NW") {
-      const auto& lv2_nw = *lv1_ne_data.m_children[bh::Node::NW];
+      const auto& lv2_nw = *lv1_ne_data.m_nw;
       REQUIRE(lv2_nw.bbox().min() == Eigen::Vector2d{4, 6});
       REQUIRE(lv2_nw.bbox().max() == Eigen::Vector2d{6, 8});
       REQUIRE(lv2_nw.n_nodes() == 1);
@@ -346,7 +346,7 @@ TEST_CASE("Reconstruct 8x8 quadtree grid") {
     }
 
     SECTION("lv2-NE") {
-      const auto& lv2_ne = *lv1_ne_data.m_children[bh::Node::NE];
+      const auto& lv2_ne = *lv1_ne_data.m_ne;
       REQUIRE(lv2_ne.bbox().min() == Eigen::Vector2d{6, 6});
       REQUIRE(lv2_ne.bbox().max() == Eigen::Vector2d{8, 8});
       REQUIRE(lv2_ne.n_nodes() == 5);
@@ -355,7 +355,7 @@ TEST_CASE("Reconstruct 8x8 quadtree grid") {
       const auto& lv2_ne_data = std::get<bh::Node::Fork>(lv2_ne.data());
 
       SECTION("lv3-NW") {
-        const auto& lv3_nw = *lv2_ne_data.m_children[bh::Node::NW];
+        const auto& lv3_nw = *lv2_ne_data.m_nw;
         REQUIRE(lv3_nw.bbox().min() == Eigen::Vector2d{6, 7});
         REQUIRE(lv3_nw.bbox().max() == Eigen::Vector2d{7, 8});
         REQUIRE(lv3_nw.n_nodes() == 1);
@@ -364,7 +364,7 @@ TEST_CASE("Reconstruct 8x8 quadtree grid") {
       }
 
       SECTION("lv3-NE") {  // contains the black node in the Desmos graph
-        const auto& lv3_ne = *lv2_ne_data.m_children[bh::Node::NE];
+        const auto& lv3_ne = *lv2_ne_data.m_ne;
         REQUIRE(lv3_ne.bbox().min() == Eigen::Vector2d{7, 7});
         REQUIRE(lv3_ne.bbox().max() == Eigen::Vector2d{8, 8});
         REQUIRE(lv3_ne.n_nodes() == 1);
@@ -375,7 +375,7 @@ TEST_CASE("Reconstruct 8x8 quadtree grid") {
       }
 
       SECTION("lv3-SE") {
-        const auto& lv3_se = *lv2_ne_data.m_children[bh::Node::SE];
+        const auto& lv3_se = *lv2_ne_data.m_se;
         REQUIRE(lv3_se.bbox().min() == Eigen::Vector2d{7, 6});
         REQUIRE(lv3_se.bbox().max() == Eigen::Vector2d{8, 7});
         REQUIRE(lv3_se.n_nodes() == 1);
@@ -384,7 +384,7 @@ TEST_CASE("Reconstruct 8x8 quadtree grid") {
       }
 
       SECTION("lv3-SW") {  // contains the purple node in the Desmos graph
-        const auto& lv3_sw = *lv2_ne_data.m_children[bh::Node::SW];
+        const auto& lv3_sw = *lv2_ne_data.m_sw;
         REQUIRE(lv3_sw.bbox().min() == Eigen::Vector2d{6, 6});
         REQUIRE(lv3_sw.bbox().max() == Eigen::Vector2d{7, 7});
         REQUIRE(lv3_sw.n_nodes() == 1);
@@ -396,7 +396,7 @@ TEST_CASE("Reconstruct 8x8 quadtree grid") {
     }
 
     SECTION("lv2-SE") {
-      const auto& lv2_se = *lv1_ne_data.m_children[bh::Node::SE];
+      const auto& lv2_se = *lv1_ne_data.m_se;
       REQUIRE(lv2_se.bbox().min() == Eigen::Vector2d{6, 4});
       REQUIRE(lv2_se.bbox().max() == Eigen::Vector2d{8, 6});
       REQUIRE(lv2_se.n_nodes() == 1);
@@ -405,7 +405,7 @@ TEST_CASE("Reconstruct 8x8 quadtree grid") {
     }
 
     SECTION("lv2-SW") {  // contains the orange node in the Desmos graph
-      const auto& lv2_sw = *lv1_ne_data.m_children[bh::Node::SW];
+      const auto& lv2_sw = *lv1_ne_data.m_sw;
       REQUIRE(lv2_sw.bbox().min() == Eigen::Vector2d{4, 4});
       REQUIRE(lv2_sw.bbox().max() == Eigen::Vector2d{6, 6});
       REQUIRE(lv2_sw.n_nodes() == 1);
@@ -417,7 +417,7 @@ TEST_CASE("Reconstruct 8x8 quadtree grid") {
   }
 
   SECTION("lv1-SE") {
-    const auto& lv1_se = *lv0_data.m_children[bh::Node::SE];
+    const auto& lv1_se = *lv0_data.m_se;
     REQUIRE(lv1_se.bbox().min() == Eigen::Vector2d{4, 0});
     REQUIRE(lv1_se.bbox().max() == Eigen::Vector2d{8, 4});
     REQUIRE(lv1_se.n_nodes() == 1);
@@ -426,7 +426,7 @@ TEST_CASE("Reconstruct 8x8 quadtree grid") {
   }
 
   SECTION("lv1-SW") {
-    const auto& lv1_sw = *lv0_data.m_children[bh::Node::SW];
+    const auto& lv1_sw = *lv0_data.m_sw;
     REQUIRE(lv1_sw.bbox().min() == Eigen::Vector2d{0, 0});
     REQUIRE(lv1_sw.bbox().max() == Eigen::Vector2d{4, 4});
     REQUIRE(lv1_sw.n_nodes() == 9);
@@ -436,7 +436,7 @@ TEST_CASE("Reconstruct 8x8 quadtree grid") {
     const auto& lv1_sw_data = std::get<bh::Node::Fork>(lv1_sw.data());
 
     SECTION("lv2-NW") {
-      const auto& lv2_nw = *lv1_sw_data.m_children[bh::Node::NW];
+      const auto& lv2_nw = *lv1_sw_data.m_nw;
       REQUIRE(lv2_nw.bbox().min() == Eigen::Vector2d{0, 2});
       REQUIRE(lv2_nw.bbox().max() == Eigen::Vector2d{2, 4});
       REQUIRE(lv2_nw.n_nodes() == 1);
@@ -445,7 +445,7 @@ TEST_CASE("Reconstruct 8x8 quadtree grid") {
     }
 
     SECTION("lv2-NE") {  // contains the green node in the Desmos graph
-      const auto& lv2_ne = *lv1_sw_data.m_children[bh::Node::NE];
+      const auto& lv2_ne = *lv1_sw_data.m_ne;
       REQUIRE(lv2_ne.bbox().min() == Eigen::Vector2d{2, 2});
       REQUIRE(lv2_ne.bbox().max() == Eigen::Vector2d{4, 4});
       REQUIRE(lv2_ne.n_nodes() == 1);
@@ -456,7 +456,7 @@ TEST_CASE("Reconstruct 8x8 quadtree grid") {
     }
 
     SECTION("lv2-SE") {
-      const auto& lv2_se = *lv1_sw_data.m_children[bh::Node::SE];
+      const auto& lv2_se = *lv1_sw_data.m_se;
       REQUIRE(lv2_se.bbox().min() == Eigen::Vector2d{2, 0});
       REQUIRE(lv2_se.bbox().max() == Eigen::Vector2d{4, 2});
       REQUIRE(lv2_se.n_nodes() == 1);
@@ -465,7 +465,7 @@ TEST_CASE("Reconstruct 8x8 quadtree grid") {
     }
 
     SECTION("lv2-SW") {
-      const auto& lv2_sw = *lv1_sw_data.m_children[bh::Node::SW];
+      const auto& lv2_sw = *lv1_sw_data.m_sw;
       REQUIRE(lv2_sw.bbox().min() == Eigen::Vector2d{0, 0});
       REQUIRE(lv2_sw.bbox().max() == Eigen::Vector2d{2, 2});
       REQUIRE(lv2_sw.n_nodes() == 5);
@@ -474,7 +474,7 @@ TEST_CASE("Reconstruct 8x8 quadtree grid") {
       const auto& lv2_sw_data = std::get<bh::Node::Fork>(lv2_sw.data());
 
       SECTION("lv3-NW") {
-        const auto& lv3_nw = *lv2_sw_data.m_children[bh::Node::NW];
+        const auto& lv3_nw = *lv2_sw_data.m_nw;
         REQUIRE(lv3_nw.bbox().min() == Eigen::Vector2d{0, 1});
         REQUIRE(lv3_nw.bbox().max() == Eigen::Vector2d{1, 2});
         REQUIRE(lv3_nw.n_nodes() == 1);
@@ -483,7 +483,7 @@ TEST_CASE("Reconstruct 8x8 quadtree grid") {
       }
 
       SECTION("lv3-NE") {  // contains the blue node in the Desmos graph
-        const auto& lv3_ne = *lv2_sw_data.m_children[bh::Node::NE];
+        const auto& lv3_ne = *lv2_sw_data.m_ne;
         REQUIRE(lv3_ne.bbox().min() == Eigen::Vector2d{1, 1});
         REQUIRE(lv3_ne.bbox().max() == Eigen::Vector2d{2, 2});
         REQUIRE(lv3_ne.n_nodes() == 1);
@@ -494,7 +494,7 @@ TEST_CASE("Reconstruct 8x8 quadtree grid") {
       }
 
       SECTION("lv3-SE") {
-        const auto& lv3_se = *lv2_sw_data.m_children[bh::Node::SE];
+        const auto& lv3_se = *lv2_sw_data.m_se;
         REQUIRE(lv3_se.bbox().min() == Eigen::Vector2d{1, 0});
         REQUIRE(lv3_se.bbox().max() == Eigen::Vector2d{2, 1});
         REQUIRE(lv3_se.n_nodes() == 1);
@@ -503,7 +503,7 @@ TEST_CASE("Reconstruct 8x8 quadtree grid") {
       }
 
       SECTION("lv3-SW") {  // contains the red node in the Desmos graph
-        const auto& lv3_sw = *lv2_sw_data.m_children[bh::Node::SW];
+        const auto& lv3_sw = *lv2_sw_data.m_sw;
         REQUIRE(lv3_sw.bbox().min() == Eigen::Vector2d{0, 0});
         REQUIRE(lv3_sw.bbox().max() == Eigen::Vector2d{1, 1});
         REQUIRE(lv3_sw.n_nodes() == 1);

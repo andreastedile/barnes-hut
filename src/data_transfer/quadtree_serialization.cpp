@@ -18,18 +18,18 @@ overloaded(Ts...) -> overloaded<Ts...>;
  */
 void serialize_impl(const Node& node, std::vector<mpi::Node>& nodes, int idx) {
   auto visit_fork = [&](const Node::Fork& visited) {
-    int children[4]{idx + 1,
-                    idx + 1 + visited.m_children[Node::NW]->n_nodes(),
-                    idx + 1 + visited.m_children[Node::NW]->n_nodes() + visited.m_children[Node::NE]->n_nodes(),
-                    idx + 1 + visited.m_children[Node::NW]->n_nodes() + visited.m_children[Node::NE]->n_nodes() + visited.m_children[Node::SE]->n_nodes()};
+    int nw_idx = idx + 1;
+    int ne_idx = idx + 1 + visited.m_nw->n_nodes();
+    int se_idx = idx + 1 + visited.m_nw->n_nodes() + visited.m_ne->n_nodes();
+    int sw_idx = idx + 1 + visited.m_nw->n_nodes() + visited.m_ne->n_nodes() + visited.m_se->n_nodes();
 
-    serialize_impl(*visited.m_children[Node::NW], nodes, children[Node::NW]);
-    serialize_impl(*visited.m_children[Node::NE], nodes, children[Node::NE]);
-    serialize_impl(*visited.m_children[Node::SE], nodes, children[Node::SE]);
-    serialize_impl(*visited.m_children[Node::SW], nodes, children[Node::SW]);
+    serialize_impl(*visited.m_nw, nodes, nw_idx);
+    serialize_impl(*visited.m_ne, nodes, ne_idx);
+    serialize_impl(*visited.m_se, nodes, se_idx);
+    serialize_impl(*visited.m_sw, nodes, sw_idx);
 
     mpi::Node::Fork::AggregateBody aggregate_body = serialize_body(visited.m_aggregate_body);
-    mpi::Node::Fork fork{children, node.n_nodes(), aggregate_body};
+    mpi::Node::Fork fork{nw_idx, ne_idx, se_idx, sw_idx, node.n_nodes(), aggregate_body};
     nodes[idx] = mpi::Node{fork, node.bbox().min().x(), node.bbox().min().y(), node.bbox().max().x(), node.bbox().max().y()};
   };
   auto visit_leaf = [&](const Node::Leaf& visited) {

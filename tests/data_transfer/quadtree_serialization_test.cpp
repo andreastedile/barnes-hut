@@ -60,28 +60,28 @@ TEST_CASE("Serialize a complex quadtree") {
   REQUIRE(serialized[19].type == bh::mpi::Node::LeafType);
   REQUIRE(serialized[20].type == bh::mpi::Node::LeafType);
 
-  REQUIRE(serialized[0].data.fork.children[bh::Node::NW] == 1);
-  REQUIRE(serialized[0].data.fork.children[bh::Node::NE] == 2);
-  REQUIRE(serialized[0].data.fork.children[bh::Node::SE] == 11);
-  REQUIRE(serialized[0].data.fork.children[bh::Node::SW] == 12);
+  REQUIRE(serialized[0].data.fork.nw_idx == 1);
+  REQUIRE(serialized[0].data.fork.ne_idx == 2);
+  REQUIRE(serialized[0].data.fork.se_idx == 11);
+  REQUIRE(serialized[0].data.fork.sw_idx == 12);
 
-  REQUIRE(serialized[2].data.fork.children[bh::Node::NW] == 3);
-  REQUIRE(serialized[2].data.fork.children[bh::Node::NE] == 4);
-  REQUIRE(serialized[2].data.fork.children[bh::Node::SE] == 9);
-  REQUIRE(serialized[2].data.fork.children[bh::Node::SW] == 10);
+  REQUIRE(serialized[2].data.fork.nw_idx == 3);
+  REQUIRE(serialized[2].data.fork.ne_idx == 4);
+  REQUIRE(serialized[2].data.fork.se_idx == 9);
+  REQUIRE(serialized[2].data.fork.sw_idx == 10);
 
-  REQUIRE(serialized[12].data.fork.children[bh::Node::NW] == 13);
-  REQUIRE(serialized[12].data.fork.children[bh::Node::NE] == 14);
-  REQUIRE(serialized[12].data.fork.children[bh::Node::SE] == 15);
-  REQUIRE(serialized[12].data.fork.children[bh::Node::SW] == 16);
+  REQUIRE(serialized[12].data.fork.nw_idx == 13);
+  REQUIRE(serialized[12].data.fork.ne_idx == 14);
+  REQUIRE(serialized[12].data.fork.se_idx == 15);
+  REQUIRE(serialized[12].data.fork.sw_idx == 16);
 
-  REQUIRE(serialized[4].data.fork.children[bh::Node::NW] == 5);
-  REQUIRE(serialized[4].data.fork.children[bh::Node::NE] == 6);
-  REQUIRE(serialized[4].data.fork.children[bh::Node::SE] == 7);
-  REQUIRE(serialized[4].data.fork.children[bh::Node::SW] == 8);
+  REQUIRE(serialized[4].data.fork.nw_idx == 5);
+  REQUIRE(serialized[4].data.fork.ne_idx == 6);
+  REQUIRE(serialized[4].data.fork.se_idx == 7);
+  REQUIRE(serialized[4].data.fork.sw_idx == 8);
 
-  REQUIRE(serialized[16].data.fork.children[bh::Node::NW] == 17);
-  REQUIRE(serialized[16].data.fork.children[bh::Node::NE] == 18);
-  REQUIRE(serialized[16].data.fork.children[bh::Node::SE] == 19);
-  REQUIRE(serialized[16].data.fork.children[bh::Node::SW] == 20);
+  REQUIRE(serialized[16].data.fork.nw_idx == 17);
+  REQUIRE(serialized[16].data.fork.ne_idx == 18);
+  REQUIRE(serialized[16].data.fork.se_idx == 19);
+  REQUIRE(serialized[16].data.fork.sw_idx == 20);
 }

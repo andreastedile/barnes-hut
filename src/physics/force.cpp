@@ -66,12 +66,10 @@ Eigen::Vector2d compute_approximate_net_force_on_body(const Node& node, const Bo
       return bh::compute_gravitational_force(
           {node.center_of_mass(), node.total_mass()}, body, G);
     } else {
-      return std::accumulate(
-          fork.m_children.begin(), fork.m_children.end(), Eigen::Vector2d{0, 0},
-          [&](const Eigen::Vector2d& total, const std::unique_ptr<Node>& curr) {
-            return (total + compute_approximate_net_force_on_body(*curr, body, G, omega))
-                .eval();
-          });
+      return compute_approximate_net_force_on_body(*fork.m_nw, body, G, omega) +
+             compute_approximate_net_force_on_body(*fork.m_ne, body, G, omega) +
+             compute_approximate_net_force_on_body(*fork.m_se, body, G, omega) +
+             compute_approximate_net_force_on_body(*fork.m_sw, body, G, omega);
     }
   };
 

@@ -36,8 +36,11 @@ TEST_CASE("Deserialize a quadtree with a fork") {
   const auto ne = bh::mpi::Node{bh::mpi::Node::Leaf{green}, 5, 5, 10, 10};
   const auto se = bh::mpi::Node{bh::mpi::Node::Leaf{orange}, 5, 0, 10, 5};
   const auto sw = bh::mpi::Node{bh::mpi::Node::Leaf{red}, 0, 0, 5, 5};
-  int children[4] = {1, 2, 3, 4};
-  const auto quadtree = bh::mpi::Node{bh::mpi::Node::Fork{children, 4, aggregate}, 0, 0, 10, 10};
+  int nw_idx = 1;
+  int ne_idx = 2;
+  int se_idx = 3;
+  int sw_idx = 4;
+  const auto quadtree = bh::mpi::Node{bh::mpi::Node::Fork{nw_idx, ne_idx, se_idx, sw_idx, 4, aggregate}, 0, 0, 10, 10};
 
   const auto deserialized = bh::deserialize_quadtree({quadtree, nw, ne, se, sw});
 
@@ -48,7 +51,7 @@ TEST_CASE("Deserialize a quadtree with a fork") {
   REQUIRE(deserialized->total_mass() == 1);
   const auto &data = std::get<bh::Node::Fork>(deserialized->data());
 
-  const auto &deserialized_nw = *data.m_children[bh::Node::NW];
+  const auto &deserialized_nw = *data.m_nw;
   REQUIRE(deserialized_nw.bbox().min() == Eigen::Vector2d{0, 5});
   REQUIRE(deserialized_nw.bbox().max() == Eigen::Vector2d{5, 10});
   REQUIRE(deserialized_nw.n_nodes() == 1);
@@ -56,7 +59,7 @@ TEST_CASE("Deserialize a quadtree with a fork") {
   REQUIRE(deserialized_nw.total_mass() == 0.25);
   REQUIRE(std::holds_alternative<bh::Node::Leaf>(deserialized_nw.data()));
 
-  const auto &deserialized_ne = *data.m_children[bh::Node::NE];
+  const auto &deserialized_ne = *data.m_ne;
   REQUIRE(deserialized_ne.bbox().min() == Eigen::Vector2d{5, 5});
   REQUIRE(deserialized_ne.bbox().max() == Eigen::Vector2d{10, 10});
   REQUIRE(deserialized_ne.n_nodes() == 1);
@@ -64,7 +67,7 @@ TEST_CASE("Deserialize a quadtree with a fork") {
   REQUIRE(deserialized_ne.total_mass() == 0.25);
   REQUIRE(std::holds_alternative<bh::Node::Leaf>(deserialized_ne.data()));
 
-  const auto &deserialized_se = *data.m_children[bh::Node::SE];
+  const auto &deserialized_se = *data.m_se;
   REQUIRE(deserialized_se.bbox().min() == Eigen::Vector2d{5, 0});
   REQUIRE(deserialized_se.bbox().max() == Eigen::Vector2d{10, 5});
   REQUIRE(deserialized_se.n_nodes() == 1);
@@ -72,7 +75,7 @@ TEST_CASE("Deserialize a quadtree with a fork") {
   REQUIRE(deserialized_se.total_mass() == 0.25);
   REQUIRE(std::holds_alternative<bh::Node::Leaf>(deserialized_se.data()));
 
-  const auto &deserialized_sw = *data.m_children[bh::Node::SW];
+  const auto &deserialized_sw = *data.m_sw;
   REQUIRE(deserialized_sw.bbox().min() == Eigen::Vector2d{0, 0});
   REQUIRE(deserialized_sw.bbox().max() == Eigen::Vector2d{5, 5});
   REQUIRE(deserialized_sw.n_nodes() == 1);

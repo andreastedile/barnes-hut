@@ -5,8 +5,8 @@ namespace bh::mpi {
 Body::Body(double position_x, double position_y, double velocity_x, double velocity_y, double mass)
     : position_x(position_x), position_y(position_y), velocity_x(velocity_x), velocity_y(velocity_y), mass(mass) {}
 
-Node::Fork::Fork(const int children[4], int n_nodes, const AggregateBody& aggregate_body)
-    : children{children[bh::Node::NW], children[bh::Node::NE], children[bh::Node::SE], children[bh::Node::SW]},
+Node::Fork::Fork(int nw_idx, int ne_idx, int se_idx, int sw_idx, int n_nodes, const AggregateBody& aggregate_body)
+    : nw_idx{nw_idx}, ne_idx{ne_idx}, se_idx{se_idx}, sw_idx{sw_idx},
       n_nodes(n_nodes),
       aggregate_body(aggregate_body) {}
 

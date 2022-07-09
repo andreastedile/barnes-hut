@@ -1,9 +1,9 @@
 #ifndef BARNES_HUT_NODE_H
 #define BARNES_HUT_NODE_H
 
-#include <array>
 #include <Eigen/Eigen>
 #include <Eigen/Geometry>
+#include <array>
 #include <memory>  // unique_ptr
 #include <nlohmann/json.hpp>
 #include <optional>  // Leaf's m_body
@@ -28,9 +28,13 @@ class Node {
    */
   struct Fork {
     using AggregateBody = Body;
-    Fork(std::array<std::unique_ptr<Node>, 4> children, int n_nodes, AggregateBody aggregate_body);
+    Fork(std::unique_ptr<Node> nw, std::unique_ptr<Node> ne, std::unique_ptr<Node> se, std::unique_ptr<Node> sw,
+         int n_nodes, AggregateBody aggregate_body);
 
-    std::array<std::unique_ptr<Node>, 4> m_children;
+    std::unique_ptr<Node> m_nw;
+    std::unique_ptr<Node> m_ne;
+    std::unique_ptr<Node> m_se;
+    std::unique_ptr<Node> m_sw;
     int m_n_nodes;
     AggregateBody m_aggregate_body;
   };

@@ -56,8 +56,7 @@ std::unique_ptr<Node> merge_quadtrees(std::unique_ptr<Node> nw, std::unique_ptr<
   auto aggregate_body = compute_aggregate_body(*nw, *ne, *se, *sw);
   auto bottom_left = sw->bbox().min();
   auto top_right = ne->bbox().max();
-  std::array<std::unique_ptr<Node>, 4> subquadrants{std::move(nw), std::move(ne), std::move(se), std::move(sw)};
-  Node::Fork fork(std::move(subquadrants), n_nodes, aggregate_body);
+  Node::Fork fork(std::move(nw), std::move(ne), std::move(se), std::move(sw), n_nodes, aggregate_body);
   return std::make_unique<Node>(std::move(bottom_left), std::move(top_right), std::move(fork));
 }
 

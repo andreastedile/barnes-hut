@@ -1,7 +1,7 @@
 #include "quadtree_deserialization.h"
 
-#include <array>
 #include <Eigen/Eigen>
+#include <array>
 #include <functional>
 #include <memory>
 #include <stdexcept>  // runtime_error
@@ -14,14 +14,13 @@ std::unique_ptr<Node> deserialize_quadtree_impl(const std::vector<mpi::Node> &no
 
   switch (node.type) {
     case mpi::Node::ForkType: {
-      std::array<std::unique_ptr<Node>, 4> children{
-          deserialize_quadtree_impl(nodes, node.data.fork.children[Node::NW]),
-          deserialize_quadtree_impl(nodes, node.data.fork.children[Node::NE]),
-          deserialize_quadtree_impl(nodes, node.data.fork.children[Node::SE]),
-          deserialize_quadtree_impl(nodes, node.data.fork.children[Node::SW])};
+      auto nw = deserialize_quadtree_impl(nodes, node.data.fork.nw_idx);
+      auto ne = deserialize_quadtree_impl(nodes, node.data.fork.ne_idx);
+      auto se = deserialize_quadtree_impl(nodes, node.data.fork.se_idx);
+      auto sw = deserialize_quadtree_impl(nodes, node.data.fork.sw_idx);
 
       Node::Fork::AggregateBody aggregate_body{{node.data.fork.aggregate_body.position_x, node.data.fork.aggregate_body.position_y}, node.data.fork.aggregate_body.mass};
-      Node::Fork fork{std::move(children), node.data.fork.n_nodes, std::move(aggregate_body)};
+      Node::Fork fork{std::move(nw), std::move(ne), std::move(se), std::move(sw), node.data.fork.n_nodes, std::move(aggregate_body)};
       return std::make_unique<Node>(Eigen::Vector2d{node.bottom_left_x, node.bottom_left_y},
                                     Eigen::Vector2d{node.top_right_x, node.top_right_y},
                                     std::move(fork));

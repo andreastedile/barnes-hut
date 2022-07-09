@@ -27,9 +27,12 @@ struct Node final {
     using AggregateBody = Body;
 
     Fork() = default;
-    Fork(const int children[4], int n_nodes, const AggregateBody& aggregate_body);
+    Fork(int nw_idx, int ne_idx, int se_idx, int sw_idx, int n_nodes, const AggregateBody& aggregate_body);
 
-    int children[4];
+    int nw_idx;
+    int ne_idx;
+    int se_idx;
+    int sw_idx;
     int n_nodes;
     AggregateBody aggregate_body;
   } Fork;

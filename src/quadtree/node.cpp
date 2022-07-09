@@ -30,10 +30,8 @@ Node::Fork::AggregateBody compute_aggregate_body(const Node &nw, const Node &ne,
 
 Node::Leaf::Leaf(const Body &body) : m_body(body) {}
 
-Node::Fork::Fork(std::array<std::unique_ptr<Node>, 4> children, int n_nodes, AggregateBody aggregate_body)
-    : m_children(std::move(children)),
-      m_n_nodes(n_nodes),
-      m_aggregate_body(std::move(aggregate_body)) {}
+Node::Fork::Fork(std::unique_ptr<Node> nw, std::unique_ptr<Node> ne, std::unique_ptr<Node> se, std::unique_ptr<Node> sw, int n_nodes, AggregateBody aggregate_body)
+    : m_nw(std::move(nw)), m_ne(std::move(ne)), m_se(std::move(se)), m_sw(std::move(sw)), m_n_nodes(n_nodes), m_aggregate_body(std::move(aggregate_body)) {}
 
 Node::Node(const Eigen::Vector2d &bottom_left, const Eigen::Vector2d &top_right)
     : m_data(Leaf()), m_box(bottom_left, top_right) {
@@ -75,27 +73,26 @@ void Node::insert(const Body &new_body) {
       // and the new body in the corresponding subquadrants, and apply
       // recurison.
       else {
-        std::array<std::unique_ptr<Node>, 4> children{
-            std::make_unique<Node>((m_box.corner(m_box.TopLeft) + m_box.corner(m_box.BottomLeft)) / 2, (m_box.corner(m_box.TopRight) + m_box.corner(m_box.TopLeft)) / 2),
-            std::make_unique<Node>(m_box.center(), m_box.corner(m_box.TopRight)),
-            std::make_unique<Node>((m_box.corner(m_box.BottomRight) + m_box.corner(m_box.BottomLeft)) / 2, (m_box.corner(m_box.TopRight) + m_box.corner(m_box.BottomRight)) / 2),
-            std::make_unique<Node>(m_box.corner(m_box.BottomLeft), m_box.center())};
+        auto nw = std::make_unique<Node>((m_box.corner(m_box.TopLeft) + m_box.corner(m_box.BottomLeft)) / 2, (m_box.corner(m_box.TopRight) + m_box.corner(m_box.TopLeft)) / 2);
+        auto ne = std::make_unique<Node>(m_box.center(), m_box.corner(m_box.TopRight));
+        auto se = std::make_unique<Node>((m_box.corner(m_box.BottomRight) + m_box.corner(m_box.BottomLeft)) / 2, (m_box.corner(m_box.TopRight) + m_box.corner(m_box.BottomRight)) / 2);
+        auto sw = std::make_unique<Node>(m_box.corner(m_box.BottomLeft), m_box.center());
 
         // keep track of how many new quadtree nodes are created as part of the insertion process
         int n_nodes = 4;
 
         switch (get_subquadrant(existing_body.m_position)) {
           case NW:
-            children[NW]->insert(existing_body);
+            nw->insert(existing_body);
             break;
           case NE:
-            children[NE]->insert(existing_body);
+            ne->insert(existing_body);
             break;
           case SE:
-            children[SE]->insert(existing_body);
+            se->insert(existing_body);
             break;
           case SW:
-            children[SW]->insert(existing_body);
+            sw->insert(existing_body);
             break;
           case OUTSIDE:
             throw std::runtime_error(
@@ -104,30 +101,30 @@ void Node::insert(const Body &new_body) {
 
         switch (sq) {
           case NW: {
-            int n_nw_nodes = children[NW]->n_nodes();
-            children[NW]->insert(new_body);
-            int n_new_nw_nodes = children[NW]->n_nodes() - n_nw_nodes;
+            int n_nw_nodes = nw->n_nodes();
+            nw->insert(new_body);
+            int n_new_nw_nodes = nw->n_nodes() - n_nw_nodes;
             n_nodes += n_new_nw_nodes;
             break;
           }
           case NE: {
-            int n_ne_nodes = children[NE]->n_nodes();
-            children[NE]->insert(new_body);
-            int n_new_ne_nodes = children[NE]->n_nodes() - n_ne_nodes;
+            int n_ne_nodes = ne->n_nodes();
+            ne->insert(new_body);
+            int n_new_ne_nodes = ne->n_nodes() - n_ne_nodes;
             n_nodes += n_new_ne_nodes;
             break;
           }
           case SE: {
-            int n_se_nodes = children[SE]->n_nodes();
-            children[SE]->insert(new_body);
-            int n_se_new_nodes = children[SE]->n_nodes() - n_se_nodes;
+            int n_se_nodes = se->n_nodes();
+            se->insert(new_body);
+            int n_se_new_nodes = se->n_nodes() - n_se_nodes;
             n_nodes += n_se_new_nodes;
             break;
           }
           case SW: {
-            int n_sw_nodes = children[SW]->n_nodes();
-            children[SW]->insert(new_body);
-            int n_sw_new_nodes = children[SW]->n_nodes() - n_sw_nodes;
+            int n_sw_nodes = sw->n_nodes();
+            sw->insert(new_body);
+            int n_sw_new_nodes = sw->n_nodes() - n_sw_nodes;
             n_nodes += n_sw_new_nodes;
             break;
           }
@@ -135,8 +132,8 @@ void Node::insert(const Body &new_body) {
             throw std::runtime_error("Reached default case in switch");
         }
 
-        auto aggregate_body = compute_aggregate_body(*children[Node::NW], *children[Node::NE], *children[Node::SE], *children[Node::SW]);
-        m_data = Fork(std::move(children), n_nodes, std::move(aggregate_body));
+        auto aggregate_body = compute_aggregate_body(*nw, *ne, *se, *sw);
+        m_data = Fork(std::move(nw), std::move(ne), std::move(se), std::move(sw), n_nodes, std::move(aggregate_body));
       }
     } else {
       leaf.m_body = new_body;
@@ -146,31 +143,30 @@ void Node::insert(const Body &new_body) {
   auto visit_fork = [&](Fork &fork) {
     switch (get_subquadrant(new_body.m_position)) {
       case NW: {
-        int n_nw_nodes = fork.m_children[NW]->n_nodes();
-        Eigen::Vector2d nw_center_of_mass = fork.m_children[NW]->center_of_mass();
-        fork.m_children[NW]->insert(new_body);
-        int n_new_nw_nodes = fork.m_children[NW]->n_nodes() - n_nw_nodes;
+        int n_nw_nodes = fork.m_nw->n_nodes();
+        fork.m_nw->insert(new_body);
+        int n_new_nw_nodes = fork.m_nw->n_nodes() - n_nw_nodes;
         fork.m_n_nodes += n_new_nw_nodes;
         break;
       }
       case NE: {
-        int n_ne_nodes = fork.m_children[NE]->n_nodes();
-        fork.m_children[NE]->insert(new_body);
-        int n_new_ne_nodes = fork.m_children[NE]->n_nodes() - n_ne_nodes;
+        int n_ne_nodes = fork.m_ne->n_nodes();
+        fork.m_ne->insert(new_body);
+        int n_new_ne_nodes = fork.m_ne->n_nodes() - n_ne_nodes;
         fork.m_n_nodes += n_new_ne_nodes;
         break;
       }
       case SE: {
-        int n_se_nodes = fork.m_children[SE]->n_nodes();
-        fork.m_children[SE]->insert(new_body);
-        int n_new_se_nodes = fork.m_children[SE]->n_nodes() - n_se_nodes;
+        int n_se_nodes = fork.m_se->n_nodes();
+        fork.m_se->insert(new_body);
+        int n_new_se_nodes = fork.m_se->n_nodes() - n_se_nodes;
         fork.m_n_nodes += n_new_se_nodes;
         break;
       }
       case SW: {
-        int n_sw_nodes = fork.m_children[SW]->n_nodes();
-        fork.m_children[SW]->insert(new_body);
-        int n_new_sw_nodes = fork.m_children[SW]->n_nodes() - n_sw_nodes;
+        int n_sw_nodes = fork.m_sw->n_nodes();
+        fork.m_sw->insert(new_body);
+        int n_new_sw_nodes = fork.m_sw->n_nodes() - n_sw_nodes;
         fork.m_n_nodes += n_new_sw_nodes;
         break;
       }
@@ -179,7 +175,7 @@ void Node::insert(const Body &new_body) {
             "Attempted to insert a new body outside of the node's bounding "
             "box");
     }
-    fork.m_aggregate_body = compute_aggregate_body(*fork.m_children[NW], *fork.m_children[NE], *fork.m_children[SE], *fork.m_children[SW]);
+    fork.m_aggregate_body = compute_aggregate_body(*fork.m_nw, *fork.m_ne, *fork.m_se, *fork.m_sw);
   };
 
   std::visit(overloaded{visit_fork, visit_leaf}, m_data);
