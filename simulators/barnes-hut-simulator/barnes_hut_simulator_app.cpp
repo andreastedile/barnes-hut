@@ -2,6 +2,8 @@
 #include <string>
 #include <utility>
 #include <spdlog/spdlog.h>
+#include <fstream>
+#include <iostream>
 
 #include "barnes_hut_simulation_step.h"
 #include "bounding_box.h"
@@ -33,7 +35,9 @@ int main(int argc, char* argv[]) {
   app.add_argument("--no-output")
       .default_value(false)
       .implicit_value(true)
-      .help("disables   saving the simulation steps file");
+      .help("disables saving the simulation steps file");
+  app.add_argument("-timings")
+      .help("specify the output filename");
 
   try {
     app.parse_args(argc, argv);
@@ -48,6 +52,7 @@ int main(int argc, char* argv[]) {
   const auto G = app.get<double>("-G");
   const auto theta = app.get<double>("-theta");
   const auto no_output = app.get<bool>("--no-output");
+  const auto timings = app.present("timings");
 
   auto initial_bodies = bh::load_bodies(input);
 
@@ -68,7 +73,13 @@ int main(int argc, char* argv[]) {
     }
   }
 
-  spdlog::info("Done. Exiting...");
+  std::cout << bh::timings();
+
+  if (timings) {
+    std::ofstream o(timings.value());
+    o << bh::timings();
+    o.close();
+  }
 
   return 0;
 }
