@@ -21,11 +21,11 @@ int main(int argc, char* argv[]) {
   app.add_argument("dt")
       .scan<'g', double>()
       .required()
-      .help("specify the simulation gravitational constant");
+      .help("specify the simulation dt");
   app.add_argument("-G")
       .scan<'g', double>()
       .default_value(0.000000000066743)
-      .help("specify the simulation dt");
+      .help("specify the simulation gravitational constant");
   app.add_argument("-theta")
       .scan<'g', double>()
       .default_value(0.5)
