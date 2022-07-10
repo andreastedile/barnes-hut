@@ -55,6 +55,9 @@ SimulationStep step(const SimulationStep& last_step, double dt, double G) {
 #else
 #pragma omp parallel for default(none) shared(last_step, new_bodies, dt, G)
   for (size_t i = 0; i < last_step.bodies().size(); i++) {
+#ifdef DEBUG_OPENMP_BODY_UPDATE_FOR_LOOP
+    spdlog::debug("Updating body {}", i);
+#endif
     new_bodies[i] = update_body(last_step.bodies()[i], last_step.bodies(), dt, G);
   }
 #endif

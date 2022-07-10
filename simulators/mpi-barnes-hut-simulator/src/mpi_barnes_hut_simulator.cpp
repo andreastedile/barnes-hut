@@ -102,6 +102,9 @@ BarnesHutSimulationStep step(const BarnesHutSimulationStep& last_step, double dt
 #else
 #pragma omp parallel for default(none) shared(n_bodies_to_compute, my_new_bodies, last_step, idx_from, dt, G)
   for (int i = 0; i < n_bodies_to_compute; i++) {
+#ifdef DEBUG_OPENMP_BODY_UPDATE_FOR_LOOP
+    spdlog::debug("Updating body {}", i);
+#endif
     my_new_bodies[i] = update_body(last_step.bodies()[i + idx_from], last_step.bodies(), dt, G);
   }
 #endif
