@@ -1,7 +1,5 @@
-Specify the output filename of the simulation, using the -output argument.
-
-If "simulation" is the filename of your choice, then use:
+From the directory containing the simulation steps, invoke:
 
 ```shell
-jq -s . simulation*.json > merged.json
+jq -s . step*.json > merged.json
 ```
