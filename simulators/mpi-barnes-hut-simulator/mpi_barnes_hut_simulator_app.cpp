@@ -36,6 +36,10 @@ int main(int argc, char* argv[]) {
       .scan<'g', double>()
       .default_value(0.5)
       .help("specify the barnes–hut theta");
+  app.add_argument("sampling_rate")
+      .scan<'d', int>()
+      .required()
+      .help("specify the number sampling rate");
   app.add_argument("--no-output")
       .default_value(false)
       .implicit_value(true)
@@ -55,6 +59,7 @@ int main(int argc, char* argv[]) {
   const auto dt = app.get<double>("dt");
   const auto G = app.get<double>("-G");
   const auto theta = app.get<double>("-theta");
+  const auto sampling_rate = app.get<int>("sampling_rate");
   const auto no_output = app.get<bool>("--no-output");
   const auto timings = app.present("timings");
 
@@ -83,7 +88,7 @@ int main(int argc, char* argv[]) {
 
     last_step = bh::step(last_step, dt, G, theta, proc_id, n_procs);
 
-    if (!no_output && proc_id == 0) {
+    if (!no_output && proc_id == 0 && i % sampling_rate == 0) {
       bh::write_to_file(last_step, "step" + std::to_string(i) + ".json");
     }
   }
