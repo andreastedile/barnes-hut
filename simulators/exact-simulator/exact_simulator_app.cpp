@@ -31,6 +31,7 @@ int main(int argc, char* argv[]) {
       .help("specify the simulation dt");
   app.add_argument("sampling_rate")
       .scan<'d', int>()
+      .default_value(1)
       .help("specify the sampling rate");
   app.add_argument("--no-output")
       .default_value(false)
