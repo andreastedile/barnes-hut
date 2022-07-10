@@ -74,7 +74,7 @@ int main(int argc, char* argv[]) {
     bh::write_to_file(last_step, "step0.json");
   }
 
-  spdlog::set_pattern("[%H:%M:%S:%f] [proc %P] %v");
+  spdlog::set_pattern("proc %P/thread %t elapsed: %i μs  [%l] %v");
 
   for (int i = 1; i <= steps; i++) {
     spdlog::info("Step {}", i);
@@ -88,12 +88,14 @@ int main(int argc, char* argv[]) {
 
   MPI_Finalize();
 
-  std::cout << bh::timings();
+  if (proc_id == 0) {
+    std::cout << bh::timings();
 
-  if (timings) {
-    std::ofstream o(timings.value());
-    o << bh::timings();
-    o.close();
+    if (timings) {
+      std::ofstream o(timings.value());
+      o << bh::timings();
+      o.close();
+    }
   }
 
   return 0;
