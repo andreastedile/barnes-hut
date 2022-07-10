@@ -82,8 +82,6 @@ int main(int argc, char* argv[]) {
     o << bh::timings();
     o.close();
   }
-  for (int i = 0; i < steps; i++) {
-    std::cout << "Step " << i + 1 << '\n';
 
   return 0;
 }
