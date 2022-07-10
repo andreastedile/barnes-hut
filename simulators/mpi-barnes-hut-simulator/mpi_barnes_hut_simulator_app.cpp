@@ -14,6 +14,7 @@
 #include "persistence.h"
 #include "power_of_four.h"
 #include "src/mpi_barnes_hut_simulator.h"
+#include "step_format.h"
 
 int main(int argc, char* argv[]) {
   argparse::ArgumentParser app("Barnes–Hut simulation");
@@ -77,7 +78,7 @@ int main(int argc, char* argv[]) {
 
   auto last_step = bh::BarnesHutSimulationStep(std::move(initial_bodies), bh::compute_square_bounding_box(initial_bodies));
   if (!no_output) {
-    bh::write_to_file(last_step, "step0.json");
+    bh::write_to_file(last_step, "step" + bh::format_step_n(0, steps) + ".json");
   }
 
   spdlog::cfg::load_env_levels();
@@ -89,7 +90,7 @@ int main(int argc, char* argv[]) {
     last_step = bh::step(last_step, dt, G, theta, proc_id, n_procs);
 
     if (!no_output && proc_id == 0 && i % sampling_rate == 0) {
-      bh::write_to_file(last_step, "step" + std::to_string(i) + ".json");
+      bh::write_to_file(last_step, "step" + bh::format_step_n(i, steps) + ".json");
     }
   }
 
