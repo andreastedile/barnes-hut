@@ -1,12 +1,11 @@
 #include "barnes_hut_simulation_step.h"
 // Even though the #include below is reported unused, it allows serializing Eigen datatypes, and should not be removed!
-#include "../eigen_json.h"
-
-#ifdef DEBUG_CONSTRUCTOR_AND_ASSIGNMENT_OPERATORS
 #include <spdlog/spdlog.h>
-#endif
-#include <utility>    // move
+
 #include <memory>
+#include <utility>  // move
+
+#include "../eigen_json.h"
 
 namespace bh {
 

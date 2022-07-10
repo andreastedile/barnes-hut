@@ -2,6 +2,7 @@
 #include <string>
 #include <utility>
 #include <spdlog/spdlog.h>
+#include <spdlog/cfg/env.h>
 #include <fstream>
 #include <iostream>
 
@@ -61,8 +62,8 @@ int main(int argc, char* argv[]) {
     bh::write_to_file(last_step, "step0.json");
   }
 
-  spdlog::set_level(spdlog::level::trace);
-  spdlog::set_pattern("proc %P elapsed: %i μs  [%l] %v");
+  spdlog::cfg::load_env_levels();
+  spdlog::set_pattern("proc %P/thread %t elapsed: %i μs  [%l] %v");
 
   for (int i = 1; i <= steps; i++) {
     spdlog::info("Step {}", i);

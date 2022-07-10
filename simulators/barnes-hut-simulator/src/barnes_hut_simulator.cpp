@@ -38,16 +38,16 @@ const Timings& timings() {
 BarnesHutSimulationStep step(const BarnesHutSimulationStep& last_step, double dt, double G, double theta) {
   spdlog::stopwatch sw;
 
-  spdlog::info("Constructing quadtree...");
+  spdlog::debug("Constructing quadtree...");
   auto quadtree = construct_quadtree(last_step.bodies(), last_step.bbox());
 
   m_timings.construct_quadtree += sw.elapsed();
   sw.reset();
 
 #ifdef WITH_TBB
-  spdlog::info("Computing new bodies (TBB)...");
+  spdlog::debug("Computing new bodies (TBB)...");
 #else
-  spdlog::info("Computing new bodies (OpenMP)...");
+  spdlog::debug("Computing new bodies (OpenMP)...");
 #endif
   std::vector<Body> new_bodies{last_step.bodies().size()};
 #ifdef WITH_TBB
@@ -61,7 +61,7 @@ BarnesHutSimulationStep step(const BarnesHutSimulationStep& last_step, double dt
 #pragma omp parallel for default(none) shared(last_step, new_bodies, quadtree, dt, G, theta)
   for (size_t i = 0; i < last_step.bodies().size(); i++) {
 #ifdef DEBUG_OPENMP_BODY_UPDATE_FOR_LOOP
-    spdlog::debug("Updating body {}", i);
+    spdlog::trace("Updating body {}", i);
 #endif
     new_bodies[i] = update_body(last_step.bodies()[i], *quadtree, dt, G, theta);
   }
@@ -70,7 +70,7 @@ BarnesHutSimulationStep step(const BarnesHutSimulationStep& last_step, double dt
   m_timings.update_body += sw.elapsed();
   sw.reset();
 
-  spdlog::info("Computing new bounding box...");
+  spdlog::debug("Computing new bounding box...");
   auto new_bbox = compute_square_bounding_box(new_bodies);
 
   m_timings.compute_square_bounding_box += sw.elapsed();

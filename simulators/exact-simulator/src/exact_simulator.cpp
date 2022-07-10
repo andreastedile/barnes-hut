@@ -36,9 +36,9 @@ SimulationStep step(const SimulationStep& last_step, double dt, double G) {
   spdlog::stopwatch sw;
 
 #ifdef WITH_TBB
-  spdlog::info("Computing new bodies (TBB)...");
+  spdlog::debug("Computing new bodies (TBB)...");
 #else
-  spdlog::info("Computing new bodies (OpenMP)...");
+  spdlog::debug("Computing new bodies (OpenMP)...");
 #endif
   std::vector<Body> new_bodies{last_step.bodies().size()};
 #ifdef WITH_TBB
@@ -56,7 +56,7 @@ SimulationStep step(const SimulationStep& last_step, double dt, double G) {
 #pragma omp parallel for default(none) shared(last_step, new_bodies, dt, G)
   for (size_t i = 0; i < last_step.bodies().size(); i++) {
 #ifdef DEBUG_OPENMP_BODY_UPDATE_FOR_LOOP
-    spdlog::debug("Updating body {}", i);
+    spdlog::trace("Updating body {}", i);
 #endif
     new_bodies[i] = update_body(last_step.bodies()[i], last_step.bodies(), dt, G);
   }
@@ -65,7 +65,7 @@ SimulationStep step(const SimulationStep& last_step, double dt, double G) {
   m_timings.update_body += sw.elapsed();
   sw.reset();
 
-  spdlog::info("Computing new bounding box...");
+  spdlog::debug("Computing new bounding box...");
   auto new_bbox = compute_square_bounding_box(new_bodies);
 
   m_timings.compute_square_bounding_box += sw.elapsed();

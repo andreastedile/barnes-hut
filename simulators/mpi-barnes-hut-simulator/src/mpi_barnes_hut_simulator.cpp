@@ -50,34 +50,34 @@ const Timings& timings() {
 BarnesHutSimulationStep step(const BarnesHutSimulationStep& last_step, double dt, double G, double theta, int proc_id, int n_procs) {
   spdlog::stopwatch sw;
 
-  spdlog::info("Computing bounding box for processor...");
+  spdlog::debug("Computing bounding box for processor...");
   auto my_bbox = compute_bounding_box_for_processor(last_step.bbox(), proc_id, n_procs);
 
   m_timings.compute_bounding_box_for_processor += sw.elapsed();
   sw.reset();
 
-  spdlog::info("Filtering bodies...");
+  spdlog::debug("Filtering bodies...");
   const auto filtered_bodies = filter_bodies_by_subquadrant(last_step.bodies(), last_step.bbox(), my_bbox);
 
   m_timings.filter_bodies_by_subquadrant += sw.elapsed();
   sw.reset();
 
-  spdlog::info("Constructing quadtree...");
+  spdlog::debug("Constructing quadtree...");
   auto my_quadtree = construct_quadtree(filtered_bodies, my_bbox);
 
   m_timings.construct_quadtree += sw.elapsed();
   sw.reset();
 
-  spdlog::info("Gathering complete quadtree...");
+  spdlog::debug("Gathering complete quadtree...");
   auto complete_quadtree = gather_quadtree(proc_id, n_procs, *my_quadtree);
 
   m_timings.gather_quadtree += sw.elapsed();
   sw.reset();
 
 #ifdef WITH_TBB
-  spdlog::info("Computing my new bodies (TBB)...");
+  spdlog::debug("Computing my new bodies (TBB)...");
 #else
-  spdlog::info("Computing new bodies (OpenMP)...");
+  spdlog::debug("Computing new bodies (OpenMP)...");
 #endif
 
   // If the number of processors does not evenly divide the number of bodies,
@@ -103,7 +103,7 @@ BarnesHutSimulationStep step(const BarnesHutSimulationStep& last_step, double dt
 #pragma omp parallel for default(none) shared(n_bodies_to_compute, my_new_bodies, last_step, idx_from, complete_quadtree, dt, G, theta)
   for (int i = 0; i < n_bodies_to_compute; i++) {
 #ifdef DEBUG_OPENMP_BODY_UPDATE_FOR_LOOP
-    spdlog::debug("Updating body {}", i);
+    spdlog::trace("Updating body {}", i);
 #endif
     my_new_bodies[i] = update_body(last_step.bodies()[i + idx_from], *complete_quadtree, dt, G, theta);
   }
@@ -112,13 +112,13 @@ BarnesHutSimulationStep step(const BarnesHutSimulationStep& last_step, double dt
   m_timings.update_body += sw.elapsed();
   sw.reset();
 
-  spdlog::info("Gathering all bodies...");
+  spdlog::debug("Gathering all bodies...");
   auto all_bodies = gather_bodies(proc_id, n_procs, total_n_bodies, my_new_bodies);
 
   m_timings.gather_bodies += sw.elapsed();
   sw.reset();
 
-  spdlog::info("Computing complete bounding box...");
+  spdlog::debug("Computing complete bounding box...");
   const auto complete_bbox = compute_square_bounding_box(all_bodies);
 
   m_timings.compute_square_bounding_box += sw.elapsed();
