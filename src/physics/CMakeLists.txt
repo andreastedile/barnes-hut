@@ -13,6 +13,7 @@ else ()
 endif ()
 
 if (DEBUG_COMPUTE_GRAVITATIONAL_FORCE)
+    target_link_libraries(physics_lib PRIVATE spdlog::spdlog)
     target_compile_definitions(physics_lib PUBLIC DEBUG_COMPUTE_GRAVITATIONAL_FORCE)
 endif ()
 

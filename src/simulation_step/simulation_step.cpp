@@ -2,8 +2,8 @@
 // Even though the #include below is reported unused, it allows serializing Eigen datatypes, and should not be removed!
 #include "../eigen_json.h"
 
-#ifndef NDEBUG
-#include <cstdio>  // puts
+#ifdef DEBUG_CONSTRUCTOR_AND_ASSIGNMENT_OPERATORS
+#include <spdlog/spdlog.h>
 #endif
 #include <utility>    // move
 
@@ -24,23 +24,23 @@ const Eigen::AlignedBox2d &SimulationStep::bbox() const {
 
 SimulationStep::SimulationStep(const SimulationStep &other)
     : m_bodies(other.m_bodies), m_bbox(other.m_bbox) {
-  std::puts("SimulationStep copy constructor");
+  spdlog::trace("SimulationStep copy constructor");
 }
 
 SimulationStep::SimulationStep(SimulationStep &&other) noexcept
     : m_bodies(std::move(other.m_bodies)), m_bbox(other.m_bbox) {
-  std::puts("SimulationStep move constructor");
+  spdlog::trace("SimulationStep move constructor");
 }
 
 SimulationStep &SimulationStep::operator=(const SimulationStep &other) {
-  std::puts("SimulationStep copy assignment operator");
+  spdlog::trace("SimulationStep copy assignment operator");
   m_bodies = other.m_bodies;
   m_bbox = other.m_bbox;
   return *this;
 }
 
 SimulationStep &SimulationStep::operator=(SimulationStep &&other) noexcept {
-  std::puts("SimulationStep move assignment operator");
+  spdlog::trace("SimulationStep move assignment operator");
   m_bodies = std::move(other.m_bodies);
   m_bbox = other.m_bbox;
   return *this;

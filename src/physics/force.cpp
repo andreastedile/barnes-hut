@@ -14,7 +14,7 @@
 #include <numeric>  // accumulate, transform_reduce
 #include <variant>  // visit
 #ifdef DEBUG_COMPUTE_GRAVITATIONAL_FORCE
-#include <iostream>
+#include <spdlog/spdlog.h>
 #endif
 #include <cmath>
 
@@ -38,11 +38,11 @@ Eigen::Vector2d compute_gravitational_force(const Body& b1, const Body& b2, doub
     double fx = std::cos(angle) * magnitude;
     double fy = std::sin(angle) * magnitude;
 #ifdef DEBUG_COMPUTE_GRAVITATIONAL_FORCE
-    std::cout << "distance: " << distance << '\n';
-    std::cout << "magnitude: " << magnitude << '\n';
-    std::cout << "angle: " << angle << '\n';
-    std::cout << "fx: " << fx << '\n';
-    std::cout << "fy: " << fy << '\n';
+    spdlog::trace("distance: {}", distance);
+    spdlog::trace("magnitude: {}", magnitude);
+    spdlog::trace("angle: {}", angle);
+    spdlog::trace("fx: {}", fx);
+    spdlog::trace("fy: {}", fy);
 #endif
     return {fx, fy};
   } else {

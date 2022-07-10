@@ -1,5 +1,7 @@
 #include "node.h"
 
+#include <spdlog/spdlog.h>
+
 #include <string>
 
 // https://en.cppreference.com/w/cpp/utility/variant/visit
@@ -9,10 +11,6 @@ struct overloaded : Ts... {
 };
 template <class... Ts>
 overloaded(Ts...) -> overloaded<Ts...>;
-
-#ifndef NDEBUG
-#include <iostream>
-#endif
 
 #include <stdexcept>  // invalid_argument, runtime_error
 
@@ -64,9 +62,8 @@ void Node::insert(const Body &new_body) {
 
       // If the two bodies coincide, sum their masses.
       if (new_body.m_position == existing_body.m_position) {
-#ifndef NDEBUG
-        std::cout << "bodies coincide\n";
-#endif
+        spdlog::debug("bodies coincide");
+
         existing_body.m_mass += new_body.m_mass;
       }
       // Otherwise, create four empty subquadrants, relocate the existing body

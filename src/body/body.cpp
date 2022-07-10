@@ -3,8 +3,8 @@
 #include <stdexcept>
 #include <string>   // to_string
 #include <utility>  // move
-#ifndef NDEBUG
-#include <cstdio>
+#ifdef DEBUG_CONSTRUCTOR_AND_ASSIGNMENT_OPERATORS
+#include <spdlog/spdlog.h>
 #endif
 
 namespace bh {
@@ -33,16 +33,16 @@ std::istream &operator>>(std::istream &stream, Body &body) {
 
 Body::Body(const Body &other)
     : m_position(other.m_position), m_mass(other.m_mass), m_velocity(other.m_velocity) {
-  std::puts("Body copy constructor");
+  spdlog::trace("Body copy constructor");
 }
 
 Body::Body(Body &&other) noexcept
     : m_position(std::move(other.m_position)), m_mass(other.m_mass), m_velocity(std::move(other.m_velocity)) {
-  std::puts("Body move constructor");
+  spdlog::trace("Body move constructor");
 }
 
 Body &Body::operator=(const Body &other) {
-  std::puts("Body copy assignment operator");
+  spdlog::trace("Body copy assignment operator");
   m_position = other.m_position;
   m_mass = other.m_mass;
   m_velocity = other.m_velocity;
@@ -50,7 +50,7 @@ Body &Body::operator=(const Body &other) {
 }
 
 Body &Body::operator=(Body &&other) noexcept {
-  std::puts("Body move assignment operator");
+  spdlog::trace("Body move assignment operator");
   m_position = std::move(other.m_position);
   m_mass = other.m_mass;
   m_velocity = std::move(other.m_velocity);

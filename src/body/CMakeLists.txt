@@ -14,6 +14,7 @@ else ()
 endif ()
 
 if (DEBUG_CONSTRUCTOR_AND_ASSIGNMENT_OPERATORS)
+    target_link_libraries(body_lib PRIVATE spdlog::spdlog)
     target_compile_definitions(body_lib PUBLIC DEBUG_CONSTRUCTOR_AND_ASSIGNMENT_OPERATORS)
 endif ()
 
