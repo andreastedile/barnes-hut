@@ -24,7 +24,7 @@ std::chrono::duration<double> Timings::total() const {
 std::ostream& operator<<(std::ostream& os, const Timings& timings) {
   os << "Bodies update: " << timings.update_body.count() << " s\n";
   os << "Bounding box computation: " << timings.compute_square_bounding_box.count() << " s\n";
-  os << "Total: " << timings.total().count() << " s";
+  os << "Total: " << timings.total().count() << " s\n";
   return os;
 }
 
