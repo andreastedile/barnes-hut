@@ -35,13 +35,10 @@ const Timings& timings() {
 SimulationStep step(const SimulationStep& last_step, double dt, double G) {
   spdlog::stopwatch sw;
 
-#ifdef WITH_TBB
-  spdlog::debug("Computing new bodies (TBB)...");
-#else
-  spdlog::debug("Computing new bodies (OpenMP)...");
-#endif
   std::vector<Body> new_bodies{last_step.bodies().size()};
 #ifdef WITH_TBB
+  spdlog::debug("Computing new bodies (TBB)...");
+
   std::transform(std::execution::par_unseq,
                  last_step.bodies().begin(), last_step.bodies().end(),
                  new_bodies.begin(),
@@ -49,10 +46,9 @@ SimulationStep step(const SimulationStep& last_step, double dt, double G) {
                    return update_body(body, last_step.bodies(), dt, G);
                  });
 
-  m_update_body_cumulative_time += sw.elapsed();
-  sw.reset();
-
 #else
+  spdlog::debug("Computing new bodies (OpenMP)...");
+
 #pragma omp parallel for default(none) shared(last_step, new_bodies, dt, G)
   for (size_t i = 0; i < last_step.bodies().size(); i++) {
 #ifdef DEBUG_OPENMP_BODY_UPDATE_FOR_LOOP

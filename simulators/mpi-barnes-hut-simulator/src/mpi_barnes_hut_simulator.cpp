@@ -74,12 +74,6 @@ BarnesHutSimulationStep step(const BarnesHutSimulationStep& last_step, double dt
   m_timings.gather_quadtree += sw.elapsed();
   sw.reset();
 
-#ifdef WITH_TBB
-  spdlog::debug("Computing my new bodies (TBB)...");
-#else
-  spdlog::debug("Computing new bodies (OpenMP)...");
-#endif
-
   // If the number of processors does not evenly divide the number of bodies,
   // the processors are assigned different number of bodies to compute.
   // For example, with 6 bodies and 4 processors, the first 2 processors are assigned 2 bodies each,
@@ -93,6 +87,8 @@ BarnesHutSimulationStep step(const BarnesHutSimulationStep& last_step, double dt
   std::vector<Body> my_new_bodies(n_bodies_to_compute);
   const int idx_from = (proc_id) * (total_n_bodies / n_procs) + std::min(proc_id, n_remaining_bodies);
 #ifdef WITH_TBB
+  spdlog::debug("Computing my new bodies (TBB)...");
+
   std::transform(std::execution::par_unseq,
                  last_step.bodies().begin() + idx_from, last_step.bodies().begin() + idx_from + n_bodies_to_compute,
                  my_new_bodies.begin(),
@@ -100,6 +96,8 @@ BarnesHutSimulationStep step(const BarnesHutSimulationStep& last_step, double dt
                    return update_body(body, *complete_quadtree, dt, G, theta);
                  });
 #else
+  spdlog::debug("Computing new bodies (OpenMP)...");
+
 #pragma omp parallel for default(none) shared(n_bodies_to_compute, my_new_bodies, last_step, idx_from, complete_quadtree, dt, G, theta)
   for (int i = 0; i < n_bodies_to_compute; i++) {
 #ifdef DEBUG_OPENMP_BODY_UPDATE_FOR_LOOP

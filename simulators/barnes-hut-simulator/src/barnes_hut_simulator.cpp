@@ -44,13 +44,10 @@ BarnesHutSimulationStep step(const BarnesHutSimulationStep& last_step, double dt
   m_timings.construct_quadtree += sw.elapsed();
   sw.reset();
 
-#ifdef WITH_TBB
-  spdlog::debug("Computing new bodies (TBB)...");
-#else
-  spdlog::debug("Computing new bodies (OpenMP)...");
-#endif
   std::vector<Body> new_bodies{last_step.bodies().size()};
 #ifdef WITH_TBB
+  spdlog::debug("Computing new bodies (TBB)...");
+
   std::transform(std::execution::par_unseq,
                  last_step.bodies().begin(), last_step.bodies().end(),
                  new_bodies.begin(),
@@ -58,6 +55,8 @@ BarnesHutSimulationStep step(const BarnesHutSimulationStep& last_step, double dt
                    return update_body(body, *quadtree, dt, G, theta);
                  });
 #else
+  spdlog::debug("Computing new bodies (OpenMP)...");
+
 #pragma omp parallel for default(none) shared(last_step, new_bodies, quadtree, dt, G, theta)
   for (size_t i = 0; i < last_step.bodies().size(); i++) {
 #ifdef DEBUG_OPENMP_BODY_UPDATE_FOR_LOOP
