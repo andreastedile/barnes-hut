@@ -33,7 +33,7 @@ int main(int argc, char* argv[]) {
       .scan<'g', double>()
       .default_value(0.5)
       .help("specify the barnes–hut theta");
-  app.add_argument("sampling_rate")
+  app.add_argument("--sampling-rate")
       .scan<'d', int>()
       .default_value(1)
       .help("specify the sampling rate");
@@ -41,8 +41,8 @@ int main(int argc, char* argv[]) {
       .default_value(false)
       .implicit_value(true)
       .help("disables saving the simulation steps file");
-  app.add_argument("-timings")
-      .help("specify the output filename");
+  app.add_argument("--timings")
+      .help("specify the timings output filename");
 
   try {
     app.parse_args(argc, argv);
@@ -56,9 +56,9 @@ int main(int argc, char* argv[]) {
   const auto dt = app.get<double>("dt");
   const auto G = app.get<double>("-G");
   const auto theta = app.get<double>("-theta");
-  const auto sampling_rate = app.get<int>("sampling_rate");
+  const auto sampling_rate = app.get<int>("--sampling-rate");
   const auto no_output = app.get<bool>("--no-output");
-  const auto timings = app.present("timings");
+  const auto timings = app.present("--timings");
 
   auto initial_bodies = bh::load_bodies(input);
 
