@@ -31,7 +31,7 @@ int main(int argc, char* argv[]) {
       .scan<'g', double>()
       .default_value(0.000000000066743)
       .help("specify the simulation gravitational constant");
-  app.add_argument("-theta")
+  app.add_argument("-t", "--theta")
       .scan<'g', double>()
       .default_value(0.5)
       .help("specify the barnes–hut theta");
@@ -57,7 +57,7 @@ int main(int argc, char* argv[]) {
   const auto steps = app.get<int>("steps");
   const auto dt = app.get<double>("dt");
   const auto G = app.get<double>("-G");
-  const auto theta = app.get<double>("-theta");
+  const auto theta = app.get<double>("--theta");
   const auto sampling_rate = app.get<int>("--sampling-rate");
   const auto no_output = app.get<bool>("--no-output");
   const auto timings = app.present("--timings");
