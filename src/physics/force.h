@@ -42,8 +42,11 @@ Eigen::Vector2d compute_approximate_net_force_on_body(const Node& node, const Bo
  * @param body that is subject to the gravitational force of bodies
  * @return A force vector
  */
-Eigen::Vector2d compute_exact_net_force_on_body(const std::vector<Body>& bodies, const Body& body,
+Eigen::Vector2d compute_exact_net_force_on_body_parallel(const std::vector<Body>& bodies, const Body& body,
                                                 double G = NEWTONIAN_G);
+
+Eigen::Vector2d compute_exact_net_force_on_body_serial(const std::vector<Body>& bodies, const Body& body,
+                                                         double G = NEWTONIAN_G);
 
 }  // namespace bh
 

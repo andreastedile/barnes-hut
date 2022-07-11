@@ -76,8 +76,8 @@ Eigen::Vector2d compute_approximate_net_force_on_body(const Node& node, const Bo
   return std::visit(overloaded{visit_fork, visit_leaf}, node.data());
 }
 
-Eigen::Vector2d compute_exact_net_force_on_body(const std::vector<Body>& bodies, const Body& body,
-                                                double G) {
+Eigen::Vector2d compute_exact_net_force_on_body_parallel(const std::vector<Body>& bodies, const Body& body,
+                                                         double G) {
 #ifdef WITH_TBB
   return std::transform_reduce(
       std::execution::par_unseq, bodies.begin(), bodies.end(), Eigen::Vector2d{0, 0},
@@ -100,5 +100,18 @@ Eigen::Vector2d compute_exact_net_force_on_body(const std::vector<Body>& bodies,
     return net_force;
 #endif
 }
+
+Eigen::Vector2d compute_exact_net_force_on_body_serial(const std::vector<Body>& bodies, const Body& body,
+                                                double G) {
+  return std::transform_reduce(bodies.begin(), bodies.end(),
+      Eigen::Vector2d{0, 0},
+      [](const Eigen::Vector2d& total, const Eigen::Vector2d& curr) {
+        return (total + curr).eval();
+      },
+      [&](const Body& curr) {
+        return compute_gravitational_force(curr, body, G);
+      });
+}
+
 
 }  // namespace bh

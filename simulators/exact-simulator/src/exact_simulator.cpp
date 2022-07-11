@@ -3,14 +3,12 @@
 #include <spdlog/spdlog.h>
 #include <spdlog/stopwatch.h>
 
-#include "body_update.h"   // update_body
-#include "bounding_box.h"  // compute_square_bounding_box
-
-#ifdef WITH_TBB
 #include <algorithm>  // transform
 #include <execution>  // par_unseq
-#endif
-#include <utility>  // move
+#include <utility>    // move
+
+#include "body_update.h"   // update_body
+#include "bounding_box.h"  // compute_square_bounding_box
 
 namespace bh {
 
@@ -36,26 +34,45 @@ SimulationStep step(const SimulationStep& last_step, double dt, double G) {
   spdlog::stopwatch sw;
 
   std::vector<Body> new_bodies{last_step.bodies().size()};
-#ifdef WITH_TBB
-  spdlog::debug("Computing new bodies (TBB)...");
+
+#if defined(WITH_TBB) and defined(PARALLEL_BODIES_UPDATE)
+  spdlog::debug("Computing new bodies in parallel (TBB) (update of each single body is serial)...");
 
   std::transform(std::execution::par_unseq,
                  last_step.bodies().begin(), last_step.bodies().end(),
                  new_bodies.begin(),
                  [&](const Body& body) {
-                   return update_body(body, last_step.bodies(), dt, G);
+                   return update_body_serial(body, last_step.bodies(), dt, G);
                  });
 
-#else
-  spdlog::debug("Computing new bodies (OpenMP)...");
+#elif defined(WITH_TBB) and not defined(PARALLEL_BODIES_UPDATE)
+  spdlog::debug("Computing new bodies serially (update of each single body is parallel (TBB))...");
+
+  std::transform(last_step.bodies().begin(), last_step.bodies().end(),
+                 new_bodies.begin(),
+                 [&](const Body& body) {
+                   return update_body_parallel(body, last_step.bodies(), dt, G);
+                 });
+
+#elif not defined(WITH_TBB) and defined(PARALLEL_BODIES_UPDATE)
+  spdlog::debug("Computing new bodies in parallel (OpenMP) (update of each single body is serial)...");
 
 #pragma omp parallel for default(none) shared(last_step, new_bodies, dt, G)
   for (size_t i = 0; i < last_step.bodies().size(); i++) {
 #ifdef DEBUG_OPENMP_BODY_UPDATE_FOR_LOOP
     spdlog::trace("Updating body {}", i);
 #endif
-    new_bodies[i] = update_body(last_step.bodies()[i], last_step.bodies(), dt, G);
+    new_bodies[i] = update_body_serial(last_step.bodies()[i], last_step.bodies(), dt, G);
   }
+
+#elif not defined(WITH_TBB) and not defined(PARALLEL_BODIES_UPDATE)
+  spdlog::debug("Computing new bodies serially (update of each single body is parallel (OpenMP))...");
+
+  std::transform(last_step.bodies().begin(), last_step.bodies().end(),
+                 new_bodies.begin(),
+                 [&](const Body& body) {
+                   return update_body_parallel(body, last_step.bodies(), dt, G);
+                 });
 #endif
 
   m_timings.update_body += sw.elapsed();

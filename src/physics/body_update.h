@@ -14,7 +14,9 @@ namespace bh {
  * @param dt simulation timestep; defines the accuracy of the computation: the  smaller, the more accurate
  * @return a new body containing the updated position and velocity vectors
  */
-Body update_body(const Body& body, const std::vector<Body>& bodies, double dt, double G);
+Body update_body_parallel(const Body& body, const std::vector<Body>& bodies, double dt, double G);
+
+Body update_body_serial(const Body& body, const std::vector<Body>& bodies, double dt, double G);
 
 /**
  * Computes the new, approximated position and velocity vectors of the body after a simulation step_impl,

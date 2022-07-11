@@ -17,3 +17,8 @@ else ()
     endif ()
 endif ()
 target_link_libraries(exact_simulator_lib PRIVATE spdlog::spdlog)
+
+
+if (PARALLEL_BODIES_UPDATE)
+    target_compile_definitions(exact-simulator PUBLIC PARALLEL_BODIES_UPDATE)
+endif ()
