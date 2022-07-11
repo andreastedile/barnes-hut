@@ -34,12 +34,16 @@ Node::Fork::Fork(std::unique_ptr<Node> nw, std::unique_ptr<Node> ne, std::unique
 Node::Node(const Eigen::Vector2d &bottom_left, const Eigen::Vector2d &top_right)
     : m_data(Leaf()), m_box(bottom_left, top_right) {
   if (m_box.sizes().x() != m_box.sizes().y()) {
+#ifdef NO_SQUARE_BOUNDING_BOX_CHECK
+    spdlog::warn("Node's bbox is not exactly squared due to a precision error. Bbox: (min({}, {})-max({}, {})), Size: ({} x {})", bottom_left.x(), bottom_left.y(), top_right.x(), top_right.y(), m_box.sizes().x(), m_box.sizes().y());
+#else
     // clang-format off
     throw std::invalid_argument("Cannot create a non-square subquadrant. The following arguments were provided:\n"
         "min: (" + std::to_string(bottom_left.x()) + ", " + std::to_string(bottom_left.y()) + "),\n"
         "max: (" + std::to_string(top_right.x()) + ", " + std::to_string(top_right.y()) + "),\n"
         "length: " + std::to_string(m_box.sizes().x()) + ", height: " + std::to_string(m_box.sizes().y()));
     // clang-format on
+#endif
   }
 }
 
